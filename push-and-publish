@@ -1,19 +1,32 @@
 #!/bin/bash
 
-set -e
+set -x
 
 series="$2"
 charm="$1"
 
-charm_url="cs:~openstack-charmers/$series/$charm"
+charm_url="~openstack-charmers/$series/$charm"
 
-charm_ref="$(charm push $charm $charm_url | grep url | awk '{ print $2 }')"
+retry_command() {
+    command=$@
+    i=0
+    attempts=10
+    while [ $i -lt $attempts ]; do
+        $command && break
+    done
+}
+
+echo "Pushing $charm_url"
+charm_ref="$(retry_command charm push $charm $charm_url | grep url | awk '{ print $2 }')"
 if [ -z "$charm_ref" ]; then
     echo "Failed to push charm to charm-store"
     exit 1
 fi
 
-charm set $charm_url bugs-url=https://bugs.launchpad.net/charms/+source/$charm/+filebug \
+echo "Publishing charm $charm_ref"
+retry_command charm publish $charm_ref
+echo "Setting global read acl"
+retry_command charm grant $charm_url --acl read everyone
+echo "Configuring charm options"
+retry_command charm set $charm_url bugs-url=https://bugs.launchpad.net/charms/+source/$charm/+filebug \
     homepage=https://github.com/openstack/charm-$charm
-charm publish $charm_ref
-charm grant $charm_url --acl read everyone
