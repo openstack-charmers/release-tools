@@ -9,7 +9,7 @@ if [ -z "$release" ]; then
     exit 1
 fi
 
-git checkout -b ${release}-updates stable/${release}
+git checkout -b ${release}-updates origin/stable/${release}
 
 grep -q defaultbranch .gitreview || {
     echo "defaultbranch=stable/$release" >> .gitreview
