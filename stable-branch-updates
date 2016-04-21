@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e
+
+release="$1"
+
+if [ -z "$release" ]; then
+    echo "Please provide release as only parameter"
+    exit 1
+fi
+
+git checkout -b ${release}-updates stable/${release}
+
+grep -q defaultbranch .gitreview || {
+    echo "defaultbranch=stable/$release" >> .gitreview
+    git add .gitreview
+}
+
+
+if [ -f tests/basic_deployment.py ]; then
+    echo "Updating amulet tests to refer to stable branches"
+    sed -i 's/stable=False/stable=True/g' tests/basic_deployment.py
+    git add tests/basic_deployment.py
+fi
+
+for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
+    if [ -f $ch ]; then
+        sed -i 's/lp\:charm-helpers/lp\:\~openstack-charmers\/charm-helpers\/stable/g' $ch
+        git add $ch
+    fi
+done

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+
+charms="$(cat charms.txt)"
+basedir="$(pwd)"
+username="$2"
+release="$1"
+usage="usage: release-charms release-name gerrit-username"
+
+if [ -z "$release" ] || [ -z "$username" ]; then
+    echo $usage
+    exit 1
+fi
+
+for charm in $charms; do
+    [ -d $charm ] && rm -Rf $charm
+    git clone https://github.com/openstack/charm-$charm $charm
+    (
+        cd $charm
+        echo "Adding gerrit remote"
+        git remote add gerrit ssh://${username}@review.openstack.org:29418/openstack/charm-${charm}.git
+        echo "Creating stable branch for release $release"
+        $basedir/create-stable-branch $release
+    )
+done

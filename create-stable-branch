@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+release="$1"
+
+if [ -z "$release" ]; then
+    echo "Please provide release as only parameter"
+    exit 1
+fi
+
+git checkout master
+git pull
+git checkout -b stable/$release master
+git push gerrit stable/$release
