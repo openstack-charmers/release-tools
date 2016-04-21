@@ -13,5 +13,7 @@ if [ -z "$charm_ref" ]; then
     exit 1
 fi
 
+charm set $charm_url bugs-url=https://bugs.launchpad.net/charms/+source/$charm/+filebug \
+    homepage=https://github.com/openstack/charm-$charm
 charm publish $charm_ref
 charm grant $charm_url --acl read everyone
