@@ -2,12 +2,17 @@
 
 set -e
 
+release="$1"
 series="precise trusty wily xenial"
+all_charms="$(cat charms.txt)"
 
+#for charm in $all_charms; do
+#    (cd $charm; git pull origin && git checkout stable/$release)
+#done
 
 for release in $series; do
     charms=$(cat $release.txt)
     for charm in $charms; do
-        echo ./push-and-publish $charm $release
+        ./push-and-publish $charm $release
     done
 done

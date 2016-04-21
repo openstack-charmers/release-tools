@@ -13,11 +13,14 @@ retry_command() {
     attempts=10
     while [ $i -lt $attempts ]; do
         $command && break
+        let "i+=1"
     done
 }
 
 echo "Pushing $charm_url"
-charm_ref="$(retry_command charm push $charm $charm_url | grep url | awk '{ print $2 }')"
+charm_push="$(retry_command charm push $charm $charm_url)"
+charm_ref="$(echo $charm_push | grep -m 1 url | awk '{ print $2 }')"
+
 if [ -z "$charm_ref" ]; then
     echo "Failed to push charm to charm-store"
     exit 1
