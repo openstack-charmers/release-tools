@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+series="precise trusty wily xenial"
+
+
+for release in $series; do
+    charms=$(cat $release.txt)
+    for charm in $charms; do
+        echo ./push-and-publish $charm $release
+    done
+done
