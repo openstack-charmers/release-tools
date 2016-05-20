@@ -1,18 +1,22 @@
-#!/bin/bash
+#!/bin/bash -e
+#   - Presumes the charms have been cloned and the branches have been
+#       checked out in the proper dirs.
+#   - $branch is used only to determine charmstore user/url and has
+#       no effect on git branch currently.
 
-set -e
-
+branch="$2"
 release="$1"
 series="precise trusty wily xenial"
-all_charms="$(cat charms.txt)"
+usage="usage: publish-charms series <master||stable||stable/nn.nn>"
 
-#for charm in $all_charms; do
-#    (cd $charm; git pull origin && git checkout stable/$release)
-#done
+if [ -z "$release" ] || [ -z "$series" ]; then
+    echo $usage
+    exit 1
+fi
 
 for release in $series; do
     charms=$(cat $release.txt)
     for charm in $charms; do
-        ./push-and-publish $charm $release
+        ./push-and-publish $charm $release $branch
     done
 done

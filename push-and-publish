@@ -1,14 +1,56 @@
-#!/bin/bash
+#!/bin/bash -e
+# Push and Publish a Single Charm to a Single URL
+#   - Presumes the charm has been cloned and the branch has been
+#       checked out in the proper dir.
+#   - Take no action if env var DRY_RUN is True.
+#   - Listen for Jenkins $WORKSPACE env var and use it if found.
+#   - $branch is used only to determine charmstore user/url and has
+#       no effect on git branch currently.
 
-set -x
-
+branch="$3"
 series="$2"
 charm="$1"
+usage="usage: push-and-publish charmname series <master||stable||stable/nn.nn>"
 
-charm_url="~openstack-charmers/$series/$charm"
+if [ -z "$charm" ] || [ -z "$series" ]; then
+    echo $usage
+    exit 1
+fi
+
+case "$branch" in
+    "master")
+        charm_url="~openstack-charmers-next/$series/$charm"
+    ;;
+    "stable"|"stable/16.04")
+        charm_url="~openstack-charmers/$series/$charm"
+    ;;
+    *)
+        echo " ! Unable to determine master or stable"
+        echo $usage
+        exit 1
+    ;;
+esac
+
+if [ -n "$WORKSPACE" ]; then
+    # Driven by Jenkins.
+    charm_dir="$WORKSPACE/$charm"
+else
+    # Expect a local checkout in the current dir.
+    charm_dir="$charm"
+fi
+
+echo "Charm dir: $charm_dir"
+if [ ! -d $charm_dir ]; then
+    echo "$charm_dir dir does not exist, cannot push."
+    exit 1
+fi
 
 retry_command() {
     command=$@
+    if [ "${DRY_RUN^^}" == "TRUE" ]; then
+        echo "url $charm DRY RUN for:  $command"
+        command=":"
+    fi
     i=0
     attempts=10
     while [ $i -lt $attempts ]; do
@@ -18,9 +60,11 @@ retry_command() {
 }
 
 echo "Pushing $charm_url"
-charm_push="$(retry_command charm push $charm $charm_url)"
-charm_ref="$(echo $charm_push | grep -m 1 url | awk '{ print $2 }')"
+charm_push="$(retry_command charm push $charm_dir $charm_url)"
+echo $charm_push
 
+echo "Checking charm ref"
+charm_ref="$(echo $charm_push | grep -m 1 url | awk '{ print $2 }')"
 if [ -z "$charm_ref" ]; then
     echo "Failed to push charm to charm-store"
     exit 1
@@ -28,8 +72,10 @@ fi
 
 echo "Publishing charm $charm_ref"
 retry_command charm publish $charm_ref
+
 echo "Setting global read acl"
 retry_command charm grant $charm_url --acl read everyone
+
 echo "Configuring charm options"
 retry_command charm set $charm_url bugs-url=https://bugs.launchpad.net/charms/+source/$charm/+filebug \
     homepage=https://github.com/openstack/charm-$charm

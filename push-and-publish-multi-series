@@ -1,0 +1,27 @@
+#!/bin/bash -e
+# Push and Publish a Single Charm to its Defined Series
+#   - Presumes the charms have been cloned and the branches have been
+#       checked out in the proper dirs.
+#   - Take no action if env var DRY_RUN is True.
+#   - Listen for Jenkins $WORKSPACE env var and use it if found.
+#   - $branch is used only to determine charmstore user/url and has
+#       no effect on git branch currently.
+
+branch="$2"
+charm="$1"
+series="precise trusty wily xenial"
+usage="usage: push-and-publish-multi-series charmname <master||stable||stable/nn.nn>"
+
+if [ -z "$charm" ] || [ -z "$branch" ]; then
+    echo $usage
+    exit 1
+fi
+
+for release in $series; do
+    charms=$(cat $release.txt)
+    for charm_check in $charms; do
+        if [ "$charm_check" == "$charm" ]; then
+            ./push-and-publish $charm $release $branch
+        fi
+    done
+done
