@@ -21,7 +21,12 @@ for release in $series; do
     charms=$(cat $release.txt)
     for charm_check in $charms; do
         if [ "$charm_check" == "$charm" ]; then
+            found=true
             ./push-and-publish $charm $release $branch
         fi
     done
 done
+
+if [ -z "$found" ]; then
+    echo "$charm not found in defined lists.  No action taken."
+fi
