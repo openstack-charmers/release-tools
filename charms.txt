@@ -8,6 +8,7 @@ cinder
 cinder-backup
 cinder-ceph
 glance
+hacluster
 heat
 keystone
 lxd
@@ -24,3 +25,4 @@ percona-cluster
 rabbitmq-server
 swift-proxy
 swift-storage
+tempest
