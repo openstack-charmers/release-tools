@@ -46,7 +46,7 @@ if [ ! -d $charm_dir ]; then
 fi
 
 # Stamp the charm with repo info before pushing
-./generate-artifact-info $charm_dir |& tee $charm_dir/.charm-push-stamp
+./generate-repo-info $charm_dir |& tee $charm_dir/repo-info
 
 retry_command() {
     command=$@
