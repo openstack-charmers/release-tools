@@ -1,0 +1,68 @@
+#!/bin/bash -e
+# Build a charm, trying various approaches in play by different
+# charms, also allowing manual and automated calls.
+#
+# Allow OSCI env var usage or command line positional parameters.
+#
+# Some layer assets may be blocked by egress firewalls.  It may
+# be necessary to use an http_proxy (set env var beforehand if so).
+#
+# OSCI env vars to consume if avail:
+#   CO_DIR is the local repo checkout directory
+#   BASE_NAME is the charm name (keystone, not charm-keystone)
+#
+[[ -z "$CO_DIR" ]] && CO_DIR="$1"
+[[ -z "$BASE_NAME" ]] && BASE_NAME="$2"
+
+usage="usage: build-thing <checkout-dir> <charmname>
+
+Or, an env var usage example:
+export CO_DIR="path/to/a/git/clones/tempest"
+export BASE_NAME="tempest"
+./build-thing
+"
+
+# Pre-flight checks (must be fatal)
+if [[ ! -d "$CO_DIR" ]]; then
+  echo "$usage"
+  echo " ! CO_DIR (checkout dir) not found: $CO_DIR"
+  exit 1
+fi
+
+if [[ -z "$BASE_NAME" ]]; then
+  echo "$usage"
+  echo " ! BASE_NAME (charm name) not defined"
+  exit 1
+fi
+
+# Build!
+# Prefer building via tox. Attempt to fall back to charm build.
+DIR="$(pwd)"
+if grep "^\[testenv:build\]$" $CO_DIR/tox.ini &> /dev/null; then
+  echo " . Building $CO_DIR ($BASE_NAME) via tox"
+  cd $CO_DIR
+  tox -e build
+  cd $DIR
+elif grep "^\[testenv:generate\]$" $CO_DIR/tox.ini &> /dev/null; then
+  echo " . Building $CO_DIR ($BASE_NAME) via tox [DEPRECATION NOTICE: generate tox enviro needs to be renamed to build]"
+  cd $CO_DIR
+  tox -e generate
+  cd $DIR
+else
+  echo " . Building $CO_DIR ($BASE_NAME) without tox (charm build)"
+  cd $CO_DIR
+  charm build -o build
+  cd $DIR
+fi
+
+# Confirm and Announce
+export BUILT_ASSET_DIR="$CO_DIR/build/trusty/$BASE_NAME"
+if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] or \
+   [[ ! -f "$BUILT_ASSET_DIR/metadata.yaml" ]] or \
+   [[ ! -f "$BUILT_ASSET_DIR/README.md" ]] or \
+   [[ ! -f "$BUILT_ASSET_DIR/metadata.yaml" ]]; then
+  echo " ! Unable to confirm built asset in: $BUILT_ASSET_DIR"
+  exit 1
+fi
+
+echo " . Built asset dir:  $BUILT_ASSET_DIR"
