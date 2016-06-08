@@ -45,6 +45,9 @@ if [ ! -d $charm_dir ]; then
     exit 1
 fi
 
+# Stamp the charm with repo info before pushing
+./generate-artifact-info $charm_dir |& tee $charm_dir/.charm-push-stamp
+
 retry_command() {
     command=$@
     if [ "${DRY_RUN^^}" == "TRUE" ]; then
