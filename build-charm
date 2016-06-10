@@ -4,7 +4,7 @@
 #
 # Allow OSCI env var usage or command line positional parameters.
 #
-# Some layer assets may be blocked by egress firewalls.  It may
+# Some layer assets may be blocked by egress firewalls. It may
 # be necessary to use an http_proxy (set env var beforehand if so).
 #
 # OSCI env vars to consume if avail:
@@ -17,7 +17,7 @@
 usage="usage: build-thing <checkout-dir> <charmname>
 
 Or, an env var usage example:
-export CO_DIR="path/to/a/git/clones/tempest"
+export CO_DIR="path/to/git/clone/of/charm-tempest"
 export BASE_NAME="tempest"
 ./build-thing
 "
@@ -55,14 +55,15 @@ else
   cd $DIR
 fi
 
-# Confirm and Announce
-export BUILT_ASSET_DIR="$CO_DIR/build/trusty/$BASE_NAME"
-if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] or \
-   [[ ! -f "$BUILT_ASSET_DIR/metadata.yaml" ]] or \
-   [[ ! -f "$BUILT_ASSET_DIR/README.md" ]] or \
+# A very basic validation of the built artifact
+export BUILT_ASSET_DIR="$(readlink -f $CO_DIR/build/trusty/$BASE_NAME)"
+if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] || \
+   [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]] || \
+   [[ ! -f "$BUILT_ASSET_DIR/copyright" ]] || \
+   [[ ! -f "$BUILT_ASSET_DIR/README.md" ]] || \
    [[ ! -f "$BUILT_ASSET_DIR/metadata.yaml" ]]; then
-  echo " ! Unable to confirm built asset in: $BUILT_ASSET_DIR"
+  echo " ! Unable to confirm the built artifact in: $BUILT_ASSET_DIR"
   exit 1
 fi
 
-echo " . Built asset dir:  $BUILT_ASSET_DIR"
+echo " . Built asset dir: $BUILT_ASSET_DIR"
