@@ -13,7 +13,7 @@ commit-short: $(git rev-parse --short HEAD)
 branch: $(git rev-parse --abbrev-ref HEAD)
 remote: $(git config --get remote.origin.url)
 push-initiated: $(date -u)
-note: This file should exist only in a published charm artifact (not in the charm source code tree)."
+note: This file should exist only in a built charm artifact (not in the charm source code tree)."
 
 if [[ -n "$PARAM1" ]]; then
     cd $DIR
