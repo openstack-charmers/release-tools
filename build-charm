@@ -1,62 +1,65 @@
 #!/bin/bash -e
-# Build a charm, trying various approaches in play by different
-# charms, also allowing manual and automated calls.
+# Build a charm from a local checkout/clone directory, trying various
+# approaches in play by different charms, also allowing manual and
+# automated calls.
 #
-# Allow OSCI env var usage or command line positional parameters.
-#
-# Some layer assets may be blocked by egress firewalls. It may
+# Some layer components may be blocked by egress firewalls. It may
 # be necessary to use an http_proxy (set env var beforehand if so).
-#
-# OSCI env vars to consume if avail:
-#   CO_DIR is the local repo checkout directory
-#   BASE_NAME is the charm name (keystone, not charm-keystone)
-#
-[[ -z "$CO_DIR" ]] && CO_DIR="$1"
-[[ -z "$BASE_NAME" ]] && BASE_NAME="$2"
 
-usage="usage: build-thing <checkout-dir> <charmname>
+charm_dir="$1"
+charm_name="$2"
+usage="usage: build-charm <charm checkout dir> <charm name>
+  ex:
+    ./build-charm /path/to/git/clone/of/charm-tempest tempest
 
-Or, an env var usage example:
-export CO_DIR="path/to/git/clone/of/charm-tempest"
-export BASE_NAME="tempest"
-./build-thing
+  If <charm name> is not provided, attempt to detect and set
+  it from the charm checkout dir.
 "
 
-# Pre-flight checks (must be fatal)
-if [[ ! -d "$CO_DIR" ]]; then
+if [[ ! -d "$charm_dir" ]]; then
   echo "$usage"
-  echo " ! CO_DIR (checkout dir) not found: $CO_DIR"
+  echo " ! charm_dir ($charm_dir) not found"
   exit 1
 fi
 
-if [[ -z "$BASE_NAME" ]]; then
-  echo "$usage"
-  echo " ! BASE_NAME (charm name) not defined"
-  exit 1
+# Attempt to learn the charm name from the charm dir if not specified.
+# Where charm dir is:  /path/to/charm-foo  [or]  /path/to/foo  [or just]  foo
+if [[ -z "$charm_name" ]]; then
+  charm_name="$(echo "$charm_dir" | sed -n -e 's/^.*charm-//p')"
+  [[ -z "$charm_name" ]] && charm_name="${charm_dir##*/}"
+  [[ -z "$charm_name" ]] && charm_name="$charm_dir"
+  echo " + Autodetected charm name as: $charm_name"
 fi
+
+# Very basic pre-flight checks
+[[ ! -f "$charm_dir/layer.yaml" ]] && (echo " ! $charm_name has no layer.yaml"; exit 1)
+[[ ! -f "$charm_dir/metadata.yaml" ]] && (echo " ! $charm_name has no metadata.yaml"; exit 1)
+[[ ! -f "$charm_dir/config.yaml" ]] && (echo " ! $charm_name has no config.yaml"; exit 1)
 
 # Build!
 # Prefer building via tox. Attempt to fall back to charm build.
 DIR="$(pwd)"
-if grep "^\[testenv:build\]$" $CO_DIR/tox.ini &> /dev/null; then
-  echo " . Building $CO_DIR ($BASE_NAME) via tox"
-  cd $CO_DIR
+if grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null; then
+  echo " . Building $charm_dir ($charm_name) via tox"
+  cd $charm_dir
   tox -e build
   cd $DIR
-elif grep "^\[testenv:generate\]$" $CO_DIR/tox.ini &> /dev/null; then
-  echo " . Building $CO_DIR ($BASE_NAME) via tox [DEPRECATION NOTICE: generate tox enviro needs to be renamed to build]"
-  cd $CO_DIR
+elif grep "^\[testenv:generate\]$" $charm_dir/tox.ini &> /dev/null; then
+  echo " . Building $charm_dir ($charm_name) via tox [DEPRECATION NOTICE: generate tox enviro needs to be renamed to build]"
+  cd $charm_dir
   tox -e generate
   cd $DIR
 else
-  echo " . Building $CO_DIR ($BASE_NAME) without tox (charm build)"
-  cd $CO_DIR
+  echo " . Falling back to building $charm_dir ($charm_name) without tox. This may fail. The charm should support 'tox -e build'!"
+  cd $charm_dir
   charm build -o build
   cd $DIR
 fi
 
-# A very basic validation of the built artifact
-export BUILT_ASSET_DIR="$(readlink -f $CO_DIR/build/trusty/$BASE_NAME)"
+# OSCI automation relies on this env var being set after build.
+export BUILT_ASSET_DIR="$(readlink -f $charm_dir/build/trusty/$charm_name)"
+
+# A very basic validation of the built artifact.
 if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] || \
    [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]] || \
    [[ ! -f "$BUILT_ASSET_DIR/copyright" ]] || \
