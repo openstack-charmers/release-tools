@@ -105,6 +105,10 @@ if [ -z "$charm_ref" ]; then
     exit 1
 fi
 
+# Collect charm_ref(s) in tmp file if available.  This is used by OSCI notifications.
+[[ -n "$cs_refs_published" ]] && echo $charm_ref >> $cs_refs_published
+
+
 echo " . Publishing charm $charm_ref"
 retry_command charm publish $charm_ref
 

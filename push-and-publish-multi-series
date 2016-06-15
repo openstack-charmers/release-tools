@@ -9,6 +9,7 @@ branch="$2"
 charm="$1"
 series="precise trusty wily xenial"
 usage="usage: push-and-publish-multi-series charmname <master||stable||stable/nn.nn>"
+export cs_refs_published="$(mktemp)"
 
 if [ -z "$charm" ] || [ -z "$branch" ]; then
     echo $usage
@@ -26,6 +27,15 @@ for this_series in $series; do
         fi
     done
 done
+
+echo " . Charm store refs published:"
+cat $cs_refs_published
+
+if [[ -n "$WORKSPACE" ]]; then
+  mv -v $cs_refs_published $WORKSPACE/cs_refs_published.txt
+else
+  rm -fv $cs_refs_published
+fi
 
 # Fatal if not found
 if [ -z "$found" ]; then
