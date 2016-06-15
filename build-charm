@@ -22,6 +22,7 @@ if [[ ! -d "$charm_dir" ]]; then
   exit 1
 fi
 
+
 # Attempt to learn the charm name from the charm dir if not specified.
 # Where charm dir is:  /path/to/charm-foo  [or]  /path/to/foo  [or just]  foo
 if [[ -z "$charm_name" ]]; then
@@ -31,10 +32,24 @@ if [[ -z "$charm_name" ]]; then
   echo " + Autodetected charm name as: $charm_name"
 fi
 
+
 # Very basic pre-flight checks
-[[ ! -f "$charm_dir/layer.yaml" ]] && (echo " ! $charm_name has no layer.yaml"; exit 1)
-[[ ! -f "$charm_dir/metadata.yaml" ]] && (echo " ! $charm_name has no metadata.yaml"; exit 1)
-[[ ! -f "$charm_dir/config.yaml" ]] && (echo " ! $charm_name has no config.yaml"; exit 1)
+if [[ ! -f "$charm_dir/layer.yaml" ]] &&\
+   [[ ! -f "$charm_dir/src/layer.yaml" ]]; then
+  echo " ! $charm_name has no layer.yaml"
+  exit 1
+fi
+if [[ ! -f "$charm_dir/metadata.yaml" ]] &&\
+   [[ ! -f "$charm_dir/src/metadata.yaml" ]]; then
+  echo " ! $charm_name has no metadata.yaml"
+  exit 1
+fi
+if [[ ! -f "$charm_dir/config.yaml" ]] &&\
+   [[ ! -f "$charm_dir/src/config.yaml" ]]; then
+  echo " ! $charm_name has no config.yaml"
+  exit 1
+fi
+
 
 # Build!
 # Prefer building via tox. Attempt to fall back to charm build.
@@ -56,8 +71,10 @@ else
   cd $DIR
 fi
 
+
 # OSCI automation relies on this env var being set after build.
 export BUILT_ASSET_DIR="$(readlink -f $charm_dir/build/trusty/$charm_name)"
+
 
 # A very basic validation of the built artifact.
 if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] || \
