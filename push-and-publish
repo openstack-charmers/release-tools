@@ -36,8 +36,8 @@ if [[ -n "$BUILT_ASSET_DIR" ]]; then
   charm_dir="$BUILT_ASSET_DIR"
 
 elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
-     [[ -f "$charm_dir/layer.yaml" ]] &&\
-     [[ ! -f "$charm_dir/.build.manifest" ]]; then
+     [[ ! -f "$charm_dir/.build.manifest" ]] &&\
+     [[ ! -f "$charm_dir/src/.build.manifest" ]]; then
 
   # Build!
   echo " . $charm ($charm_dir) needs to build before pushing or publishing"
