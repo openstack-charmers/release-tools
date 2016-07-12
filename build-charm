@@ -75,13 +75,17 @@ fi
 # OSCI automation relies on this env var being set after build.
 export BUILT_ASSET_DIR="$(readlink -f $charm_dir/build/trusty/$charm_name)"
 
-
 # A very basic validation of the built artifact.
-if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] || \
-   [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]] || \
-   [[ ! -f "$BUILT_ASSET_DIR/copyright" ]] || \
-   [[ ! -f "$BUILT_ASSET_DIR/README.md" ]] || \
-   [[ ! -f "$BUILT_ASSET_DIR/metadata.yaml" ]]; then
+
+# XXX: Revisit logic check - this is valid for a real built charm
+#      but not for a layer build test.
+#if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] || \
+#   [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]] || \
+#   [[ ! -f "$BUILT_ASSET_DIR/copyright" ]] || \
+#   [[ ! -f "$BUILT_ASSET_DIR/README.md" ]] || \
+#   [[ ! -f "$BUILT_ASSET_DIR/metadata.yaml" ]]; then
+
+if [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]]; then
   echo " ! Unable to confirm the built artifact in: $BUILT_ASSET_DIR"
   exit 1
 fi
