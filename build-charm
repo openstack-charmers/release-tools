@@ -39,11 +39,6 @@ if [[ ! -f "$charm_dir/layer.yaml" ]] &&\
   echo " ! $charm_name has no layer.yaml"
   exit 1
 fi
-if [[ ! -f "$charm_dir/metadata.yaml" ]] &&\
-   [[ ! -f "$charm_dir/src/metadata.yaml" ]]; then
-  echo " ! $charm_name has no metadata.yaml"
-  exit 1
-fi
 if [[ ! -f "$charm_dir/config.yaml" ]] &&\
    [[ ! -f "$charm_dir/src/config.yaml" ]]; then
   echo " ! $charm_name has no config.yaml"
