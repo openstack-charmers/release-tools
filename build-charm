@@ -60,10 +60,15 @@ elif grep "^\[testenv:generate\]$" $charm_dir/tox.ini &> /dev/null; then
   tox -e generate
   cd $DIR
 else
-  echo " . Falling back to building $charm_dir ($charm_name) without tox. This may fail. The charm should support 'tox -e build'!"
-  cd $charm_dir
-  charm build -o build
-  cd $DIR
+  echo " . No tox build target in $charm_dir ($charm_name). The charm should support 'tox -e build'!"
+  exit 1
+#else
+# This is not desired for OpenStack CI, but leaving commented in place
+# as the fallback approach may be valuable for others to optionally use.
+#  echo " . Falling back to building $charm_dir ($charm_name) without tox. This may fail. The charm should support 'tox -e build'!"
+#  cd $charm_dir
+#  charm build -o build
+#  cd $DIR
 fi
 
 
