@@ -18,7 +18,6 @@ File | Purpose / Note
 ```stable-branch-updates``` | *Not automated*
 ```trusty.txt``` | *A list of charms to publish only for this series/release.*
 ```update-stable-charms``` | *Not automated*
-```wily.txt``` | *A list of charms to publish only for this series/release.*
 ```xenial.txt``` | *A list of charms to publish only for this series/release.*
 
 ## To-Do
