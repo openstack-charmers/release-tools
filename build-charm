@@ -1,7 +1,5 @@
 #!/bin/bash -e
-# Build a charm from a local checkout/clone directory, trying various
-# approaches in play by different charms, also allowing manual and
-# automated calls.
+# Build a src charm or layer from a local checkout/clone directory.
 #
 # Some layer components may be blocked by egress firewalls. It may
 # be necessary to use an http_proxy (set env var beforehand if so).
@@ -22,16 +20,21 @@ if [[ ! -d "$charm_dir" ]]; then
   exit 1
 fi
 
+# Attempt to learn the charm name from the metadata.yaml if not specified as a parameter.
+if [[ -z "$charm_name" ]] && [[ -f $charm_dir/metadata.yaml ]]; then
+  charm_name="$(grep "^name:" $charm_dir/metadata.yaml | awk '{ print $2 }')"
+  echo " + Charm name from metadata is: $charm_name"
+fi
 
-# Attempt to learn the charm name from the charm dir if not specified.
-# Where charm dir is:  /path/to/charm-foo  [or]  /path/to/foo  [or just]  foo
+# Attempt to learn the charm name from the charm dir if not specified as a paremeter,
+# and not specified in metadata.yaml.  Where charm dir is:
+#     /path/to/charm-foo  [or]  /path/to/foo  [or just]  foo
 if [[ -z "$charm_name" ]]; then
   charm_name="$(echo "$charm_dir" | sed -n -e 's/^.*charm-//p')"
   [[ -z "$charm_name" ]] && charm_name="${charm_dir##*/}"
   [[ -z "$charm_name" ]] && charm_name="$charm_dir"
-  echo " + Autodetected charm name as: $charm_name"
+  echo " + Presumed charm name based on directory: $charm_name"
 fi
-
 
 # Very basic pre-flight checks
 if [[ ! -f "$charm_dir/layer.yaml" ]] &&\
@@ -45,46 +48,34 @@ if [[ ! -f "$charm_dir/config.yaml" ]] &&\
   exit 1
 fi
 
-
-# Build!
-# Prefer building via tox. Attempt to fall back to charm build.
-DIR="$(pwd)"
+# Build via tox
 if grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null; then
   echo " . Building $charm_dir ($charm_name) via tox"
+  DIR="$(pwd)"
   cd $charm_dir
   tox -e build
-  cd $DIR
-elif grep "^\[testenv:generate\]$" $charm_dir/tox.ini &> /dev/null; then
-  echo " . Building $charm_dir ($charm_name) via tox [DEPRECATION NOTICE: generate tox enviro needs to be renamed to build]"
-  cd $charm_dir
-  tox -e generate
   cd $DIR
 else
   echo " . No tox build target in $charm_dir ($charm_name). The charm should support 'tox -e build'!"
   exit 1
-#else
-# This is not desired for OpenStack CI, but leaving commented in place
-# as the fallback approach may be valuable for others to optionally use.
-#  echo " . Falling back to building $charm_dir ($charm_name) without tox. This may fail. The charm should support 'tox -e build'!"
-#  cd $charm_dir
-#  charm build -o build
-#  cd $DIR
 fi
-
 
 # OSCI automation relies on this env var being set after build.
 export BUILT_ASSET_DIR="$(readlink -f $charm_dir/build/trusty/$charm_name)"
 
-# A very basic validation of the built artifact.
-
-# XXX: Revisit logic check - this is valid for a real built charm
-#      but not for a layer build test.
-#if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] || \
-#   [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]] || \
-#   [[ ! -f "$BUILT_ASSET_DIR/copyright" ]] || \
-#   [[ ! -f "$BUILT_ASSET_DIR/README.md" ]] || \
-#   [[ ! -f "$BUILT_ASSET_DIR/metadata.yaml" ]]; then
-
+# Very basic validation of the built artifact.
+if [[ -d $charm_dir/src ]]; then
+  # Expect files to exist in all built src charms.  These may or may not
+  # exist in layer test builds.
+  if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] || \
+     [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]] || \
+     [[ ! -f "$BUILT_ASSET_DIR/copyright" ]] || \
+     [[ ! -f "$BUILT_ASSET_DIR/README.md" ]] || \
+     [[ ! -f "$BUILT_ASSET_DIR/metadata.yaml" ]]; then
+    echo " ! Built charm will not pass later proof tests: $BUILT_ASSET_DIR"
+    exit 1
+  fi
+fi
 if [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]]; then
   echo " ! Unable to confirm the built artifact in: $BUILT_ASSET_DIR"
   exit 1
