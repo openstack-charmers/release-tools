@@ -20,20 +20,24 @@ if [[ ! -d "$charm_dir" ]]; then
   exit 1
 fi
 
-# Attempt to learn the charm name from the metadata.yaml if not specified as a parameter.
-if [[ -z "$charm_name" ]] && [[ -f $charm_dir/metadata.yaml ]]; then
-  charm_name="$(grep "^name:" $charm_dir/metadata.yaml | awk '{ print $2 }')"
-  echo " + Charm name from metadata is: $charm_name"
-fi
-
-# Attempt to learn the charm name from the charm dir if not specified as a paremeter,
-# and not specified in metadata.yaml.  Where charm dir is:
-#     /path/to/charm-foo  [or]  /path/to/foo  [or just]  foo
+# Attempt to learn the charm/asset name from the metadata.yaml if not specified
+# as a parameter, then from the charm dir if not specified in metadata.yaml.
 if [[ -z "$charm_name" ]]; then
-  charm_name="$(echo "$charm_dir" | sed -n -e 's/^.*charm-//p')"
+  # Prefer name from metadata yaml
+  charm_name="$(grep "^name:" $charm_dir/src/metadata.yaml | awk '{ print $2 }')"
+  [[ -z "$charm_name" ]] && charm_name="$(grep "^name:" $charm_dir/metadata.yaml | awk '{ print $2 }')"
+
+  # /path/to/charm-foo yields foo
+  [[ -z "$charm_name" ]] && charm_name="$(echo "$charm_dir" | sed -n -e 's/^.*charm-//p')"
+
+  # /path/to/charm-foo yields charm-foo
   [[ -z "$charm_name" ]] && charm_name="${charm_dir##*/}"
+
+  # /path/to/charm-foo yields /path/to/charm-foo
   [[ -z "$charm_name" ]] && charm_name="$charm_dir"
-  echo " + Presumed charm name based on directory: $charm_name"
+  echo " + Autodetected charm name as: $charm_name"
+else
+  echo " + Using specified charm name: $charm_name"
 fi
 
 # Very basic pre-flight checks
