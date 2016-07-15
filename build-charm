@@ -46,11 +46,6 @@ if [[ ! -f "$charm_dir/layer.yaml" ]] &&\
   echo " ! $charm_name has no layer.yaml"
   exit 1
 fi
-if [[ ! -f "$charm_dir/config.yaml" ]] &&\
-   [[ ! -f "$charm_dir/src/config.yaml" ]]; then
-  echo " ! $charm_name has no config.yaml"
-  exit 1
-fi
 
 # Build via tox
 if grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null; then
