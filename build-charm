@@ -59,8 +59,16 @@ else
   exit 1
 fi
 
+# Adjust for differing build paths
+if grep "^series:$" $charm_dir/src/metadata.yaml &> /dev/null; then
+  echo " . $charm_dir is a multi-series charm based on its metadata.yaml"
+  EXPECTED_BUILD_DIR="$charm_dir/build/builds/$charm_name"
+else
+  EXPECTED_BUILD_DIR="$charm_dir/build/trusty/$charm_name"
+fi
+
 # OSCI automation relies on this env var being set after build.
-export BUILT_ASSET_DIR="$(readlink -f $charm_dir/build/trusty/$charm_name)"
+export BUILT_ASSET_DIR="$(readlink -f $EXPECTED_BUILD_DIR)"
 
 # Very basic validation of the built artifact.
 if [[ -d $charm_dir/src ]]; then

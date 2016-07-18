@@ -1,4 +1,3 @@
-aodh
 barbican
 barbican-softhsm
 ceilometer
