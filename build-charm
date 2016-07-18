@@ -60,7 +60,7 @@ else
 fi
 
 # Adjust for differing build paths
-if grep "^series:$" $charm_dir/src/metadata.yaml &> /dev/null; then
+if grep '^\"\?series\"\?:$' $charm_dir/src/metadata.yaml &> /dev/null; then
   echo " . $charm_dir is a multi-series charm based on its metadata.yaml"
   EXPECTED_BUILD_DIR="$charm_dir/build/builds/$charm_name"
 else

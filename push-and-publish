@@ -54,14 +54,25 @@ else
   echo " . $charm ($charm_dir) does not need to build before pushing or publishing"
 fi
 
+# Ignore series if declared as a proper multi-series charm
+if [[ "$series" == "multi" ]]; then
+  series=""
+  # Confirm series is declared in charm's metadata.yaml
+  if ! grep '^\"\?series\"\?:$' $charm_dir/metadata.yaml &> /dev/null; then
+    echo " ! $charm ($charm_dir) declared as multi-series but its metadata.yaml indicates otherwise"
+    exit 1
+  fi
+else
+  series_txt="$series/"
+fi
 
 # Set charm store URL based on branch value passed
 case "$branch" in
     "master")
-        charm_store_url="~openstack-charmers-next/$series/$charm"
+        charm_store_url="~openstack-charmers-next/${series_txt}${charm}"
     ;;
     "stable"|"stable/16.04")
-        charm_store_url="~openstack-charmers/$series/$charm"
+        charm_store_url="~openstack-charmers/${series_txt}${charm}"
     ;;
     *)
         echo " ! Unable to determine master or stable"

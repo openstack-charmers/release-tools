@@ -16,7 +16,9 @@ if [ -z "$charm" ] || [ -z "$branch" ]; then
     exit 1
 fi
 
-# Push and publish for all relevant series of the charm
+# Push and publish for all relevant series of the charms which
+# use the legacy simulated multiple series approach of pushing
+# to individual cs series spaces.
 for this_series in $series; do
     charms=$(cat $this_series.txt)
     for charm_check in $charms; do
@@ -27,6 +29,20 @@ for this_series in $series; do
         fi
     done
 done
+
+# Push and publish for proper multi-series charms, where
+# series is declared in the metadata.yaml for cs: to interpret.
+if [ -z "$found" ]; then
+    charms=$(cat multi.txt)
+    for charm_check in $charms; do
+        if [ "$charm_check" == "$charm" ]; then
+            found=true
+            echo " . Handling $charm as a proper multi-series charm"
+            # Source it to preserve BUILT_ASSET_DIR, etc.
+            . push-and-publish $charm multi $branch
+        fi
+    done
+fi
 
 echo " . Charm store refs published:"
 cat $cs_refs_published
