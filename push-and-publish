@@ -127,5 +127,14 @@ echo " . Granting global read acl"
 retry_command charm grant $charm_store_url --acl read everyone
 
 echo " . Setting charm homepage and bugs-url options"
-retry_command charm set $charm_store_url bugs-url=https://bugs.launchpad.net/charms/+source/$charm/+filebug \
+
+# Handle bug url overrides if present
+if grep "^$charm|" bug-link-overrides.txt; then
+   BUGS_URL=$(grep "^$charm|" bug-link-overrides.txt | cut -f 2 -d "|")
+else
+   BUGS_URL="https://bugs.launchpad.net/charms/+source/$charm/+filebug"
+fi
+
+retry_command charm set $charm_store_url bugs-url=$BUGS_URL \
     homepage=https://github.com/openstack/charm-$charm
+

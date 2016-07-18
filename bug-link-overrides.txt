@@ -1,0 +1,2 @@
+aodh|https://bugs.launchpad.net/charm-aodh
+tempest|https://bugs.launchpad.net/charm-tempest
