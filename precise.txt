@@ -3,6 +3,7 @@ ceilometer-agent
 ceph
 ceph-osd
 ceph-mon
+ceph-proxy
 ceph-radosgw
 cinder
 cinder-backup
@@ -19,3 +20,4 @@ openstack-dashboard
 rabbitmq-server
 swift-proxy
 swift-storage
+tempest

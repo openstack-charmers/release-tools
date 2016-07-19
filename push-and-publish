@@ -1,11 +1,8 @@
 #!/bin/bash -e
-# Push and Publish a Single Charm to a Single URL
-#   - Presumes the charm has been cloned and the branch has been
-#       checked out in the proper dir.
-#   - Take no action if env var DRY_RUN is True.
+# Push and Publish a Single Charm to a Single URL, from an already checked-out
+# charm dir, where the desired git branch is already checked out.
+#   - Take no action if env var CHARM_PUSH_DRY_RUN is True.
 #   - Listen for Jenkins $WORKSPACE env var and use it if found.
-#   - $branch is used only to determine charmstore user/url and has
-#       no effect on git branch currently.
 
 branch="$3"
 series="$2"
@@ -17,12 +14,65 @@ if [ -z "$charm" ] || [ -z "$series" ]; then
     exit 1
 fi
 
+
+# Override charm dir when driven by Jenkins.
+# Otherwise, use cmd param provided.
+if [ -n "$WORKSPACE" ]; then
+    # Driven by Jenkins.
+    charm_dir="$WORKSPACE/$charm"
+else
+    # Expect a local checkout in the current dir.
+    charm_dir="$charm"
+fi
+if [ ! -d $charm_dir ]; then
+    echo "$charm_dir dir does not exist, cannot push."
+    exit 1
+fi
+
+
+# Build if necessary, use build dir if already built.
+if [[ -n "$BUILT_ASSET_DIR" ]]; then
+  echo " . $charm is a built charm asset"
+  charm_dir="$BUILT_ASSET_DIR"
+
+elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
+     [[ ! -f "$charm_dir/.build.manifest" ]] &&\
+     [[ ! -f "$charm_dir/src/.build.manifest" ]]; then
+
+  # Build!
+  echo " . $charm ($charm_dir) needs to build before pushing or publishing"
+
+  # Source it to preserve BUILT_ASSET_DIR, etc.
+  . build-charm $charm_dir
+
+  # Check for required value
+  [[ -z "$BUILT_ASSET_DIR" ]] && (echo " ! Built charm asset dir invalid"; exit 1)
+
+  # Use the built charm asset dir instead of the checked out repo dir
+  charm_dir="$BUILT_ASSET_DIR"
+else
+  echo " . $charm ($charm_dir) does not need to build before pushing or publishing"
+fi
+
+# Ignore series if declared as a proper multi-series charm
+if [[ "$series" == "multi" ]]; then
+  series=""
+  # Confirm series is declared in charm's metadata.yaml
+  if ! grep '^\"\?series\"\?:$' $charm_dir/metadata.yaml &> /dev/null; then
+    echo " ! $charm ($charm_dir) declared as multi-series but its metadata.yaml indicates otherwise"
+    exit 1
+  fi
+else
+  series_txt="$series/"
+fi
+
+# Set charm store URL based on branch value passed
 case "$branch" in
     "master")
-        charm_url="~openstack-charmers-next/$series/$charm"
+        charm_store_url="~openstack-charmers-next/${series_txt}${charm}"
     ;;
     "stable"|"stable/16.04")
-        charm_url="~openstack-charmers/$series/$charm"
+        charm_store_url="~openstack-charmers/${series_txt}${charm}"
     ;;
     *)
         echo " ! Unable to determine master or stable"
@@ -31,23 +81,11 @@ case "$branch" in
     ;;
 esac
 
-if [ -n "$WORKSPACE" ]; then
-    # Driven by Jenkins.
-    charm_dir="$WORKSPACE/$charm"
-else
-    # Expect a local checkout in the current dir.
-    charm_dir="$charm"
-fi
 
-echo "Charm dir: $charm_dir"
-if [ ! -d $charm_dir ]; then
-    echo "$charm_dir dir does not exist, cannot push."
-    exit 1
-fi
-
+# Wrapper to deal with potential charm store timeouts
 retry_command() {
     command=$@
-    if [ "${DRY_RUN^^}" == "TRUE" ]; then
+    if [ "${CHARM_PUSH_DRY_RUN^^}" == "TRUE" ]; then
         echo "url $charm DRY RUN for:  $command"
         command=":"
     fi
@@ -59,23 +97,44 @@ retry_command() {
     done
 }
 
-echo "Pushing $charm_url"
-charm_push="$(retry_command charm push $charm_dir $charm_url)"
+
+# And, go!
+echo -e "\n*$charm $series $branch*"
+echo " + Generating repo info and adding as $charm_dir/repo-info"
+./generate-repo-info $charm_dir > $charm_dir/repo-info
+echo "$(cat $charm_dir/repo-info | sed -e 's/^/   /')"
+
+echo " + Pushing $charm_store_url from path: $charm_dir"
+charm_push="$(retry_command charm push $charm_dir $charm_store_url)"
 echo $charm_push
 
-echo "Checking charm ref"
+echo " . Checking charm ref"
 charm_ref="$(echo $charm_push | grep -m 1 url | awk '{ print $2 }')"
+echo $charm_ref
 if [ -z "$charm_ref" ]; then
-    echo "Failed to push charm to charm-store"
+    echo " ! Failed to push charm to charm-store"
     exit 1
 fi
 
-echo "Publishing charm $charm_ref"
+# Collect charm_ref(s) in tmp file if available.  This is used by OSCI notifications.
+[[ -n "$cs_refs_published" ]] && echo $charm_ref >> $cs_refs_published
+
+
+echo " . Publishing charm $charm_ref"
 retry_command charm publish $charm_ref
 
-echo "Setting global read acl"
-retry_command charm grant $charm_url --acl read everyone
+echo " . Granting global read acl"
+retry_command charm grant $charm_store_url --acl read everyone
 
-echo "Configuring charm options"
-retry_command charm set $charm_url bugs-url=https://bugs.launchpad.net/charms/+source/$charm/+filebug \
+echo " . Setting charm homepage and bugs-url options"
+
+# Handle bug url overrides if present
+if grep "^$charm|" bug-link-overrides.txt; then
+   BUGS_URL=$(grep "^$charm|" bug-link-overrides.txt | cut -f 2 -d "|")
+else
+   BUGS_URL="https://bugs.launchpad.net/charms/+source/$charm/+filebug"
+fi
+
+retry_command charm set $charm_store_url bugs-url=$BUGS_URL \
     homepage=https://github.com/openstack/charm-$charm
+
