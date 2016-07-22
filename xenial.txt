@@ -10,8 +10,6 @@ ceph-radosgw
 cinder
 cinder-backup
 cinder-ceph
-designate
-designate-bind
 glance
 hacluster
 heat
