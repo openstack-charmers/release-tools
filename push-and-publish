@@ -71,7 +71,7 @@ case "$branch" in
     master)
         charm_store_url="~openstack-charmers-next/${series_txt}${charm}"
     ;;
-    stable/*)
+    stable|stable/*)
         charm_store_url="~openstack-charmers/${series_txt}${charm}"
     ;;
     *)
