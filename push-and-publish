@@ -68,10 +68,10 @@ fi
 
 # Set charm store URL based on branch value passed
 case "$branch" in
-    "master")
+    master)
         charm_store_url="~openstack-charmers-next/${series_txt}${charm}"
     ;;
-    "stable"|"stable/16.04")
+    stable|stable/*)
         charm_store_url="~openstack-charmers/${series_txt}${charm}"
     ;;
     *)
