@@ -16,11 +16,16 @@ grep -q defaultbranch .gitreview || {
     git add .gitreview
 }
 
-
 if [ -f tests/basic_deployment.py ]; then
     echo "Updating amulet tests to refer to stable branches"
     sed -i 's/stable=False/stable=True/g' tests/basic_deployment.py
     git add tests/basic_deployment.py
+fi
+
+if [ -f src/tests/basic_deployment.py ]; then
+    echo "Updating amulet tests to refer to stable branches src"
+    sed -i 's/stable=False/stable=True/g' src/tests/basic_deployment.py
+    git add src/tests/basic_deployment.py
 fi
 
 for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
@@ -28,4 +33,9 @@ for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
         sed -i 's/lp\:charm-helpers/lp\:\~openstack-charmers\/charm-helpers\/stable/g' $ch
         git add $ch
     fi
+    if [ -f src/$ch ]; then
+        sed -i 's/lp\:charm-helpers/lp\:\~openstack-charmers\/charm-helpers\/stable/g' src/$ch
+        git add src/$ch
+    fi
+
 done

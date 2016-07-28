@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+charms="$(cat charms.txt)"
+basedir="$(pwd)"
+
+for charm in $charms; do
+    cd $charm
+    git commit -m "$(cat $basedir/commit-message.txt)" && git review
+    cd $basedir
+    echo Sleeping breifly between reviews
+    sleep 3
+done
