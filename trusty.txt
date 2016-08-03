@@ -1,5 +1,3 @@
-barbican
-barbican-softhsm
 ceilometer
 ceilometer-agent
 ceph

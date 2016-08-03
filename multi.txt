@@ -1,3 +1,5 @@
 aodh
+barbican
+barbican-softhsm
 designate
 designate-bind
