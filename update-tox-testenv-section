@@ -1,8 +1,7 @@
 #!/bin/bash -e
 #
-#  Update requirements in all charms, with some exceptions.
-#
-#  Remove tests/charmhelpers in favor of venv charmhelpers.
+#  Update the testenv section of tox.ini in all charms, taking special care
+#  to handle source charms accordingly.
 #
 #  Propose gerrit reviews.
 #
