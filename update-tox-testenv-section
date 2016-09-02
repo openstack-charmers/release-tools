@@ -14,7 +14,7 @@
 #    - For classic charms:
 #        - Updates ./tox.ini    [testenv] section
 
-gerrit_topic="update-tox-testenv"
+gerrit_topic="update-tox-testenv-section"
 
 charms="$(cat charms.txt)"
 src_charms="$(cat source-charms.txt)"
@@ -100,6 +100,7 @@ for charm in $charms; do
     cd $charm
     git add .
     git status -s
+    git checkout -b gerrit_topic
     git commit -F $commit_msg_file
     git_review
   )

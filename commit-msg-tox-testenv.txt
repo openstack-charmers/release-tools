@@ -6,3 +6,5 @@ Other changes are ini file syntax standardization based on being
 parsed and written by configparser.
 
 Unfortunately, comments are not preserved by configparser.
+
+Future updates using the same tool should have a cleaner diff.
