@@ -1,0 +1,8 @@
+Update tox.ini testenv section
+
+Only the [testenv] section is changed here.
+
+Other changes are ini file syntax standardization based on being
+parsed and written by configparser.
+
+Unfortunately, comments are not preserved by configparser.
