@@ -100,7 +100,7 @@ for charm in $charms; do
     cd $charm
     git add .
     git status -s
-    git checkout -b gerrit_topic
+    git checkout -b $gerrit_topic
     git commit -F $commit_msg_file
     git_review
   )
