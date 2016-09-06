@@ -67,7 +67,8 @@ function git_review(){
   fi
   (
     echo " . Submitting gerrit review for $charm"
-    git review
+    echo "NOT REALLY"
+#    git review
   )
 }
 
