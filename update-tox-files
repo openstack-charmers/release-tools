@@ -45,12 +45,6 @@ if [ -z "$commit_msg" ]; then
 fi
 
 
-function insert_warn_line(){
-  WARN_TXT="# This file should not be modified in the charm repo, as it is controlled globally by release-tools."
-  sed -i "1i$WARN_TXT" $1
-}
-
-
 function git_get(){
   [ -d $2 ] && rm -Rf $2
   (
