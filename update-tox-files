@@ -1,0 +1,90 @@
+#!/bin/bash -e
+#
+#  Update tox.ini in all charms, taking special care to handle source charms accordingly.
+#  Then, propose gerrit reviews. Optionally avoid the gerrit review by exporting
+#  env var DRY_RUN=True
+#
+#  The premise here is that all charm repos will contain identical tox.ini files
+#  as managed and pushed from here.
+#
+#    - For src charms:
+#        - Updates tox.ini in the charm repo src dir.
+#        - Updates tox.ini in the charm repo base path.
+#
+#    - For classic charms:
+#        - Updates tox.ini in the charm repo base path.
+
+charms="$(cat charms.txt)"
+src_charms="$(cat source-charms.txt)"
+basedir="$(pwd)"
+branch="$1"
+
+gerrit_topic="update-tox-files"
+commit_msg_file="$basedir/commit-message-tox.txt"
+
+usage="usage: update-tox-files <master||stable/nn.nn>
+
+This will create gerrit reviews using commit-message-tox.txt!
+Set environment variable in advance if that should be avoided:
+  export DRY_RUN=True
+"
+
+if [ -z "$branch" ]; then
+    echo -e "$usage"
+    exit 1
+fi
+
+# Expect user to have git config ready for gerrit use
+git config --get gitreview.username || ( echo " ! Not set: gitreview.username git config option"; echo -e "$usage"; exit 1 )
+
+
+commit_msg="$(cat $commit_msg_file ||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty."
+    exit 1
+fi
+
+
+function git_get(){
+  [ -d $2 ] && rm -Rf $2
+  (
+    git clone $1 $2
+    cd $2
+    git checkout $3
+  )
+}
+
+
+function git_review(){
+  if [ "${DRY_RUN^^}" == "TRUE" ]; then
+    echo " . Not proposing gerrit (dry run)."
+    return 0
+  fi
+  (
+    echo " . Submitting gerrit review for $charm"
+    git review
+  )
+}
+
+
+for charm in $charms; do
+  (
+    git_get https://github.com/openstack/charm-$charm $charm $branch
+
+    if [[ $src_charms == *"$charm"* ]]; then
+      # src charms
+      cp -fvp $basedir/global/source-charms/tox.ini $basedir/$charm/tox.ini
+      cp -fvp $basedir/global/source-charms/src/tox.ini $basedir/$charm/src/tox.ini
+    else
+      # classic charms
+      cp -fvp $basedir/global/classic-charms/tox.ini $basedir/$charm/tox.ini
+    fi
+
+    cd $charm
+    git add .
+    git status -s
+    git checkout -b $gerrit_topic
+    git commit -F $commit_msg_file
+    git_review
+  )
+done
