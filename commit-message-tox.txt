@@ -1,0 +1,8 @@
+Update tox.ini files from release-tools gold copy
+
+All OpenStack Charms now contain identical tox.ini files,
+not to be modified or made unique within each charm repo.
+
+This is to ensure consistency across charm repos in tox
+target naming, approach and purpose, also giving the
+charm dev and test experience additional consistency.

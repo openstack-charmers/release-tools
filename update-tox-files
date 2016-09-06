@@ -1,29 +1,30 @@
 #!/bin/bash -e
 #
-#  Update the testenv section of tox.ini in all charms, taking special care
-#  to handle source charms accordingly.
+#  Update tox.ini in all charms, taking special care to handle source charms accordingly.
+#  Then, propose gerrit reviews. Optionally avoid the gerrit review by exporting
+#  env var DRY_RUN=True
 #
-#  Propose gerrit reviews.
-#
-#  Optionally avoid the gerrit review by exporting env var DRY_RUN=True
+#  The premise here is that all charm repos will contain identical tox.ini files
+#  as managed and pushed from here.
 #
 #    - For src charms:
-#        - Updates src/tox.ini  [testenv] section
-#        - Does NOT (yet) update ./tox.ini for source charms as they differ.
+#        - Updates tox.ini in the charm repo src dir.
+#        - Updates tox.ini in the charm repo base path.
 #
 #    - For classic charms:
-#        - Updates ./tox.ini    [testenv] section
-
-gerrit_topic="update-tox-testenv-section"
+#        - Updates tox.ini in the charm repo base path.
 
 charms="$(cat charms.txt)"
 src_charms="$(cat source-charms.txt)"
 basedir="$(pwd)"
 branch="$1"
-commit_msg_file="$basedir/commit-msg-tox-testenv.txt"
-usage="usage: update-tox-testenv-section <master||stable/nn.nn>
 
-This will create gerrit reviews using commit-msg-tox-testenv.txt!
+gerrit_topic="update-tox-files"
+commit_msg_file="$basedir/commit-message-tox.txt"
+
+usage="usage: update-tox-files <master||stable/nn.nn>
+
+This will create gerrit reviews using commit-message-tox.txt!
 Set environment variable in advance if that should be avoided:
   export DRY_RUN=True
 "
@@ -72,15 +73,6 @@ function git_review(){
   )
 }
 
-# Get bot-control tools
-git_get https://github.com/openstack-charmers/bot-control bc-tools master
-
-
-function update_tox_testenv_section(){
-    pwd
-    ./bc-tools/tools/ini-splice $1 replace-section testenv with $2
-}
-
 
 for charm in $charms; do
   (
@@ -88,14 +80,11 @@ for charm in $charms; do
 
     if [[ $src_charms == *"$charm"* ]]; then
       # src charms
-      update_tox_testenv_section $basedir/$charm/src/tox.ini $basedir/global/source-charms/src/tox.ini
-      update_tox_testenv_section $basedir/$charm/tox.ini $basedir/global/source-charms/tox.ini
-      insert_warn_line $basedir/$charm/src/tox.ini
-      insert_warn_line $basedir/$charm/tox.ini
+      cp -fvp $basedir/global/source-charms/tox.ini $basedir/$charm/tox.ini
+      cp -fvp $basedir/global/source-charms/src/tox.ini $basedir/$charm/src/tox.ini
     else
       # classic charms
-      update_tox_testenv_section $basedir/$charm/tox.ini $basedir/global/classic-charms/tox.ini
-      insert_warn_line $basedir/$charm/tox.ini
+      cp -fvp $basedir/global/classic-charms/tox.ini $basedir/$charm/tox.ini
     fi
 
     cd $charm
