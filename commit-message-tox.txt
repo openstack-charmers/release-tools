@@ -6,3 +6,8 @@ not to be modified or made unique within each charm repo.
 This is to ensure consistency across charm repos in tox
 target naming, approach and purpose, also giving the
 charm dev and test experience additional consistency.
+
+Also create empty dirs with .keep files where necessary.
+Some classic charms have actions and/or lib dirs, and some
+do not. In all classic charms, flake will now check those
+dirs to ensure lint coverage of existing or future content.

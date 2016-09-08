@@ -1,8 +1,10 @@
 #!/bin/bash -e
 #
 #  Update tox.ini in all charms, taking special care to handle source charms accordingly.
-#  Then, propose gerrit reviews. Optionally avoid the gerrit review by exporting
-#  env var DRY_RUN=True
+#  Then, propose gerrit reviews.
+#
+#  Also create empty dirs with .keep files where necessary.  ie. Some charms have actions
+#  or lib dirs, some do not.  Flake will try to check those directories, even if empty.
 #
 #  The premise here is that all charm repos will contain identical tox.ini files
 #  as managed and pushed from here.
@@ -22,11 +24,33 @@ branch="$1"
 gerrit_topic="update-tox-files"
 commit_msg_file="$basedir/commit-message-tox.txt"
 
+all_params="$@"
+if [[ "$all_params" == *--amend* ]]; then
+  AMEND="True"
+fi
+if [[ "$all_params" == *--noreview* ]]; then
+  NO_REVIEW="True"
+fi
+
 usage="usage: update-tox-files <master||stable/nn.nn>
 
-This will create gerrit reviews using commit-message-tox.txt!
-Set environment variable in advance if that should be avoided:
-  export DRY_RUN=True
+USAGE EXAMPLES
+
+Clone repos, check out the master branch, make changes and
+submit gerrit reviews:
+  ./update-tox-files master
+
+Clone repos, check out the master branch, make changes
+but do not actually submit a gerrit review:
+  ./update-tox-files master --noreview
+
+Re-use local checkout, amend commits and add patchset to
+the existing gerrit review:
+  ./update-tox-files master --amend
+
+Re-use local checkout, amend commits for adding to the review,
+but do not actually submit a gerrit review:
+  ./update-tox-files master --amend --noreview
 "
 
 if [ -z "$branch" ]; then
@@ -45,29 +69,57 @@ if [ -z "$commit_msg" ]; then
 fi
 
 
+
 function git_get(){
-  [ -d $2 ] && rm -Rf $2
   (
+echo $AMEND
+  if [[ "${AMEND^^}" != "TRUE" ]] && [[ ! -d $2 ]]; then
+    echo " + Clone $1 -> $2"
     git clone $1 $2
+  elif [[ "${AMEND^^}" != "TRUE" ]] && [[ -d $2 ]]; then
+    echo " ! Dir exists: $2.  Consider running 'make clean' or using --amend."
+    exit 1
+  else
+    echo " . Re-using checkout dir $2"
+  fi
+
     cd $2
     git checkout $3
+
+    # Cleanup for (re)iteration, dry runs, etc.
+    git reset --hard &> /dev/null ||:
   )
 }
 
 
 function git_review(){
-  if [ "${DRY_RUN^^}" == "TRUE" ]; then
+  if [ "${NO_REVIEW^^}" == "TRUE" ]; then
     echo " . Not proposing gerrit (dry run)."
-    return 0
-  fi
-  (
+  else
     echo " . Submitting gerrit review for $charm"
     git review
-  )
+  fi
+}
+
+
+function classic_ensure_dirs(){
+  dirs="$basedir/$charm/actions $basedir/$charm/lib"
+
+  keep_msg="  This file was created by release-tools to ensure that this empty
+  directory is preserved in vcs re: lint check definitions in global
+  tox.ini files. This file can be removed if/when this dir is actually in use."
+
+  for dir in $dirs; do
+    if [[ ! -d $dir ]]; then
+      mkdir -vp $dir
+      echo -e "$keep_msg" > $dir/.keep
+    fi
+  done
 }
 
 
 for charm in $charms; do
+  echo "===== $charm ====="
   (
     git_get https://github.com/openstack/charm-$charm $charm $branch
 
@@ -77,14 +129,20 @@ for charm in $charms; do
       cp -fvp $basedir/global/source-charms/src/tox.ini $basedir/$charm/src/tox.ini
     else
       # classic charms
+      classic_ensure_dirs
       cp -fvp $basedir/global/classic-charms/tox.ini $basedir/$charm/tox.ini
     fi
 
     cd $charm
-    git add .
-    git status -s
-    git checkout -b $gerrit_topic
-    git commit -F $commit_msg_file
-    git_review
+    git_status="$(git status -s)"
+    if [[ -n "$git_status" ]]; then
+      git branch -D $gerrit_topic &> /dev/null ||:  # Cleanup for (re)iterations
+      git add .
+      git checkout -b $gerrit_topic
+      git commit -F $commit_msg_file
+      git_review
+    else
+      echo " - No changes for $charm, skipping git review."
+    fi
   )
 done
