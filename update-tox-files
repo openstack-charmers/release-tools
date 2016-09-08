@@ -72,7 +72,6 @@ fi
 
 function git_get(){
   (
-echo $AMEND
   if [[ "${AMEND^^}" != "TRUE" ]] && [[ ! -d $2 ]]; then
     echo " + Clone $1 -> $2"
     git clone $1 $2
