@@ -138,7 +138,7 @@ for charm in $charms; do
     elif [[ "${AMEND^^}" == "TRUE" ]] && [[ -n "$git_status" ]]; then
       git checkout $gerrit_topic
       git add .
-      git commit --amend
+      git commit --amend --no-edit
       git_review
     else
       echo " - No changes for $charm, skipping git review."
