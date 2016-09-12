@@ -1,0 +1,147 @@
+#!/bin/bash -e
+#
+#  Update tox.ini in all charms, taking special care to handle source charms accordingly.
+#  Then, propose gerrit reviews.
+#
+#  Also create empty dirs with .keep files where necessary.  ie. Some charms have actions
+#  or lib dirs, some do not.  Flake will try to check those directories, even if empty.
+#
+#  The premise here is that all charm repos will contain identical tox.ini files
+#  as managed and pushed from here.
+#
+#    - For src charms:
+#        - Updates tox.ini in the charm repo src dir.
+#        - Updates tox.ini in the charm repo base path.
+#
+#    - For classic charms:
+#        - Updates tox.ini in the charm repo base path.
+
+charms="$(cat charms.txt)"
+src_charms="$(cat source-charms.txt)"
+basedir="$(pwd)"
+branch="$1"
+
+gerrit_topic="update-tox-files"
+commit_msg_file="$basedir/commit-message-tox.txt"
+
+all_params="$@"
+if [[ "$all_params" == *--amend* ]]; then
+  AMEND="True"
+fi
+if [[ "$all_params" == *--noreview* ]]; then
+  NO_REVIEW="True"
+fi
+
+usage="usage: update-tox-files <master||stable/nn.nn>
+
+USAGE EXAMPLES
+
+Clone repos, check out the master branch, make changes and
+submit gerrit reviews:
+  ./update-tox-files master
+
+Clone repos, check out the master branch, make changes
+but do not actually submit a gerrit review:
+  ./update-tox-files master --noreview
+
+Re-use local checkout, amend commits and add patchset to
+the existing gerrit review:
+  ./update-tox-files master --amend
+
+Re-use local checkout, amend commits for adding to the review,
+but do not actually submit a gerrit review:
+  ./update-tox-files master --amend --noreview
+"
+
+if [ -z "$branch" ]; then
+    echo -e "$usage"
+    exit 1
+fi
+
+# Expect user to have git config ready for gerrit use
+git config --get gitreview.username || ( echo " ! Not set: gitreview.username git config option"; echo -e "$usage"; exit 1 )
+
+commit_msg="$(cat $commit_msg_file ||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty."
+    exit 1
+fi
+
+
+function git_get(){
+  (
+  if [[ "${AMEND^^}" != "TRUE" ]] && [[ ! -d $2 ]]; then
+    echo " + Clone $1 -> $2"
+    git clone $1 $2
+    cd $2
+    git checkout $3
+  elif [[ "${AMEND^^}" != "TRUE" ]] && [[ -d $2 ]]; then
+    echo " ! Dir exists: $2.  Consider running 'make clean' or using --amend."
+    exit 1
+  else
+    echo " . Re-using checkout dir $2"
+    cd $2
+    git branch -v
+  fi
+  )
+}
+
+
+function git_review(){
+  if [ "${NO_REVIEW^^}" == "TRUE" ]; then
+    echo " . Not proposing gerrit (dry run)."
+  else
+    echo " . Submitting gerrit review for $charm"
+    git review
+  fi
+}
+
+
+function classic_ensure_dirs(){
+  dirs="$basedir/$charm/actions $basedir/$charm/lib"
+
+  keep_msg="  This file was created by release-tools to ensure that this empty
+  directory is preserved in vcs re: lint check definitions in global
+  tox.ini files. This file can be removed if/when this dir is actually in use."
+
+  for dir in $dirs; do
+    if [[ ! -d $dir ]]; then
+      mkdir -vp $dir
+      echo -e "$keep_msg" > $dir/.keep
+    fi
+  done
+}
+
+
+for charm in $charms; do
+  echo "===== $charm ====="
+  (
+    git_get https://github.com/openstack/charm-$charm $charm $branch
+
+    if [[ $src_charms == *"$charm"* ]]; then
+      # src charms
+      cp -fvp $basedir/global/source-charms/tox.ini $basedir/$charm/tox.ini
+      cp -fvp $basedir/global/source-charms/src/tox.ini $basedir/$charm/src/tox.ini
+    else
+      # classic charms
+      classic_ensure_dirs
+      cp -fvp $basedir/global/classic-charms/tox.ini $basedir/$charm/tox.ini
+    fi
+
+    cd $charm
+    git_status="$(git status -s)"
+    if [[ "${AMEND^^}" != "TRUE" ]] && [[ -n "$git_status" ]]; then
+      git checkout -b $gerrit_topic
+      git add .
+      git commit -F $commit_msg_file
+      git_review
+    elif [[ "${AMEND^^}" == "TRUE" ]] && [[ -n "$git_status" ]]; then
+      git checkout $gerrit_topic
+      git add .
+      git commit --amend --no-edit
+      git_review
+    else
+      echo " - No changes for $charm, skipping git review."
+    fi
+  )
+done
