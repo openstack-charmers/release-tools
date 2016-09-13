@@ -16,8 +16,18 @@ if [ -z "$charm" ] || [ -z "$branch" ]; then
     exit 1
 fi
 
+# Override charm dir when driven by Jenkins.
+# Otherwise, use cmd param provided.
+if [ -n "$WORKSPACE" ]; then
+    # Driven by Jenkins.
+    charm_dir="$WORKSPACE/$charm"
+else
+    # Expect a local checkout in the current dir.
+    charm_dir="$charm"
+fi
+
 # Locate metadata.yaml for charm
-metadata=$(find . -name "metadata.yaml")
+metadata=$(find $charm_dir -name "metadata.yaml")
 
 # Auto-detect a series in metadata charm
 if grep -q "^series:.*" $metadata; then
