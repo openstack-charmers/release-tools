@@ -16,32 +16,34 @@ if [ -z "$charm" ] || [ -z "$branch" ]; then
     exit 1
 fi
 
-# Push and publish for all relevant series of the charms which
-# use the legacy simulated multiple series approach of pushing
-# to individual cs series spaces.
-for this_series in $series; do
-    charms=$(cat $this_series.txt)
-    for charm_check in $charms; do
-        if [ "$charm_check" == "$charm" ]; then
-            found=true
-            # Source it to preserve BUILT_ASSET_DIR, etc.
-            . push-and-publish $charm $this_series $branch
-        fi
-    done
-done
+# Locate metadata.yaml for charm
+metadata=$(find . -name "metadata.yaml")
 
-# Push and publish for proper multi-series charms, where
-# series is declared in the metadata.yaml for cs: to interpret.
-if [ -z "$found" ]; then
-    charms=$(cat multi.txt)
-    for charm_check in $charms; do
-        if [ "$charm_check" == "$charm" ]; then
-            found=true
-            echo " . Handling $charm as a proper multi-series charm"
-            # Source it to preserve BUILT_ASSET_DIR, etc.
-            . push-and-publish $charm multi $branch
-        fi
+# Auto-detect a series in metadata charm
+if grep -q "^series:.*" $metadata; then
+    # Push and publish for proper multi-series charms, where
+    # series is declared in the metadata.yaml for cs: to interpret.
+   . push-and-publish $charm multi $branch
+else
+    # Push and publish for all relevant series of the charms which
+    # use the legacy simulated multiple series approach of pushing
+    # to individual cs series spaces.
+    for this_series in $series; do
+        charms=$(cat $this_series.txt)
+        for charm_check in $charms; do
+            if [ "$charm_check" == "$charm" ]; then
+                found=true
+                # Source it to preserve BUILT_ASSET_DIR, etc.
+                . push-and-publish $charm $this_series $branch
+            fi
+        done
     done
+
+    # Fatal if not found
+    if [ -z "$found" ]; then
+        echo "$charm not found in defined lists.  No action taken."
+        exit 1
+    fi
 fi
 
 echo " . Charm store refs published:"
@@ -51,10 +53,4 @@ if [[ -n "$WORKSPACE" ]]; then
   mv -v $cs_refs_published $WORKSPACE/cs_refs_published.txt
 else
   rm -fv $cs_refs_published
-fi
-
-# Fatal if not found
-if [ -z "$found" ]; then
-    echo "$charm not found in defined lists.  No action taken."
-    exit 1
 fi
