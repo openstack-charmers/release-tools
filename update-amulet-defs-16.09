@@ -3,8 +3,8 @@
 #  Update Amulet test definitions
 #
 #  This script is likely only relevant for the tasks necessary at a
-#  point in time.  Commited to repo for reference anyway, to be
-#  improved upon for later needs.
+#  point in time.  Committed to repo for reference anyway, to be
+#  improved upon or adjusted for later needs.
 
 charms="$(cat charms.txt)"
 src_charms="$(cat source-charms.txt)"
