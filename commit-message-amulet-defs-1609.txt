@@ -1,0 +1,6 @@
+Update amulet test definitions for xenial-newton
+
+Remove Precise-Icehouse Amulet test definitions if they
+exist.
+
+Add Xenial-Newton Amulet test definitions.
