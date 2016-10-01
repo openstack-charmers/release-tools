@@ -96,9 +96,15 @@ function git_get(){
 function git_review(){
   if [ "${NO_REVIEW^^}" == "TRUE" ]; then
     echo " . Not proposing gerrit (dry run)."
-  else
+  elif [ "${FORCE_REVIEW^^}" != "TRUE" ]; then
     echo " . Submitting gerrit review for $charm"
     git review
+  elif [ "${FORCE_REVIEW^^}" == "TRUE" ]; then
+    echo " . Submitting gerrit review for $charm (non-fatal on failure)"
+    git review ||:
+  else
+    echo " ! Unknown condition in git_review"
+    exit 1
   fi
 }
 
