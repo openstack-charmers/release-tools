@@ -18,8 +18,11 @@ all_params="$@"
 if [[ "$all_params" == *--amend* ]]; then
   AMEND="True"
 fi
-if [[ "$all_params" == *--noreview* ]]; then
+if [[ "$all_params" == *--no-review* ]]; then
   NO_REVIEW="True"
+fi
+if [[ "$all_params" == *--force-review* ]]; then
+  FORCE_REVIEW="True"
 fi
 if [[ "$all_params" == *--rebase-master* ]]; then
   REBASE_MASTER="True"
@@ -35,7 +38,7 @@ submit gerrit reviews:
 
 Clone repos, check out the master branch, make changes
 but do not actually submit a gerrit review:
-  ./update-amulet-defs master --noreview
+  ./update-amulet-defs master --no-review
 
 Re-use local checkout, amend commits and add patchset to
 the existing gerrit review:
@@ -45,9 +48,15 @@ Re-use local checkout, rebase with master, amend commits
 and add patchset to the existing gerrit review:
   ./update-amulet-defs master --amend --rebase-master
 
+Re-use local checkout, rebase with master, amend commits
+and add patchset to the existing gerrit review even if
+no changes detected in the repo.  Useful if manually
+committing changes in the local repo outside this script.
+  ./update-amulet-defs master --amend --rebase-master --force-review
+
 Re-use local checkout, amend commits for adding to the review,
 but do not actually submit a gerrit review:
-  ./update-amulet-defs master --amend --noreview
+  ./update-amulet-defs master --amend --no-review
 "
 
 if [ -z "$branch" ]; then
@@ -148,8 +157,11 @@ for charm in $charms; do
       )
     fi
 
-    # Commit if there are changes
+    # Commit if there are changes, or optionally commit even if no changes
     git_status="$(git status -s)"
+    if [[ "${FORCE_REVIEW^^}" == "TRUE" ]]; then
+      git_status="True"
+    fi
     if [[ "${AMEND^^}" != "TRUE" ]] && [[ -n "$git_status" ]]; then
       git checkout -b $gerrit_topic
       git add .
