@@ -21,6 +21,9 @@ fi
 if [[ "$all_params" == *--noreview* ]]; then
   NO_REVIEW="True"
 fi
+if [[ "$all_params" == *--rebase-master* ]]; then
+  REBASE_MASTER="True"
+fi
 
 usage="usage: update-amulet-defs <master||stable/nn.nn>
 
@@ -37,6 +40,10 @@ but do not actually submit a gerrit review:
 Re-use local checkout, amend commits and add patchset to
 the existing gerrit review:
   ./update-amulet-defs master --amend
+
+Re-use local checkout, rebase with master, amend commits
+and add patchset to the existing gerrit review:
+  ./update-amulet-defs master --amend --rebase-master
 
 Re-use local checkout, amend commits for adding to the review,
 but do not actually submit a gerrit review:
@@ -131,6 +138,17 @@ for charm in $charms; do
       echo " . Removed OK: $p_i_del_file"
     fi
 
+    # Optionally rebase with master
+    if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then
+      (
+        git checkout master
+        git pull
+        git checkout $gerrit_topic
+        git rebase master
+      )
+    fi
+
+    # Commit if there are changes
     git_status="$(git status -s)"
     if [[ "${AMEND^^}" != "TRUE" ]] && [[ -n "$git_status" ]]; then
       git checkout -b $gerrit_topic
