@@ -120,13 +120,23 @@ for charm in $charms; do
       # src charms
       x_n_dev_file="$basedir/$charm/src/tests/dev-basic-xenial-newton"
       x_n_dest_file="$basedir/$charm/src/tests/gate-basic-xenial-newton"
+
+      y_n_dev_file="$basedir/$charm/src/tests/dev-basic-yakkety-newton"
+      y_n_dest_file="$basedir/$charm/src/tests/gate-basic-yakkety-newton"
+
       t_m_src_file="$basedir/$charm/src/tests/gate-basic-trusty-mitaka"
+      x_m_src_file="$basedir/$charm/src/tests/gate-basic-xenial-mitaka"
       p_i_del_file="$basedir/$charm/src/tests/gate-basic-precise-icehouse"
     else
       # classic charms
       x_n_dev_file="$basedir/$charm/tests/dev-basic-xenial-newton"
       x_n_dest_file="$basedir/$charm/tests/gate-basic-xenial-newton"
+
+      y_n_dev_file="$basedir/$charm/tests/dev-basic-yakkety-newton"
+      y_n_dest_file="$basedir/$charm/tests/gate-basic-yakkety-newton"
+
       t_m_src_file="$basedir/$charm/tests/gate-basic-trusty-mitaka"
+      x_m_src_file="$basedir/$charm/tests/gate-basic-xenial-mitaka"
       p_i_del_file="$basedir/$charm/tests/*precise*"
     fi
 
@@ -144,6 +154,23 @@ for charm in $charms; do
       sed -e "s_Trusty_Xenial_g" -i $x_n_dest_file
       echo " + Generated $x_n_dest_file based on $t_m_src_file"
     elif [[ ! -f $x_n_dev_file ]] && [[ ! -f $x_n_dest_file ]] && [[ ! -f $t_m_src_file ]]; then
+      echo " !!! Manual edits required"
+    fi
+
+    # Move Yakkety Newton Dev test definitions to gate test definitions
+    if [[ -f $y_n_dev_file ]]; then
+      git mv -fv $y_n_dev_file $y_n_dest_file
+      echo " . Moved OK: $y_n_dest_file"
+    elif [[ ! -f $y_n_dev_file ]] && [[ -f $y_n_dest_file ]]; then
+      echo " . Already OK: $y_n_dest_file"
+    elif [[ ! -f $y_n_dev_file ]] && [[ ! -f $y_n_dest_file ]] && [[ -f $x_m_src_file ]]; then
+      cp $x_m_src_file $y_n_dest_file
+      sed -e "s_mitaka_newton_g" -i $y_n_dest_file
+      sed -e "s_Mitaka_Newton_g" -i $y_n_dest_file
+      sed -e "s_xenial_yakkety_g" -i $y_n_dest_file
+      sed -e "s_Yakkety_Yakkety_g" -i $y_n_dest_file
+      echo " + Generated $y_n_dest_file based on $x_m_src_file"
+    elif [[ ! -f $y_n_dev_file ]] && [[ ! -f $y_n_dest_file ]] && [[ ! -f $x_m_src_file ]]; then
       echo " !!! Manual edits required"
     fi
 
