@@ -27,6 +27,9 @@ fi
 if [[ "$all_params" == *--rebase-master* ]]; then
   REBASE_MASTER="True"
 fi
+if [[ "$all_params" == *--ch-sync-legacy* ]]; then
+  CH_SYNC="True"
+fi
 
 usage="usage: update-amulet-defs <master||stable/nn.nn>
 
@@ -35,6 +38,10 @@ USAGE EXAMPLES
 Clone repos, check out the master branch, make changes and
 submit gerrit reviews:
   ./update-amulet-defs master
+
+Clone repos, check out the master branch, performa a legacy
+charm-helper sync, make changes and submit gerrit reviews:
+  ./update-amulet-defs master --ch-sync-legacy
 
 Clone repos, check out the master branch, make changes
 but do not actually submit a gerrit review:
@@ -188,6 +195,14 @@ for charm in $charms; do
         git checkout $gerrit_topic
         git rebase master
       )
+    fi
+
+    # Optionally do legacy-style charm-helper sync
+    if [[ "${CH_SYNC^^}" == "TRUE" ]] && [[ -f 'Makefile' ]]; then
+      echo " + Doing legacy-style charm-helper sync on $charm"
+      make sync
+    else
+      echo " . No legacy-style charm-helper sync available for $charm"
     fi
 
     # Commit if there are changes, or optionally commit even if no changes
