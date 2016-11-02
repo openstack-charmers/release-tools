@@ -4,7 +4,6 @@ barbican-softhsm
 ceilometer
 ceilometer-agent
 ceph
-ceph-fs
 ceph-mon
 ceph-osd
 ceph-proxy
@@ -19,8 +18,6 @@ hacluster
 heat
 keystone
 lxd
-manila
-manila-generic
 neutron-api
 neutron-api-odl
 neutron-gateway
