@@ -6,20 +6,20 @@ Scripts used by OpenStack Charms automated and manual release processes for Char
 ## Files
 File | Purpose / Note
 :--- | :---
-```build-charm```           | *Build src charms, enforce certain file and directory expectations.  Used by OSCI during tests.  Called by push-and-publish as needed.*
-```charms.txt```            | *The master list of all OpenStack charms which are subject to pushing/publishing via the git, gerrit, charm store flow.*
-```commit-message.txt```    | *Used by commit-review-stable-charms by humans for various batch tasks.*
-```commit-review-stable-charms``` | *Submit gerrit reviews on changes made in local charm checkout dirs; Generally useful for humans during batch changes (not used in OSCI).*
-```create-stable-branch```  | *Create stable branches in charm repos.  Called by release-charms, also used by humans during release processes.*
-```generate-repo-info```    | *Used by OSCI to generate indentifying information about the checked out git repo and inject it into the charm dir before pushing and publishing.*
-```get-charms```            | *Clones charm repos and checks out the provided branch.*
-```push-and-publish```      | *Used by OSCI automation to build, push and publish charms after changes are merged and changed at the github repos.*
-```release-charms```        | *Release current MASTER as STABLE (of all charms) by creating and pushing new stable branches in the charm repos.*
-```source-charms.txt```     | *Master list of 'source charms,' used by update-tox-files.*
-```stable-branch-updates``` | *Post-Release Repo Tasks: Flip stable charm-helpers and Amulet bits;  Update .gitreview with new stable branch name. Called by update-stable-charms.*
-```update-stable-charms```  | *Applies stable-branch-updates to all charms.*
-```update-tox-files```      | *Enforce tox.ini file consistency across all charm repos (this is still in dev).*
-```./deprecated/```         | *Bone yard of old scripts which should no longer be used.*
+```build-charm```           | Build src charms, enforce certain file and directory expectations.  Used by OSCI during tests.  Called by push-and-publish as needed.
+```charms.txt```            | The master list of all OpenStack charms which are subject to pushing/publishing via the git, gerrit, charm store flow.
+```commit-message.txt```    | Used by commit-review-stable-charms by humans for various batch tasks.
+```commit-review-stable-charms``` | Submit gerrit reviews on changes made in local charm checkout dirs; Generally useful for humans during batch changes (not used in OSCI).
+```create-stable-branch```  | Create stable branches in charm repos.  Called by release-charms, also used by humans during release processes.
+```generate-repo-info```    | Used by OSCI to generate indentifying information about the checked out git repo and inject it into the charm dir before pushing and publishing.
+```get-charms```            | Clones charm repos and checks out the provided branch.
+```push-and-publish```      | Used by OSCI automation to build, push and publish charms after changes are merged and changed at the github repos.
+```release-charms```        | Release current MASTER as STABLE (of all charms) by creating and pushing new stable branches in the charm repos.
+```source-charms.txt```     | Master list of 'source charms,' used by update-tox-files.
+```stable-branch-updates``` | Post-Release Repo Tasks: Flip stable charm-helpers and Amulet bits;  Update .gitreview with new stable branch name. Called by update-stable-charms.
+```update-stable-charms```  | Applies stable-branch-updates to all charms.
+```update-tox-files```      | Enforce tox.ini file consistency across all charm repos (this is still in dev).
+```./deprecated/```         | Bone yard of old scripts which should no longer be used.
 
 ## To-Do
 
