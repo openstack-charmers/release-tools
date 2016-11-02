@@ -1,6 +1,9 @@
 aodh
 barbican
 barbican-softhsm
+ceph-fs
 designate
 designate-bind
+manila
+manila-generic
 tempest
