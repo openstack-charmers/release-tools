@@ -60,11 +60,12 @@ else
 fi
 
 
-# Expect metadata.yaml to be in a specific location relative to charm_dir
-metadata="$charm_dir/metadata.yaml"
+# Locate metadata.yaml for charm
+metadata=$(find $charm_dir -name "metadata.yaml")
+echo " . charm metadata file: $metadata"
 
 # Check that series metadata exists
-if ! grep -q "^series:.*" $metadata &> /dev/null; then
+if ! grep '^\"\?series\"\?:$' $metadata &> /dev/null; then
     echo " ! $charm does not declare series in metadata (required)."
     exit 1
 fi
