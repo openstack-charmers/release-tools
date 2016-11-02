@@ -1,14 +1,11 @@
 #!/bin/bash -ex
+#
+# A script to grant the CI bot the required permissions for pushing and publishing automatically.
+# Generally must be executed as a human with existing permissions on all charms.
 
-series="precise trusty xenial"
 charms=$(cat charms.txt)
 
-for this_series in $series; do
-  for charm in $charms; do
-    # Not all series may exist for all charms.  Ignore failures.
-    charm grant cs:~openstack-charmers-next/$charm --channel stable --acl write uosci-testing-bot ||:
-    charm grant cs:~openstack-charmers-next/$this_series/$charm --channel stable --acl write uosci-testing-bot ||:
-    charm grant cs:~openstack-charmers/$charm --channel stable --acl write uosci-testing-bot ||:
-    charm grant cs:~openstack-charmers/$this_series/$charm --channel stable --acl write uosci-testing-bot ||:
-  done
+for charm in $charms; do
+  charm grant cs:~openstack-charmers-next/$charm --channel stable --acl write uosci-testing-bot
+  charm grant cs:~openstack-charmers/$charm --channel stable --acl write uosci-testing-bot
 done

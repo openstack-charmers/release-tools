@@ -1,6 +1,8 @@
-#!/bin/bash
-
-set -e
+#!/bin/bash -e
+#
+# Post-Release Repo Tasks
+#   - Flip stable charm-helpers and Amulet bits.
+#   - Update .gitreview with new stable branch name.
 
 release="$1"
 
@@ -37,5 +39,4 @@ for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
         sed -i 's/lp\:charm-helpers/lp\:\~openstack-charmers\/charm-helpers\/stable/g' src/$ch
         git add src/$ch
     fi
-
 done

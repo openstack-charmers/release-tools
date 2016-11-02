@@ -1,5 +1,4 @@
 aodh|https://bugs.launchpad.net/charm-aodh
-tempest|https://bugs.launchpad.net/charm-tempest
 barbican|https://bugs.launchpad.net/charm-barbican
 barbican-softhsm|https://bugs.launchpad.net/charm-barbican-softhsm
-
+tempest|https://bugs.launchpad.net/charm-tempest

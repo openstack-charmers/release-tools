@@ -1,11 +1,11 @@
-#!/bin/bash
-
-set -e
+#!/bin/bash -e
+#
+# Create stable branches in charm repos.  Called by release-charms, also used by humans during release processes.
 
 release="$1"
 
 if [ -z "$release" ]; then
-    echo "Please provide release as only parameter"
+    echo "Please provide charm release as only parameter (ex: 16.04)"
     exit 1
 fi
 

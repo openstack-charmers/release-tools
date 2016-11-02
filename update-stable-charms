@@ -1,7 +1,6 @@
-#!/bin/bash
-
-set -e
-
+#!/bin/bash -e
+#
+# Apply stable-branch-updates to all charms (typically post-release charm-helper and amulet stable bit flips).
 
 charms="$(cat charms.txt)"
 basedir="$(pwd)"

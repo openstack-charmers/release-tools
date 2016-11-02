@@ -6,24 +6,21 @@ Scripts used by OpenStack Charms automated and manual release processes for Char
 ## Files
 File | Purpose / Note
 :--- | :---
-```charms.txt``` | *A list of all OpenStack charms which are subject to pushing/publishing via the git, gerrit, charmstore flow.*
-```commit-message.txt``` | *Not automated*
-```create-stable-branch``` | *Not automated*
-```get-charms``` | *Clones charm repos and checks out the provided branch.*
-```precise.txt``` | *A list of charms to publish only for this series/release.*
-```publish-charms``` | *Iterates ```push-and-publish```.*
-```push-and-publish``` | *Used by ```push-and-publish-multi-series```.*
-```push-and-publish-multi-series``` | *Used by OSCI automation to push and publish charms after changes are merged and changed at the github repos.*
-```release-charms``` | *Not automated*
-```stable-branch-updates``` | *Not automated*
-```trusty.txt``` | *A list of charms to publish only for this series/release.*
-```update-stable-charms``` | *Not automated*
-```xenial.txt``` | *A list of charms to publish only for this series/release.*
+```build-charm```           | *Build src charms, enforce certain file and directory expectations.  Used by OSCI during tests.  Called by push-and-publish as needed.*
+```charms.txt```            | *The master list of all OpenStack charms which are subject to pushing/publishing via the git, gerrit, charm store flow.*
+```commit-message.txt```    | *Used by commit-review-stable-charms by humans for various batch tasks.*
+```commit-review-stable-charms``` | *Submit gerrit reviews on changes made in local charm checkout dirs; Generally useful for humans during batch changes (not used in OSCI).*
+```create-stable-branch```  | *Create stable branches in charm repos.  Called by release-charms, also used by humans during release processes.*
+```generate-repo-info```    | *Used by OSCI to generate indentifying information about the checked out git repo and inject it into the charm dir before pushing and publishing.*
+```get-charms```            | *Clones charm repos and checks out the provided branch.*
+```push-and-publish```      | *Used by OSCI automation to build, push and publish charms after changes are merged and changed at the github repos.*
+```release-charms```        | *Release current MASTER as STABLE (of all charms) by creating and pushing new stable branches in the charm repos.*
+```source-charms.txt```     | *Master list of 'source charms,' used by update-tox-files.*
+```stable-branch-updates``` | *Post-Release Repo Tasks: Flip stable charm-helpers and Amulet bits;  Update .gitreview with new stable branch name. Called by update-stable-charms.*
+```update-stable-charms```  | *Applies stable-branch-updates to all charms.*
+```update-tox-files```      | *Enforce tox.ini file consistency across all charm repos (this is still in dev).*
+```./deprecated/```         | *Bone yard of old scripts which should no longer be used.*
 
 ## To-Do
-Note:  This initial set of scripts came about in a bit of a hurry when charm store ingestion was down, and OpenStack charms needed to be pushed to cs: en masse for the first time ever (@16.04).
 
-* Add notes for not-automated scripts.
-* Refactor and streamline into a cleaner charm-pusher python module which reads a centralized list of charms and series, expressed in yaml.
-* Wait for charm-tools and charm store stabilize, perhaps aim for Juju 2.0.1 or 2.1 timeframe?
-* Better yet, ideally rely solely on charm series metadata and act accordingly.
+* Refactor and streamline into a cleaner charm-pusher python module which reads a centralized list of charms and series, expressed in yaml.  Or something more elegant.

@@ -59,12 +59,13 @@ else
   exit 1
 fi
 
-# Adjust for differing build paths
+# Expect series metadata and set expected build dir
 if grep '^\"\?series\"\?:$' $charm_dir/src/metadata.yaml &> /dev/null; then
   echo " . $charm_dir is a multi-series charm based on its metadata.yaml"
   EXPECTED_BUILD_DIR="$charm_dir/build/builds/$charm_name"
 else
-  EXPECTED_BUILD_DIR="$charm_dir/build/trusty/$charm_name"
+  echo " ! $charm does not declare series in metadata (required for build)."
+  exit 1
 fi
 
 # OSCI automation relies on this env var being set after build.

@@ -1,6 +1,6 @@
 Updates for stable branch creation
 
-Set defaultbranch for git review/gerrit.
+Set default branch for git review/gerrit.
 
 Switch amulet tests to stable.
 
