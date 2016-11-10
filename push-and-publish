@@ -1,19 +1,24 @@
 #!/bin/bash -e
-# Push and Publish a Single Charm to a Single URL, from an already checked-out
-# charm dir, where the desired git branch is already checked out.
+#
+# Push and publish a SINGLE MULTISERIES CHARM to the charm store,
+# from a local checkout dir.
+#   - Charm series metadata is required.
 #   - Take no action if env var CHARM_PUSH_DRY_RUN is True.
 #   - Listen for Jenkins $WORKSPACE env var and use it if found.
 
-branch="$3"
-series="$2"
+branch="$2"
 charm="$1"
-usage="usage: push-and-publish charmname series <master||stable||stable/nn.nn>"
+usage="usage: push-and-publish charmname <master||stable||stable/nn.nn>
 
-if [ -z "$charm" ] || [ -z "$series" ]; then
-    echo $usage
+NOTE:
+  - Now enforcing series declarations in metadata.yaml.  All charms must
+    declare at least one series.
+"
+
+if [ -z "$charm" ] || [ -z "$branch" ]; then
+    echo -e "$usage"
     exit 1
 fi
-
 
 # Override charm dir when driven by Jenkins.
 # Otherwise, use cmd param provided.
@@ -32,50 +37,50 @@ fi
 
 # Build if necessary, use build dir if already built.
 if [[ -n "$BUILT_ASSET_DIR" ]]; then
-  echo " . $charm is a built charm asset"
-  charm_dir="$BUILT_ASSET_DIR"
+    echo " . $charm is a built charm asset"
+    charm_dir="$BUILT_ASSET_DIR"
 
 elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
      [[ ! -f "$charm_dir/.build.manifest" ]] &&\
      [[ ! -f "$charm_dir/src/.build.manifest" ]]; then
 
-  # Build!
-  echo " . $charm ($charm_dir) needs to build before pushing or publishing"
+    # Build!
+    echo " . $charm ($charm_dir) needs to build before pushing or publishing"
 
-  # Source it to preserve BUILT_ASSET_DIR, etc.
-  . build-charm $charm_dir
+    # Source it to preserve BUILT_ASSET_DIR, etc.
+    . build-charm $charm_dir
 
-  # Check for required value
-  [[ -z "$BUILT_ASSET_DIR" ]] && (echo " ! Built charm asset dir invalid"; exit 1)
+    # Check for required value
+    [[ -z "$BUILT_ASSET_DIR" ]] && (echo " ! Built charm asset dir invalid"; exit 1)
 
-  # Use the built charm asset dir instead of the checked out repo dir
-  charm_dir="$BUILT_ASSET_DIR"
+    # Use the built charm asset dir instead of the checked out repo dir
+    charm_dir="$BUILT_ASSET_DIR"
 else
-  echo " . $charm ($charm_dir) does not need to build before pushing or publishing"
+    echo " . $charm ($charm_dir) does not need to build before pushing or publishing"
 fi
 
-# Ignore series if declared as a proper multi-series charm
-if [[ "$series" == "multi" ]]; then
-  series=""
-  # Confirm series is declared in charm's metadata.yaml
-  if ! grep '^\"\?series\"\?:$' $charm_dir/metadata.yaml &> /dev/null; then
-    echo " ! $charm ($charm_dir) declared as multi-series but its metadata.yaml indicates otherwise"
+
+# Locate metadata.yaml for charm
+metadata=$(find $charm_dir -name "metadata.yaml")
+echo " . charm metadata file: $metadata"
+
+# Check that series metadata exists
+if ! grep '^\"\?series\"\?:$' $metadata &> /dev/null; then
+    echo " ! $charm does not declare series in metadata (required)."
     exit 1
-  fi
-else
-  series_txt="$series/"
 fi
+
 
 # Set charm store URL based on branch value passed
 case "$branch" in
     master)
-        charm_store_url="~openstack-charmers-next/${series_txt}${charm}"
+        charm_store_url="~openstack-charmers-next/${charm}"
     ;;
     stable|stable/*)
-        charm_store_url="~openstack-charmers/${series_txt}${charm}"
+        charm_store_url="~openstack-charmers/${charm}"
     ;;
     *)
-        echo " ! Unable to determine master or stable"
+        echo " ! Unable to determine master or stable when setting charm store URL"
         echo $usage
         exit 1
     ;;
@@ -99,7 +104,7 @@ retry_command() {
 
 
 # And, go!
-echo -e "\n*$charm $series $branch*"
+echo -e "\n*$charm $branch*"
 echo " + Generating repo info and adding as $charm_dir/repo-info"
 ./generate-repo-info $charm_dir > $charm_dir/repo-info
 echo "$(cat $charm_dir/repo-info | sed -e 's/^/   /')"
@@ -117,8 +122,8 @@ if [ -z "$charm_ref" ]; then
 fi
 
 # Collect charm_ref(s) in tmp file if available.  This is used by OSCI notifications.
-[[ -n "$cs_refs_published" ]] && echo $charm_ref >> $cs_refs_published
-
+cs_refs_published="$(mktemp)"
+echo $charm_ref >> $cs_refs_published
 
 echo " . Publishing charm $charm_ref"
 retry_command charm publish $charm_ref
@@ -138,3 +143,12 @@ fi
 retry_command charm set $charm_store_url bugs-url=$BUGS_URL \
     homepage=https://github.com/openstack/charm-$charm
 
+echo " . Charm store refs published:"
+cat $cs_refs_published
+
+# Save cs refs artifact if driven by Jenkins.  Otherwise, clean up cs refs temp file.
+if [[ -n "$WORKSPACE" ]]; then
+  mv -v $cs_refs_published $WORKSPACE/cs_refs_published.txt
+else
+  rm -fv $cs_refs_published
+fi

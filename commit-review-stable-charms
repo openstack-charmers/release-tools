@@ -1,6 +1,7 @@
-#!/bin/bash
-
-set -e
+#!/bin/bash -e
+#
+# Submit gerrit reviews on changes made in local charm checkout dirs
+# Generally useful for humans during batch changes (not used in OSCI).
 
 charms="$(cat charms.txt)"
 basedir="$(pwd)"

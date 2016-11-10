@@ -1,7 +1,6 @@
-#!/bin/bash
-
-set -e
-
+#!/bin/bash -e
+#
+# Release current MASTER as STABLE (of all charms) by creating and pushing new stable branches in the charm repos
 
 charms="$(cat charms.txt)"
 basedir="$(pwd)"

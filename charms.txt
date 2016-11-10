@@ -24,6 +24,7 @@ neutron-gateway
 neutron-openvswitch
 nova-cloud-controller
 nova-compute
+nova-compute-proxy
 odl-controller
 openstack-dashboard
 openvswitch-odl
