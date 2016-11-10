@@ -1,6 +1,7 @@
 aodh
 barbican
 barbican-softhsm
+ceph-fs
 designate
 designate-bind
 tempest
