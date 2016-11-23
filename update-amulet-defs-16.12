@@ -213,7 +213,7 @@ for charm in $charms; do
     echo " . metadata file: $metadata"
 
     if grep " - precise" $metadata; then
-      sed -e "s_  - precise__g" $metadata -i
+      sed -i "/ - precise/d" $metadata
     fi
     if ! grep " - zesty" $metadata; then
       sed -e "s_  - xenial_  - xenial\n  - zesty_g" $metadata -i
