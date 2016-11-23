@@ -4,4 +4,6 @@ barbican-softhsm
 ceph-fs
 designate
 designate-bind
+neutron-api-odl
+openvswitch-odl
 tempest
