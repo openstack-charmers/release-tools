@@ -1,4 +1,4 @@
-Update Amulet defs and sync charmhelpers
+Update Amulet defs, series metadata and c-h sync
 
 - Sync charm helpers if applicable.
 
@@ -10,4 +10,8 @@ Update Amulet defs and sync charmhelpers
 
 - Prep Zesty-Ocata Amulet test definitions (not yet enabled).
 
-- Remove Precise-Icehouse Amulet test definitions if present.
+- Add Zesty charm series metadata.
+
+- Remove Precise charm series metadata if present.
+
+- Remove Precise Amulet test definitions if present.

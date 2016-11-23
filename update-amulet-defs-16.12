@@ -123,8 +123,10 @@ for charm in $charms; do
     cd $charm
 
     # Set file locations depending on charm type
-    if [[ $src_charms == *"$charm"* ]]; then
+    charm_dir="$basedir/$charm"
+    if grep "^$charm$" ../source-charms.txt; then
       # src charms
+      echo " . source charm"
       tests_dir="$basedir/$charm/src/tests"
       x_o_dev_file="$basedir/$charm/src/tests/dev-basic-xenial-ocata"
       x_o_dest_file="$basedir/$charm/src/tests/gate-basic-xenial-ocata"
@@ -137,6 +139,7 @@ for charm in $charms; do
       p_i_del_file="$basedir/$charm/src/tests/*precise*"
     else
       # classic charms
+      echo " . classic charm"
       tests_dir="$basedir/$charm/tests"
       x_o_dev_file="$basedir/$charm/tests/dev-basic-xenial-ocata"
       x_o_dest_file="$basedir/$charm/tests/gate-basic-xenial-ocata"
@@ -183,11 +186,14 @@ for charm in $charms; do
       echo " + Generated $z_o_dest_file based on $x_m_src_file"
     elif [[ ! -f $z_o_dev_file ]] && [[ ! -f $z_o_dest_file ]] && [[ ! -f $x_m_src_file ]]; then
       echo " !!! Manual edits required"
+      echo $z_o_dev_file
+      echo $z_o_dest_file
+      echo $x_m_src_file
     fi
 
     # Enable and disable edges
-    chmod -v +x ${tests_dir}/*newton*
-    chmod -v -x ${tests_dir}/*ocata*
+    chmod -v +x ${tests_dir}/*newton* ||:
+    chmod -v -x ${tests_dir}/*ocata* ||:
 
     # Fix hashbangs
     find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python\$_#\!/usr/bin/env python_g" -i
@@ -199,12 +205,18 @@ for charm in $charms; do
       echo " . Removed OK: $p_i_del_file"
     fi
 
+    # Update series metadata
+    metadata=$(find $charm_dir -name "metadata.yaml")
+    echo " . metadata file: $metadata"
+    sed -e "s_  - precise metadata.yaml__g" $metadata -i
+    sed -e "s_  - xenial_  - xenial\n  - zesty_g" $metadata -i
+
     # Optionally rebase with master
     if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then
       (
         git checkout master
         git pull
-        git checkout $gerrit_topic
+        git checkout $gerrit_topic || git checkout -b $gerrit_topic
         git rebase master
       )
     fi
@@ -218,6 +230,7 @@ for charm in $charms; do
     fi
 
     # Commit if there are changes, or optionally commit even if no changes
+    set -x
     git_status="$(git status -s)"
     if [[ "${FORCE_REVIEW^^}" == "TRUE" ]]; then
       git_status="True"
@@ -228,7 +241,7 @@ for charm in $charms; do
       git commit -F $commit_msg_file
       git_review
     elif [[ "${AMEND^^}" == "TRUE" ]] && [[ -n "$git_status" ]]; then
-      git checkout $gerrit_topic
+      git checkout $gerrit_topic || git checkout -b $gerrit_topic
       git add .
       git commit --amend --no-edit
       git_review
