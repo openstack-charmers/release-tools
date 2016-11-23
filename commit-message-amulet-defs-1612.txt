@@ -1,4 +1,4 @@
-Update amulet test definitions for xenial-newton
+Update Amulet defs and sync charmhelpers
 
 - Sync charm helpers.
 
