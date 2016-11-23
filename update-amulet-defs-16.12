@@ -12,7 +12,7 @@ basedir="$(pwd)"
 branch="$1"
 
 gerrit_topic="update-amulet-defs"
-commit_msg_file="$basedir/commit-message-amulet-defs-1609.txt"
+commit_msg_file="$basedir/commit-message-amulet-defs-1612.txt"
 
 all_params="$@"
 if [[ "$all_params" == *--amend* ]]; then
@@ -125,22 +125,24 @@ for charm in $charms; do
     # Set file locations depending on charm type
     if [[ $src_charms == *"$charm"* ]]; then
       # src charms
-      x_n_dev_file="$basedir/$charm/src/tests/dev-basic-xenial-newton"
-      x_n_dest_file="$basedir/$charm/src/tests/gate-basic-xenial-newton"
+      tests_dir="$basedir/$charm/src/tests"
+      x_o_dev_file="$basedir/$charm/src/tests/dev-basic-xenial-ocata"
+      x_o_dest_file="$basedir/$charm/src/tests/gate-basic-xenial-ocata"
 
-      y_n_dev_file="$basedir/$charm/src/tests/dev-basic-yakkety-newton"
-      y_n_dest_file="$basedir/$charm/src/tests/gate-basic-yakkety-newton"
+      z_o_dev_file="$basedir/$charm/src/tests/dev-basic-zesty-ocata"
+      z_o_dest_file="$basedir/$charm/src/tests/gate-basic-zesty-ocata"
 
       t_m_src_file="$basedir/$charm/src/tests/gate-basic-trusty-mitaka"
       x_m_src_file="$basedir/$charm/src/tests/gate-basic-xenial-mitaka"
-      p_i_del_file="$basedir/$charm/src/tests/gate-basic-precise-icehouse"
+      p_i_del_file="$basedir/$charm/src/tests/*precise*"
     else
       # classic charms
-      x_n_dev_file="$basedir/$charm/tests/dev-basic-xenial-newton"
-      x_n_dest_file="$basedir/$charm/tests/gate-basic-xenial-newton"
+      tests_dir="$basedir/$charm/tests"
+      x_o_dev_file="$basedir/$charm/tests/dev-basic-xenial-ocata"
+      x_o_dest_file="$basedir/$charm/tests/gate-basic-xenial-ocata"
 
-      y_n_dev_file="$basedir/$charm/tests/dev-basic-yakkety-newton"
-      y_n_dest_file="$basedir/$charm/tests/gate-basic-yakkety-newton"
+      z_o_dev_file="$basedir/$charm/tests/dev-basic-zesty-ocata"
+      z_o_dest_file="$basedir/$charm/tests/gate-basic-zesty-ocata"
 
       t_m_src_file="$basedir/$charm/tests/gate-basic-trusty-mitaka"
       x_m_src_file="$basedir/$charm/tests/gate-basic-xenial-mitaka"
@@ -148,38 +150,48 @@ for charm in $charms; do
     fi
 
     # Move Xenial Newton Dev test definitions to gate test definitions
-    if [[ -f $x_n_dev_file ]]; then
-      git mv -fv $x_n_dev_file $x_n_dest_file
-      echo " . Moved OK: $x_n_dest_file"
-    elif [[ ! -f $x_n_dev_file ]] && [[ -f $x_n_dest_file ]]; then
-      echo " . Already OK: $x_n_dest_file"
-    elif [[ ! -f $x_n_dev_file ]] && [[ ! -f $x_n_dest_file ]] && [[ -f $t_m_src_file ]]; then
-      cp $t_m_src_file $x_n_dest_file
-      sed -e "s_mitaka_newton_g" -i $x_n_dest_file
-      sed -e "s_Mitaka_Newton_g" -i $x_n_dest_file
-      sed -e "s_trusty_xenial_g" -i $x_n_dest_file
-      sed -e "s_Trusty_Xenial_g" -i $x_n_dest_file
-      echo " + Generated $x_n_dest_file based on $t_m_src_file"
-    elif [[ ! -f $x_n_dev_file ]] && [[ ! -f $x_n_dest_file ]] && [[ ! -f $t_m_src_file ]]; then
+    if [[ -f $x_o_dev_file ]]; then
+      git mv -fv $x_o_dev_file $x_o_dest_file
+      echo " . Moved OK: $x_o_dest_file"
+    elif [[ ! -f $x_o_dev_file ]] && [[ -f $x_o_dest_file ]]; then
+      echo " . Already OK: $x_o_dest_file"
+    elif [[ ! -f $x_o_dev_file ]] && [[ ! -f $x_o_dest_file ]] && [[ -f $t_m_src_file ]]; then
+      echo " Copy 1"
+      cp $t_m_src_file $x_o_dest_file
+      sed -e "s_mitaka_ocata_g" -i $x_o_dest_file
+      sed -e "s_Mitaka_Ocata_g" -i $x_o_dest_file
+      sed -e "s_trusty_xenial_g" -i $x_o_dest_file
+      sed -e "s_Trusty_Xenial_g" -i $x_o_dest_file
+      echo " + Generated $x_o_dest_file based on $t_m_src_file"
+    elif [[ ! -f $x_o_dev_file ]] && [[ ! -f $x_o_dest_file ]] && [[ ! -f $t_m_src_file ]]; then
       echo " !!! Manual edits required"
     fi
 
     # Move Yakkety Newton Dev test definitions to gate test definitions
-    if [[ -f $y_n_dev_file ]]; then
-      git mv -fv $y_n_dev_file $y_n_dest_file
-      echo " . Moved OK: $y_n_dest_file"
-    elif [[ ! -f $y_n_dev_file ]] && [[ -f $y_n_dest_file ]]; then
-      echo " . Already OK: $y_n_dest_file"
-    elif [[ ! -f $y_n_dev_file ]] && [[ ! -f $y_n_dest_file ]] && [[ -f $x_m_src_file ]]; then
-      cp $x_m_src_file $y_n_dest_file
-      sed -e "s_mitaka_newton_g" -i $y_n_dest_file
-      sed -e "s_Mitaka_Newton_g" -i $y_n_dest_file
-      sed -e "s_xenial_yakkety_g" -i $y_n_dest_file
-      sed -e "s_Yakkety_Yakkety_g" -i $y_n_dest_file
-      echo " + Generated $y_n_dest_file based on $x_m_src_file"
-    elif [[ ! -f $y_n_dev_file ]] && [[ ! -f $y_n_dest_file ]] && [[ ! -f $x_m_src_file ]]; then
+    if [[ -f $z_o_dev_file ]]; then
+      git mv -fv $z_o_dev_file $z_o_dest_file
+      echo " . Moved OK: $z_o_dest_file"
+    elif [[ ! -f $z_o_dev_file ]] && [[ -f $z_o_dest_file ]]; then
+      echo " . Already OK: $z_o_dest_file"
+    elif [[ ! -f $z_o_dev_file ]] && [[ ! -f $z_o_dest_file ]] && [[ -f $x_m_src_file ]]; then
+      echo " Copy 2"
+      cp $x_m_src_file $z_o_dest_file
+      sed -e "s_mitaka_ocata_g" -i $z_o_dest_file
+      sed -e "s_Mitaka_ocata_g" -i $z_o_dest_file
+      sed -e "s_xenial_zesty_g" -i $z_o_dest_file
+      sed -e "s_Xenial_Zesty_g" -i $z_o_dest_file
+      echo " + Generated $z_o_dest_file based on $x_m_src_file"
+    elif [[ ! -f $z_o_dev_file ]] && [[ ! -f $z_o_dest_file ]] && [[ ! -f $x_m_src_file ]]; then
       echo " !!! Manual edits required"
     fi
+
+    # Enable and disable edges
+    chmod -v +x ${tests_dir}/*newton*
+    chmod -v -x ${tests_dir}/*ocata*
+
+    # Fix hashbangs
+    find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python\$_#\!/usr/bin/env python_g" -i
+    find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python3\$_#\!/usr/bin/env python3_g" -i
 
     # Remove Precise test definitions
     if [[ -n "$(ls $p_i_del_file)" ]]; then

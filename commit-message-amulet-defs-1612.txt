@@ -1,0 +1,11 @@
+Update amulet test definitions for xenial-newton
+
+- Sync charm helpers.
+
+- Add Yakkety-Newton Amulet test definitions.
+
+- Prep Xenial-Ocata Amulet test definitions (not yet enabled).
+
+- Prep Zappety-Ocata Amulet test definitions (not yet enabled).
+
+- Remove Precise-Icehouse Amulet test definitions if they exist.
