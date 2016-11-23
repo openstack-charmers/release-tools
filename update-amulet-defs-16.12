@@ -168,6 +168,9 @@ for charm in $charms; do
       echo " + Generated $x_o_dest_file based on $t_m_src_file"
     elif [[ ! -f $x_o_dev_file ]] && [[ ! -f $x_o_dest_file ]] && [[ ! -f $t_m_src_file ]]; then
       echo " !!! Manual edits required"
+      echo $x_o_dev_file
+      echo $x_o_dest_file
+      echo $t_m_src_file
     fi
 
     # Move Yakkety Newton Dev test definitions to gate test definitions
@@ -208,8 +211,13 @@ for charm in $charms; do
     # Update series metadata
     metadata=$(find $charm_dir -name "metadata.yaml")
     echo " . metadata file: $metadata"
-    sed -e "s_  - precise metadata.yaml__g" $metadata -i
-    sed -e "s_  - xenial_  - xenial\n  - zesty_g" $metadata -i
+
+    if grep " - precise" $metadata; then
+      sed -e "s_  - precise__g" $metadata -i
+    fi
+    if ! grep " - zesty" $metadata; then
+      sed -e "s_  - xenial_  - xenial\n  - zesty_g" $metadata -i
+    fi
 
     # Optionally rebase with master
     if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then
@@ -230,7 +238,6 @@ for charm in $charms; do
     fi
 
     # Commit if there are changes, or optionally commit even if no changes
-    set -x
     git_status="$(git status -s)"
     if [[ "${FORCE_REVIEW^^}" == "TRUE" ]]; then
       git_status="True"
