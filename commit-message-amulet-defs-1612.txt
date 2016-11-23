@@ -1,6 +1,8 @@
 Update Amulet defs and sync charmhelpers
 
-- Sync charm helpers.
+- Sync charm helpers if applicable.
+
+- Fix test executable hashbags for virtualenv prep.
 
 - Add Yakkety-Newton Amulet test definitions.
 
@@ -8,4 +10,4 @@ Update Amulet defs and sync charmhelpers
 
 - Prep Zesty-Ocata Amulet test definitions (not yet enabled).
 
-- Remove Precise-Icehouse Amulet test definitions if they exist.
+- Remove Precise-Icehouse Amulet test definitions if present.
