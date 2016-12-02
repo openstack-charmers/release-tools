@@ -1,13 +1,12 @@
-Update tox.ini files from release-tools gold copy
+Update tox.ini for py27 requirement
 
-All OpenStack Charms now contain identical tox.ini files,
-not to be modified or made unique within each charm repo.
+Reactive source charms are Python3-only, but have py27 unit tests
+declared in project-config.
 
-This is to ensure consistency across charm repos in tox
-target naming, approach and purpose, also giving the
-charm dev and test experience additional consistency.
+The Tox tool recently changed behavior.  It used to pass when a tox
+target was missing commands.  Now it fails in that case.
 
-Also create empty dirs with .keep files where necessary.
-Some classic charms have actions and/or lib dirs, and some
-do not. In all classic charms, flake will now check those
-dirs to ensure lint coverage of existing or future content.
+This commit places a py27 no-op shim to allow gate tests to pass,
+effectively restoring the original behavior for these py3x-only repos.
+
+Partial-Bug: 1642981

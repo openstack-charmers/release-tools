@@ -1,0 +1,17 @@
+Update Amulet defs, series metadata and c-h sync
+
+- Sync charm helpers if applicable.
+
+- Fix test executable hashbags for virtualenv prep.
+
+- Add Yakkety-Newton Amulet test definitions.
+
+- Prep Xenial-Ocata Amulet test definitions (not yet enabled).
+
+- Prep Zesty-Ocata Amulet test definitions (not yet enabled).
+
+- Add Zesty charm series metadata.
+
+- Remove Precise charm series metadata if present.
+
+- Remove Precise Amulet test definitions if present.
