@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Push and publish a SINGLE MULTISERIES CHARM to the charm store,
+# Push and release a SINGLE MULTISERIES CHARM to the charm store,
 # from a local checkout dir.
 #   - Charm series metadata is required.
 #   - Take no action if env var CHARM_PUSH_DRY_RUN is True.
@@ -8,7 +8,7 @@
 
 branch="$2"
 charm="$1"
-usage="usage: push-and-publish charmname <master||stable||stable/nn.nn>
+usage="usage: push-and-release charmname <master||stable||stable/nn.nn>
 
 NOTE:
   - Now enforcing series declarations in metadata.yaml.  All charms must
@@ -45,7 +45,7 @@ elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
      [[ ! -f "$charm_dir/src/.build.manifest" ]]; then
 
     # Build!
-    echo " . $charm ($charm_dir) needs to build before pushing or publishing"
+    echo " . $charm ($charm_dir) needs to build before pushing or releasing"
 
     # Source it to preserve BUILT_ASSET_DIR, etc.
     . build-charm $charm_dir
@@ -56,7 +56,7 @@ elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
     # Use the built charm asset dir instead of the checked out repo dir
     charm_dir="$BUILT_ASSET_DIR"
 else
-    echo " . $charm ($charm_dir) does not need to build before pushing or publishing"
+    echo " . $charm ($charm_dir) does not need to build before pushing or releasing"
 fi
 
 
@@ -122,11 +122,11 @@ if [ -z "$charm_ref" ]; then
 fi
 
 # Collect charm_ref(s) in tmp file if available.  This is used by OSCI notifications.
-cs_refs_published="$(mktemp)"
-echo $charm_ref >> $cs_refs_published
+cs_refs_releaseed="$(mktemp)"
+echo $charm_ref >> $cs_refs_releaseed
 
-echo " . Publishing charm $charm_ref"
-retry_command charm publish $charm_ref
+echo " . Releasing charm $charm_ref"
+retry_command charm release $charm_ref
 
 echo " . Granting global read acl"
 retry_command charm grant $charm_store_url --acl read everyone
@@ -143,12 +143,12 @@ fi
 retry_command charm set $charm_store_url bugs-url=$BUGS_URL \
     homepage=https://github.com/openstack/charm-$charm
 
-echo " . Charm store refs published:"
-cat $cs_refs_published
+echo " . Charm store refs releaseed:"
+cat $cs_refs_releaseed
 
 # Save cs refs artifact if driven by Jenkins.  Otherwise, clean up cs refs temp file.
 if [[ -n "$WORKSPACE" ]]; then
-  mv -v $cs_refs_published $WORKSPACE/cs_refs_published.txt
+  mv -v $cs_refs_releaseed $WORKSPACE/cs_refs_releaseed.txt
 else
-  rm -fv $cs_refs_published
+  rm -fv $cs_refs_releaseed
 fi
