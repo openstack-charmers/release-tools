@@ -122,8 +122,8 @@ if [ -z "$charm_ref" ]; then
 fi
 
 # Collect charm_ref(s) in tmp file if available.  This is used by OSCI notifications.
-cs_refs_releaseed="$(mktemp)"
-echo $charm_ref >> $cs_refs_releaseed
+cs_refs_released="$(mktemp)"
+echo $charm_ref >> $cs_refs_released
 
 echo " . Releasing charm $charm_ref"
 retry_command charm release $charm_ref
@@ -143,12 +143,12 @@ fi
 retry_command charm set $charm_store_url bugs-url=$BUGS_URL \
     homepage=https://github.com/openstack/charm-$charm
 
-echo " . Charm store refs releaseed:"
-cat $cs_refs_releaseed
+echo " . Charm store refs released:"
+cat $cs_refs_released
 
 # Save cs refs artifact if driven by Jenkins.  Otherwise, clean up cs refs temp file.
 if [[ -n "$WORKSPACE" ]]; then
-  mv -v $cs_refs_releaseed $WORKSPACE/cs_refs_releaseed.txt
+  mv -v $cs_refs_released $WORKSPACE/cs_refs_released.txt
 else
-  rm -fv $cs_refs_releaseed
+  rm -fv $cs_refs_released
 fi
