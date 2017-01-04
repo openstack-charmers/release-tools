@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 #
-# A script to grant the CI bot the required permissions for pushing and publishing automatically.
+# A script to grant the CI bot the required permissions for pushing and releasing automatically.
 # Generally must be executed as a human with existing permissions on all charms.
 
 charms=$(cat charms.txt)

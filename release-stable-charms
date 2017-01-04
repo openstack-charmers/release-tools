@@ -1,12 +1,12 @@
 #!/bin/bash -e
 #
-# Release current MASTER as STABLE (of all charms) by creating and pushing new stable branches in the charm repos
+# Do a new STABLE RELEASE from MASTER for all charms
 
 charms="$(cat charms.txt)"
 basedir="$(pwd)"
 username="$2"
 release="$1"
-usage="usage: release-charms release-name gerrit-username"
+usage="usage: release-stable-charms release-name gerrit-username"
 
 if [ -z "$release" ] || [ -z "$username" ]; then
     echo $usage
