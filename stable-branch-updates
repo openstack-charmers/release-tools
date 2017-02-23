@@ -14,7 +14,7 @@ fi
 git checkout -b ${release}-updates origin/stable/${release}
 
 grep -q defaultbranch .gitreview || {
-    echo "defaultbranch=stable/$release" >> .gitreview
+    echo -e "\ndefaultbranch=stable/$release" >> .gitreview
     git add .gitreview
 }
 
