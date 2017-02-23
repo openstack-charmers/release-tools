@@ -137,7 +137,7 @@ echo " . Setting charm homepage and bugs-url options"
 if grep "^$charm|" bug-link-overrides.txt; then
    BUGS_URL=$(grep "^$charm|" bug-link-overrides.txt | cut -f 2 -d "|")
 else
-   BUGS_URL="https://bugs.launchpad.net/charms/+source/$charm/+filebug"
+   BUGS_URL="https://bugs.launchpad.net/charm-${charm}/+filebug"
 fi
 
 retry_command charm set $charm_store_url bugs-url=$BUGS_URL \

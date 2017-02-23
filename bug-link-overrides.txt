@@ -1,8 +1,1 @@
-aodh|https://bugs.launchpad.net/charm-aodh
-barbican|https://bugs.launchpad.net/charm-barbican
-barbican-softhsm|https://bugs.launchpad.net/charm-barbican-softhsm
-ceph-fs|https://bugs.launchpad.net/charm-ceph-fs/+filebug
-manila|https://launchpad.net/charm-manila
-manila-generic|https://launchpad.net/charm-manila-generic
-nova-compute-proxy|https://bugs.launchpad.net/charm-nova-compute-proxy
-tempest|https://bugs.launchpad.net/charm-tempest
+

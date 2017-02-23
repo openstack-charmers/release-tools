@@ -18,7 +18,10 @@ glance
 hacluster
 heat
 keystone
+keystone-ldap
 lxd
+manila
+manila-generic
 neutron-api
 neutron-api-odl
 neutron-gateway
