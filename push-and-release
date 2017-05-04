@@ -99,6 +99,7 @@ retry_command() {
     while [ $i -lt $attempts ]; do
         $command && break
         let "i+=1"
+        [ $i -ge $attempts ] && exit 1
     done
 }
 
