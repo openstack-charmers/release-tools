@@ -1,0 +1,174 @@
+#!/bin/bash -e
+#
+#  Update or add one or more key:value pair in tests.yaml for all charms in charms.txt
+#  Then, propose gerrit reviews.
+#
+#  e.g. reset_timeout is now default 180s for bundletester
+#  ./update-tests-yaml-files master --kvs reset_timeout:600 will update or add
+#  this value in the first tests.yaml it finds in each charm.
+# 
+#  Note there should only be one tests.yaml per charm.
+#
+
+charms="$(cat charms.txt)"
+src_charms="$(cat source-charms.txt)"
+basedir="$(pwd)"
+branch="$1"
+
+gerrit_topic="update-tests-yaml-files"
+commit_msg_template="$basedir/commit-message-tests-yaml.template"
+commit_msg_file="$basedir/commit-message-tests-yaml.txt"
+
+all_params="$@"
+if [[ "$all_params" == *--amend* ]]; then
+  AMEND="True"
+fi
+if [[ "$all_params" == *--noreview* ]]; then
+  NO_REVIEW="True"
+fi
+
+usage="usage: update-tests-yaml-files <master||stable/nn.nn> --kvs key1:value key2:value
+
+IMPORTANT: Ensure --kvs is the last param on the command line.
+
+USAGE EXAMPLES
+
+Clone repos, check out the master branch, make changes and
+submit gerrit reviews:
+  ./update-tests-yaml-files master --kvs key1:value, key2:value
+
+Clone repos, check out the master branch, make changes
+but do not actually submit a gerrit review:
+  ./update-tests-yaml-files master --noreview --kvs key1:value, key2:value
+
+Re-use local checkout, amend commits and add patchset to
+the existing gerrit review:
+  ./update-tests-yaml-files master --amend --kvs key1:value, key2:value
+
+Re-use local checkout, amend commits for adding to the review,
+but do not actually submit a gerrit review:
+  ./update-tests-yaml-files master --amend --noreview --kvs key1:value, key2:value
+"
+
+keys=`echo $@|awk -F '--kvs ' '{print $2}'`
+if [[ "$keys" == "" ]] 
+then
+        echo -e $usage
+        exit 1
+fi
+
+if [ -z "$branch" ]; then
+    echo -e "$usage"
+    exit 1
+fi
+
+# Expect user to have git config ready for gerrit use
+git config --get gitreview.username || ( echo " ! Not set: gitreview.username git config option"; echo -e "$usage"; exit 1 )
+
+commit_msg="$(cat $commit_msg_template||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty."
+    exit 1
+fi
+
+
+function git_get(){
+  (
+  if [[ "${AMEND^^}" != "TRUE" ]] && [[ ! -d $2 ]]; then
+    echo " + Clone $1 -> $2"
+    git clone $1 $2
+    cd $2
+    git checkout $3
+  elif [[ "${AMEND^^}" != "TRUE" ]] && [[ -d $2 ]]; then
+    echo " ! Dir exists: $2.  Consider running 'make clean' or using --amend."
+    exit 1
+  else
+    echo " . Re-using checkout dir $2"
+    cd $2
+    git branch -v
+  fi
+  )
+}
+
+
+function git_review(){
+  if [ "${NO_REVIEW^^}" == "TRUE" ]; then
+    echo " . Not proposing gerrit (dry run)."
+  else
+    echo " . Submitting gerrit review for $charm"
+    git review
+  fi
+}
+
+
+function clean_commit_msg_txt(){
+if [ -z ${commit_msg_file} ]; then
+        rm ${commit_msg_file}
+fi
+}
+
+function create_commit_msg_txt(){
+clean_commit_msg_txt
+cp ${commit_msg_template} ${commit_msg_file}
+for key in $keys
+do
+        current=(${key//,/ })
+        kvs=(${current//:/ })
+        echo - ${kvs[0]}: ${kvs[1]} >> ${commit_msg_file}
+done
+}
+
+function tests_yaml_kvs(){
+echo ' . Updating keys:values '
+
+# Note that we will only modify the first tests.yaml found
+tests_yaml=$(find . -name tests.yaml|head -n1)
+
+if [[ "$tests_yaml" == "" ]]
+then 
+        echo " . tests.yaml not found, aborting "
+        exit 1
+fi
+
+for key in $keys
+do
+        current=(${key//,/ })
+        kvs=(${current//:/ })
+        echo " Updating key: ${kvs[0]} with value: ${kvs[1]} in file: ${tests_yaml}"
+        sed -i "{0,/^\([[:space:]]*${kvs[0]}: *\).*/s//\1${kvs[1]}/;}" ${tests_yaml}
+        if [[ ! `grep ${kvs[0]} ${tests_yaml}` ]] ; then
+                echo key \'${kvs[0]}\' not found, inserting...
+                echo ${kvs[0]}: ${kvs[1]} >> ${tests_yaml}
+        fi
+done
+}
+
+create_commit_msg_txt
+
+for charm in $charms; do
+  echo "===== $charm ====="
+  (
+    git_get https://github.com/openstack/charm-$charm $charm $branch
+
+    cd $charm
+
+    tests_yaml_kvs
+
+    git_status="$(git status -s)"
+    if [[ "${AMEND^^}" != "TRUE" ]] && [[ -n "$git_status" ]]; then
+      git checkout -b $gerrit_topic
+      git add .
+      git commit -F $commit_msg_file
+      git_review
+    elif [[ "${AMEND^^}" == "TRUE" ]] && [[ -n "$git_status" ]]; then
+      git checkout $gerrit_topic
+      git add .
+      git commit --amend --no-edit
+      git_review
+    else
+      echo " - No changes for $charm, skipping git review."
+    fi
+  )
+done
+
+clean_commit_msg_txt
