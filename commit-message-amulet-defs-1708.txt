@@ -1,0 +1,3 @@
+Update amulet test definitions
+
+Also sync charm-helpers in classic charms

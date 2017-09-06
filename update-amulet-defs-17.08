@@ -12,7 +12,7 @@ basedir="$(pwd)"
 branch="$1"
 
 gerrit_topic="update-amulet-defs"
-commit_msg_file="$basedir/commit-message-amulet-defs-1612.txt"
+commit_msg_file="$basedir/commit-message-amulet-defs-1708.txt"
 
 all_params="$@"
 if [[ "$all_params" == *--amend* ]]; then
@@ -137,6 +137,7 @@ for charm in $charms; do
       t_m_src_file="$basedir/$charm/src/tests/gate-basic-trusty-mitaka"
       x_m_src_file="$basedir/$charm/src/tests/gate-basic-xenial-mitaka"
       p_i_del_file="$basedir/$charm/src/tests/*precise*"
+      y_n_del_file="$basedir/$charm/src/tests/*yakkety*"
     else
       # classic charms
       echo " . classic charm"
@@ -150,6 +151,7 @@ for charm in $charms; do
       t_m_src_file="$basedir/$charm/tests/gate-basic-trusty-mitaka"
       x_m_src_file="$basedir/$charm/tests/gate-basic-xenial-mitaka"
       p_i_del_file="$basedir/$charm/tests/*precise*"
+      y_n_del_file="$basedir/$charm/tests/*yakkety*"
     fi
 
     # Move Xenial Newton Dev test definitions to gate test definitions
@@ -196,7 +198,8 @@ for charm in $charms; do
 
     # Enable and disable edges
     chmod -v +x ${tests_dir}/*newton* ||:
-    chmod -v -x ${tests_dir}/*ocata* ||:
+    chmod -v +x ${tests_dir}/*ocata* ||:
+    chmod -v -x ${tests_dir}/*pike* ||:
 
     # Fix hashbangs
     find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python\$_#\!/usr/bin/env python_g" -i
@@ -208,12 +211,21 @@ for charm in $charms; do
       echo " . Removed OK: $p_i_del_file"
     fi
 
+    # Remove Yakkety test definitions
+    if [[ -n "$(ls $y_n_del_file)" ]]; then
+      git rm -f $y_n_del_file
+      echo " . Removed OK: $y_n_del_file"
+    fi
+
     # Update series metadata
     metadata=$(find $charm_dir -name "metadata.yaml")
     echo " . metadata file: $metadata"
 
     if grep " - precise" $metadata; then
       sed -i "/ - precise/d" $metadata
+    fi
+    if grep " - yakkety" $metadata; then
+      sed -i "/ - yakkety/d" $metadata
     fi
     if ! grep " - zesty" $metadata; then
       sed -e "s_  - xenial_  - xenial\n  - zesty_g" $metadata -i

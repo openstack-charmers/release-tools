@@ -4,6 +4,10 @@ barbican-softhsm
 ceph-fs
 designate
 designate-bind
+gnocchi
+keystone-ldap
+manila
+manila-generic
 neutron-api-odl
 openvswitch-odl
 tempest
