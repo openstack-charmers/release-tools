@@ -15,6 +15,7 @@ cinder-ceph
 designate
 designate-bind
 glance
+gnocchi
 hacluster
 heat
 keystone
