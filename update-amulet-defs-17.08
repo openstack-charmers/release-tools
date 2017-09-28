@@ -200,6 +200,7 @@ for charm in $charms; do
     chmod -v +x ${tests_dir}/*newton* ||:
     chmod -v +x ${tests_dir}/*ocata* ||:
     chmod -v -x ${tests_dir}/*pike* ||:
+    chmod -v -x ${tests_dir}/*artful* ||:
 
     # Fix hashbangs
     find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python\$_#\!/usr/bin/env python_g" -i
@@ -217,7 +218,7 @@ for charm in $charms; do
       echo " . Removed OK: $y_n_del_file"
     fi
 
-    # Update series metadata
+    # Remove deprecated series
     metadata=$(find $charm_dir -name "metadata.yaml")
     echo " . metadata file: $metadata"
 
@@ -227,8 +228,10 @@ for charm in $charms; do
     if grep " - yakkety" $metadata; then
       sed -i "/ - yakkety/d" $metadata
     fi
-    if ! grep " - zesty" $metadata; then
-      sed -e "s_  - xenial_  - xenial\n  - zesty_g" $metadata -i
+
+    # Add current dev series
+    if ! grep " - artful" $metadata; then
+      sed -e "s_  - xenial_  - xenial\n  - artful_g" $metadata -i
     fi
 
     # Optionally rebase with master
