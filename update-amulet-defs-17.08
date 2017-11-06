@@ -128,80 +128,77 @@ for charm in $charms; do
       # src charms
       echo " . source charm"
       tests_dir="$basedir/$charm/src/tests"
-      x_o_dev_file="$basedir/$charm/src/tests/dev-basic-xenial-ocata"
-      x_o_dest_file="$basedir/$charm/src/tests/gate-basic-xenial-ocata"
-
-      z_o_dev_file="$basedir/$charm/src/tests/dev-basic-zesty-ocata"
-      z_o_dest_file="$basedir/$charm/src/tests/gate-basic-zesty-ocata"
+      x_p_dest_file="$basedir/$charm/src/tests/gate-basic-xenial-pike"
+      a_p_dest_file="$basedir/$charm/src/tests/gate-basic-artful-pike"
 
       t_m_src_file="$basedir/$charm/src/tests/gate-basic-trusty-mitaka"
       x_m_src_file="$basedir/$charm/src/tests/gate-basic-xenial-mitaka"
+
       p_i_del_file="$basedir/$charm/src/tests/*precise*"
       y_n_del_file="$basedir/$charm/src/tests/*yakkety*"
     else
       # classic charms
       echo " . classic charm"
       tests_dir="$basedir/$charm/tests"
-      x_o_dev_file="$basedir/$charm/tests/dev-basic-xenial-ocata"
-      x_o_dest_file="$basedir/$charm/tests/gate-basic-xenial-ocata"
-
-      z_o_dev_file="$basedir/$charm/tests/dev-basic-zesty-ocata"
-      z_o_dest_file="$basedir/$charm/tests/gate-basic-zesty-ocata"
+      x_p_dest_file="$basedir/$charm/tests/gate-basic-xenial-pike"
+      a_p_dest_file="$basedir/$charm/tests/gate-basic-artful-pike"
 
       t_m_src_file="$basedir/$charm/tests/gate-basic-trusty-mitaka"
       x_m_src_file="$basedir/$charm/tests/gate-basic-xenial-mitaka"
+
       p_i_del_file="$basedir/$charm/tests/*precise*"
       y_n_del_file="$basedir/$charm/tests/*yakkety*"
     fi
 
     # Move Xenial Newton Dev test definitions to gate test definitions
-    if [[ -f $x_o_dev_file ]]; then
-      git mv -fv $x_o_dev_file $x_o_dest_file
-      echo " . Moved OK: $x_o_dest_file"
-    elif [[ ! -f $x_o_dev_file ]] && [[ -f $x_o_dest_file ]]; then
-      echo " . Already OK: $x_o_dest_file"
-    elif [[ ! -f $x_o_dev_file ]] && [[ ! -f $x_o_dest_file ]] && [[ -f $t_m_src_file ]]; then
+    if [[ -f $x_p_dev_file ]]; then
+      git mv -fv $x_p_dev_file $x_p_dest_file
+      echo " . Moved OK: $x_p_dest_file"
+    elif [[ ! -f $x_p_dev_file ]] && [[ -f $x_p_dest_file ]]; then
+      echo " . Already OK: $x_p_dest_file"
+    elif [[ ! -f $x_p_dev_file ]] && [[ ! -f $x_p_dest_file ]] && [[ -f $t_m_src_file ]]; then
       echo " Copy 1"
-      cp $t_m_src_file $x_o_dest_file
-      sed -e "s_mitaka_ocata_g" -i $x_o_dest_file
-      sed -e "s_Mitaka_Ocata_g" -i $x_o_dest_file
-      sed -e "s_trusty_xenial_g" -i $x_o_dest_file
-      sed -e "s_Trusty_Xenial_g" -i $x_o_dest_file
-      echo " + Generated $x_o_dest_file based on $t_m_src_file"
-    elif [[ ! -f $x_o_dev_file ]] && [[ ! -f $x_o_dest_file ]] && [[ ! -f $t_m_src_file ]]; then
+      cp $t_m_src_file $x_p_dest_file
+      sed -e "s_mitaka_pike_g" -i $x_p_dest_file
+      sed -e "s_Mitaka_Pike_g" -i $x_p_dest_file
+      sed -e "s_trusty_xenial_g" -i $x_p_dest_file
+      sed -e "s_Trusty_Xenial_g" -i $x_p_dest_file
+      echo " + Generated $x_p_dest_file based on $t_m_src_file"
+    elif [[ ! -f $x_p_dev_file ]] && [[ ! -f $x_p_dest_file ]] && [[ ! -f $t_m_src_file ]]; then
       echo " !!! Manual edits required"
-      echo $x_o_dev_file
-      echo $x_o_dest_file
+      echo $x_p_dev_file
+      echo $x_p_dest_file
       echo $t_m_src_file
     fi
 
     # Move Yakkety Newton Dev test definitions to gate test definitions
-    if [[ -f $z_o_dev_file ]]; then
-      git mv -fv $z_o_dev_file $z_o_dest_file
-      echo " . Moved OK: $z_o_dest_file"
-    elif [[ ! -f $z_o_dev_file ]] && [[ -f $z_o_dest_file ]]; then
-      echo " . Already OK: $z_o_dest_file"
-    elif [[ ! -f $z_o_dev_file ]] && [[ ! -f $z_o_dest_file ]] && [[ -f $x_m_src_file ]]; then
+    if [[ -f $a_p_dev_file ]]; then
+      git mv -fv $a_p_dev_file $a_p_dest_file
+      echo " . Moved OK: $a_p_dest_file"
+    elif [[ ! -f $a_p_dev_file ]] && [[ -f $a_p_dest_file ]]; then
+      echo " . Already OK: $a_p_dest_file"
+    elif [[ ! -f $a_p_dev_file ]] && [[ ! -f $a_p_dest_file ]] && [[ -f $x_m_src_file ]]; then
       echo " Copy 2"
-      cp $x_m_src_file $z_o_dest_file
-      sed -e "s_mitaka_ocata_g" -i $z_o_dest_file
-      sed -e "s_Mitaka_ocata_g" -i $z_o_dest_file
-      sed -e "s_xenial_zesty_g" -i $z_o_dest_file
-      sed -e "s_Xenial_Zesty_g" -i $z_o_dest_file
-      echo " + Generated $z_o_dest_file based on $x_m_src_file"
-    elif [[ ! -f $z_o_dev_file ]] && [[ ! -f $z_o_dest_file ]] && [[ ! -f $x_m_src_file ]]; then
+      cp $x_m_src_file $a_p_dest_file
+      sed -e "s_mitaka_pike_g" -i $a_p_dest_file
+      sed -e "s_Mitaka_Pike_g" -i $a_p_dest_file
+      sed -e "s_xenial_artful_g" -i $a_p_dest_file
+      sed -e "s_Xenial_Artful_g" -i $a_p_dest_file
+      echo " + Generated $a_p_dest_file based on $x_m_src_file"
+    elif [[ ! -f $a_p_dev_file ]] && [[ ! -f $a_p_dest_file ]] && [[ ! -f $x_m_src_file ]]; then
       echo " !!! Manual edits required"
-      echo $z_o_dev_file
-      echo $z_o_dest_file
+      echo $a_p_dev_file
+      echo $a_p_dest_file
       echo $x_m_src_file
     fi
 
     # Enable and disable edges
     chmod -v +x ${tests_dir}/*newton* ||:
     chmod -v +x ${tests_dir}/*ocata* ||:
-    chmod -v -x ${tests_dir}/*pike* ||:
+    chmod -v +x ${tests_dir}/*pike* ||:
+    chmod -v +x ${tests_dir}/*artful* ||:
 
-    # Fix hashbangs
+    # Fix hashbangs if necessary
     find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python\$_#\!/usr/bin/env python_g" -i
     find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python3\$_#\!/usr/bin/env python3_g" -i
 
@@ -217,7 +214,7 @@ for charm in $charms; do
       echo " . Removed OK: $y_n_del_file"
     fi
 
-    # Update series metadata
+    # Remove deprecated series
     metadata=$(find $charm_dir -name "metadata.yaml")
     echo " . metadata file: $metadata"
 
@@ -227,8 +224,10 @@ for charm in $charms; do
     if grep " - yakkety" $metadata; then
       sed -i "/ - yakkety/d" $metadata
     fi
-    if ! grep " - zesty" $metadata; then
-      sed -e "s_  - xenial_  - xenial\n  - zesty_g" $metadata -i
+
+    # Add current dev series
+    if ! grep " - artful" $metadata; then
+      sed -e "s_  - xenial_  - xenial\n  - artful_g" $metadata -i
     fi
 
     # Optionally rebase with master
