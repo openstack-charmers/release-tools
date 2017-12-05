@@ -36,3 +36,7 @@ rabbitmq-server
 swift-proxy
 swift-storage
 tempest
+gnocchi
+keystone-ldap
+manila
+manila-generic
