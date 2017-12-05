@@ -11,7 +11,7 @@ src_charms="$(cat source-charms.txt)"
 basedir="$(pwd)"
 branch="$1"
 
-gerrit_topic="update-amulet-defs"
+gerrit_topic="update-amulet-defs-bionic"
 commit_msg_file="$basedir/commit-message-amulet-defs-1712.txt"
 
 all_params="$@"
