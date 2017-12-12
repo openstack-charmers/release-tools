@@ -11,8 +11,8 @@ src_charms="$(cat source-charms.txt)"
 basedir="$(pwd)"
 branch="$1"
 
-gerrit_topic="update-amulet-defs"
-commit_msg_file="$basedir/commit-message-amulet-defs-1708.txt"
+gerrit_topic="update-amulet-defs-bionic"
+commit_msg_file="$basedir/commit-message-amulet-defs-1712.txt"
 
 all_params="$@"
 if [[ "$all_params" == *--amend* ]]; then
@@ -128,107 +128,74 @@ for charm in $charms; do
       # src charms
       echo " . source charm"
       tests_dir="$basedir/$charm/src/tests"
-      x_p_dest_file="$basedir/$charm/src/tests/gate-basic-xenial-pike"
-      a_p_dest_file="$basedir/$charm/src/tests/gate-basic-artful-pike"
-
-      t_m_src_file="$basedir/$charm/src/tests/gate-basic-trusty-mitaka"
-      x_m_src_file="$basedir/$charm/src/tests/gate-basic-xenial-mitaka"
-
-      p_i_del_file="$basedir/$charm/src/tests/*precise*"
-      y_n_del_file="$basedir/$charm/src/tests/*yakkety*"
     else
       # classic charms
       echo " . classic charm"
       tests_dir="$basedir/$charm/tests"
-      x_p_dest_file="$basedir/$charm/tests/gate-basic-xenial-pike"
-      a_p_dest_file="$basedir/$charm/tests/gate-basic-artful-pike"
-
-      t_m_src_file="$basedir/$charm/tests/gate-basic-trusty-mitaka"
-      x_m_src_file="$basedir/$charm/tests/gate-basic-xenial-mitaka"
-
-      p_i_del_file="$basedir/$charm/tests/*precise*"
-      y_n_del_file="$basedir/$charm/tests/*yakkety*"
     fi
 
-    # Move Xenial Newton Dev test definitions to gate test definitions
-    if [[ -f $x_p_dev_file ]]; then
-      git mv -fv $x_p_dev_file $x_p_dest_file
-      echo " . Moved OK: $x_p_dest_file"
-    elif [[ ! -f $x_p_dev_file ]] && [[ -f $x_p_dest_file ]]; then
-      echo " . Already OK: $x_p_dest_file"
-    elif [[ ! -f $x_p_dev_file ]] && [[ ! -f $x_p_dest_file ]] && [[ -f $t_m_src_file ]]; then
-      echo " Copy 1"
-      cp $t_m_src_file $x_p_dest_file
-      sed -e "s_mitaka_pike_g" -i $x_p_dest_file
-      sed -e "s_Mitaka_Pike_g" -i $x_p_dest_file
-      sed -e "s_trusty_xenial_g" -i $x_p_dest_file
-      sed -e "s_Trusty_Xenial_g" -i $x_p_dest_file
-      echo " + Generated $x_p_dest_file based on $t_m_src_file"
-    elif [[ ! -f $x_p_dev_file ]] && [[ ! -f $x_p_dest_file ]] && [[ ! -f $t_m_src_file ]]; then
-      echo " !!! Manual edits required"
-      echo $x_p_dev_file
-      echo $x_p_dest_file
-      echo $t_m_src_file
-    fi
+    x_q_dest_file="$tests_dir/dev-basic-xenial-queens"
+    b_q_dest_file="$tests_dir/dev-basic-bionic-queens"
 
-    # Move Yakkety Newton Dev test definitions to gate test definitions
-    if [[ -f $a_p_dev_file ]]; then
-      git mv -fv $a_p_dev_file $a_p_dest_file
-      echo " . Moved OK: $a_p_dest_file"
-    elif [[ ! -f $a_p_dev_file ]] && [[ -f $a_p_dest_file ]]; then
-      echo " . Already OK: $a_p_dest_file"
-    elif [[ ! -f $a_p_dev_file ]] && [[ ! -f $a_p_dest_file ]] && [[ -f $x_m_src_file ]]; then
-      echo " Copy 2"
-      cp $x_m_src_file $a_p_dest_file
-      sed -e "s_mitaka_pike_g" -i $a_p_dest_file
-      sed -e "s_Mitaka_Pike_g" -i $a_p_dest_file
-      sed -e "s_xenial_artful_g" -i $a_p_dest_file
-      sed -e "s_Xenial_Artful_g" -i $a_p_dest_file
-      echo " + Generated $a_p_dest_file based on $x_m_src_file"
-    elif [[ ! -f $a_p_dev_file ]] && [[ ! -f $a_p_dest_file ]] && [[ ! -f $x_m_src_file ]]; then
-      echo " !!! Manual edits required"
-      echo $a_p_dev_file
-      echo $a_p_dest_file
-      echo $x_m_src_file
-    fi
+    x_m_src_file="$tests_dir/gate-basic-xenial-mitaka"
+    x_o_src_file="$tests_dir/gate-basic-xenial-ocata"
+
+    p_i_del_file="$tests_dir/*precise*"
+    y_n_del_file="$tests_dir/*yakkety*"
+    z_o_del_file="$tests_dir/*zesty*"
+
+
+    # Add bionic amulet tests
+    cp -fv $x_m_src_file $b_q_dest_file
+    sed -e "s_mitaka_queens_g" -i $b_q_dest_file
+    sed -e "s_Mitaka_Queens_g" -i $b_q_dest_file
+    sed -e "s_xenial_bionic_g" -i $b_q_dest_file
+    sed -e "s_Xenial_Bionic_g" -i $b_q_dest_file
+    chmod +x $b_q_dest_file
+
+    cp -fv $x_o_src_file $x_q_dest_file
+    sed -e "s_ocata_queens_g" -i $x_q_dest_file
+    sed -e "s_Ocata_Queens_g" -i $x_q_dest_file
+    chmod +x $x_q_dest_file
 
     # Enable and disable edges
-    chmod -v +x ${tests_dir}/*newton* ||:
-    chmod -v +x ${tests_dir}/*ocata* ||:
-    chmod -v +x ${tests_dir}/*pike* ||:
-    chmod -v +x ${tests_dir}/*artful* ||:
+    chmod -v +x ${tests_dir}/dev-*     ||:
+    chmod -v +x ${tests_dir}/*newton*  ||:
+    chmod -v +x ${tests_dir}/*ocata*   ||:
+    #chmod -v +x ${tests_dir}/*pike*   ||:
+    #chmod -v +x ${tests_dir}/*artful* ||:
 
     # Fix hashbangs if necessary
     find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python\$_#\!/usr/bin/env python_g" -i
     find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python3\$_#\!/usr/bin/env python3_g" -i
 
-    # Remove Precise test definitions
-    if [[ -n "$(ls $p_i_del_file)" ]]; then
-      git rm -f $p_i_del_file
-      echo " . Removed OK: $p_i_del_file"
-    fi
-
-    # Remove Yakkety test definitions
-    if [[ -n "$(ls $y_n_del_file)" ]]; then
-      git rm -f $y_n_del_file
-      echo " . Removed OK: $y_n_del_file"
-    fi
+    # Remove tests
+    git rm -f $p_i_del_file ||:
+    git rm -f $y_n_del_file ||:
+    git rm -f $z_o_del_file ||:
 
     # Remove deprecated series
     metadata=$(find $charm_dir -name "metadata.yaml")
     echo " . metadata file: $metadata"
-
-    if grep " - precise" $metadata; then
-      sed -i "/ - precise/d" $metadata
-    fi
-    if grep " - yakkety" $metadata; then
-      sed -i "/ - yakkety/d" $metadata
-    fi
+    sed -i "/ - precise/d" $metadata  ||:
+    sed -i "/ - yakkety/d" $metadata  ||:
+    sed -i "/ - zesty/d" $metadata    ||:
 
     # Add current dev series
-    if ! grep " - artful" $metadata; then
-      sed -e "s_  - xenial_  - xenial\n  - artful_g" $metadata -i
+    if ! grep " - bionic" $metadata; then
+      sed -e "s_  - xenial_  - xenial\n  - bionic_g" $metadata -i
     fi
+
+    if ! grep "bionic" $metadata; then
+      echo " ! No bionic in $metadata"
+      exit 1
+    fi
+
+    if ! grep "artful" $metadata; then
+      echo " ! No artful in $metadata"
+      exit 1
+    fi
+
 
     # Optionally rebase with master
     if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then
