@@ -32,7 +32,6 @@ nova-compute-proxy
 odl-controller
 openstack-dashboard
 openvswitch-odl
-percona-cluster
 rabbitmq-server
 swift-proxy
 swift-storage

@@ -150,7 +150,7 @@ for charm in $charms; do
     sed -e "s_mitaka_queens_g" -i $b_q_dest_file
     sed -e "s_Mitaka_Queens_g" -i $b_q_dest_file
     sed -e "s_xenial_bionic_g" -i $b_q_dest_file
-    sed -e "s_xenial_Bionic_g" -i $b_q_dest_file
+    sed -e "s_Xenial_Bionic_g" -i $b_q_dest_file
     chmod +x $b_q_dest_file
 
     cp -fv $x_o_src_file $x_q_dest_file
@@ -172,7 +172,7 @@ for charm in $charms; do
     # Remove tests
     git rm -f $p_i_del_file ||:
     git rm -f $y_n_del_file ||:
-    git rm -f $z_o_del_file ||:e
+    git rm -f $z_o_del_file ||:
 
     # Remove deprecated series
     metadata=$(find $charm_dir -name "metadata.yaml")
