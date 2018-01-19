@@ -19,7 +19,10 @@ File | Purpose / Note
 ```stable-branch-updates``` | Post-Release Repo Tasks: Flip stable charm-helpers and Amulet bits;  Update .gitreview with new stable branch name. Called by ```update-stable-charms```.
 ```update-stable-charms```  | Applies stable-branch-updates to all charms.
 ```update-tox-files```      | Enforce tox.ini file consistency across all charm repos (this is still in dev).
+```ch-sync```               | Charm-helpers sync on classic charms
+```rebuild-reactive```      | Force rebuild on reactive charms
 ```./deprecated/```         | Bone yard of old scripts which should no longer be used.
+
 
 ## To-Do
 
