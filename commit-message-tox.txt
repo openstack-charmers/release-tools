@@ -1,12 +1,6 @@
-Update tox.ini for py27 requirement
+Update tox.ini to stop using unverified package
 
-Reactive source charms are Python3-only, but have py27 unit tests
-declared in project-config.
+As of pip 10.0, --allow-unverified is not permitted.
 
-The Tox tool recently changed behavior.  It used to pass when a tox
-target was missing commands.  Now it fails in that case.
-
-This commit places a py27 no-op shim to allow gate tests to pass,
-effectively restoring the original behavior for these py3x-only repos.
-
-Partial-Bug: 1642981
+Use of the flag in this repo was previously used to force
+installation of python-apt to accommodate certain unit tests.
