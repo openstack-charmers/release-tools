@@ -9,5 +9,6 @@ keystone-ldap
 manila
 manila-generic
 neutron-api-odl
+neutron-dynamic-routing
 openvswitch-odl
 tempest
