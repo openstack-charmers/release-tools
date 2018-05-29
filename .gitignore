@@ -23,6 +23,7 @@ keystone
 lxd
 neutron-api
 neutron-api-odl
+neutron-dynamic-routing
 neutron-gateway
 neutron-openvswitch
 nova-cloud-controller
@@ -40,3 +41,4 @@ gnocchi
 keystone-ldap
 manila
 manila-generic
+vault

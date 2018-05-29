@@ -1,8 +1,0 @@
-Add Bionic and remove Zesty series and tests
-
-Bionic, being the next LTS, is important to enable for dev
-and test as early as possible ahead of 18.02.
-
-Zesty goes EOL in Jan 2018. The next stable charms release (18.02)
-will not provide Zesty series support, as it was an interim
-(non-LTS) release.

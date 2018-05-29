@@ -12,3 +12,4 @@ neutron-api-odl
 neutron-dynamic-routing
 openvswitch-odl
 tempest
+vault
