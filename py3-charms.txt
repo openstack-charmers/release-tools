@@ -15,9 +15,11 @@ manila
 manila-generic
 neutron-api
 neutron-api-odl
+neutron-dynamic-routing
 neutron-gateway
 neutron-openvswitch
 nova-cloud-controller
 nova-compute
 openvswitch-odl
 tempest
+vault

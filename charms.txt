@@ -39,3 +39,4 @@ rabbitmq-server
 swift-proxy
 swift-storage
 tempest
+vault

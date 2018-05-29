@@ -12,7 +12,7 @@ basedir="$(pwd)"
 branch="$1"
 
 gerrit_topic="update-amulet-defs-bionic"
-commit_msg_file="$basedir/commit-message-amulet-defs-1712.txt"
+commit_msg_file="$basedir/commit-message-amulet-defs.txt"
 
 all_params="$@"
 if [[ "$all_params" == *--amend* ]]; then
@@ -124,18 +124,24 @@ for charm in $charms; do
 
     # Set file locations depending on charm type
     charm_dir="$basedir/$charm"
-    if grep "^$charm$" ../source-charms.txt; then
+    if grep "^$charm$" ../zaza-charms.txt; then
+      echo "Skipping zaza charm"
+      continue
+    elif grep "^$charm$" ../source-charms.txt; then
       # src charms
       echo " . source charm"
       tests_dir="$basedir/$charm/src/tests"
+	 test_tox_file="$basedir/$charm/src/tox.ini"
     else
       # classic charms
       echo " . classic charm"
       tests_dir="$basedir/$charm/tests"
+	 test_tox_file="$basedir/$charm/tox.ini"
     fi
 
-    x_q_dest_file="$tests_dir/dev-basic-xenial-queens"
-    b_q_dest_file="$tests_dir/dev-basic-bionic-queens"
+    x_q_dest_file="$tests_dir/gate-basic-xenial-queens"
+    b_q_src_file="$tests_dir/dev-basic-bionic-queens"
+    b_q_dest_file="$tests_dir/gate-basic-bionic-queens"
 
     x_m_src_file="$tests_dir/gate-basic-xenial-mitaka"
     x_o_src_file="$tests_dir/gate-basic-xenial-ocata"
@@ -145,24 +151,35 @@ for charm in $charms; do
     z_o_del_file="$tests_dir/*zesty*"
 
 
-    # Add bionic amulet tests
-    cp -fv $x_m_src_file $b_q_dest_file
-    sed -e "s_mitaka_queens_g" -i $b_q_dest_file
-    sed -e "s_Mitaka_Queens_g" -i $b_q_dest_file
-    sed -e "s_xenial_bionic_g" -i $b_q_dest_file
-    sed -e "s_Xenial_Bionic_g" -i $b_q_dest_file
-    chmod +x $b_q_dest_file
+    if [[ ! -f $b_q_dest_file ]] && [[ ! -f $b_q_src_file ]] && [[ -f $x_m_src_file ]]; then
+      # Add bionic amulet tests
+      echo "Creating bionic-queens test."
+      cp -fv $x_m_src_file $b_q_dest_file
+      sed -e "s_mitaka_queens_g" -i $b_q_dest_file
+      sed -e "s_Mitaka_Queens_g" -i $b_q_dest_file
+      sed -e "s_xenial_bionic_g" -i $b_q_dest_file
+      sed -e "s_Xenial_Bionic_g" -i $b_q_dest_file
+      chmod +x $b_q_dest_file
+    elif [[ -f $b_q_src_file ]]; then
+      echo "Moving bionic-queens test to gate."
+      git mv $b_q_src_file $b_q_dest_file
+    fi
 
-    cp -fv $x_o_src_file $x_q_dest_file
-    sed -e "s_ocata_queens_g" -i $x_q_dest_file
-    sed -e "s_Ocata_Queens_g" -i $x_q_dest_file
-    chmod +x $x_q_dest_file
+    if [[ ! -f $x_q_dest_file ]] && [[ -f $x_o_src_file ]]; then
+      echo "Creating xenial-queens test"
+      cp -fv $x_o_src_file $x_q_dest_file
+      sed -e "s_ocata_queens_g" -i $x_q_dest_file
+      sed -e "s_Ocata_Queens_g" -i $x_q_dest_file
+      chmod +x $x_q_dest_file
+    fi
 
     # Enable and disable edges
     chmod -v +x ${tests_dir}/dev-*     ||:
     chmod -v +x ${tests_dir}/*newton*  ||:
     chmod -v +x ${tests_dir}/*ocata*   ||:
     #chmod -v +x ${tests_dir}/*pike*   ||:
+    chmod -v +x ${tests_dir}/*queens*   ||:
+    chmod -v +x ${tests_dir}/*bionic*   ||:
     #chmod -v +x ${tests_dir}/*artful* ||:
 
     # Fix hashbangs if necessary
@@ -195,6 +212,11 @@ for charm in $charms; do
       echo " ! No artful in $metadata"
       exit 1
     fi
+
+    # Update smoke test target
+    echo "Update smoke test target"
+    sed -i -e "s/bundletester -vl DEBUG -r json -o func-results.json gate-basic-xenial.* --no-destroy/bundletester -vl DEBUG -r json -o func-results.json gate-basic-bionic-queens --no-destroy/g" $test_tox_file
+
 
 
     # Optionally rebase with master
