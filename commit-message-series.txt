@@ -1,0 +1,6 @@
+Update series metadata
+
+Ensure that EOL releases are removed from metadata
+and tests, and that the current dev release is enabled
+in metadata.  Dev release tests are enabled separately
+because of chickens and eggs.

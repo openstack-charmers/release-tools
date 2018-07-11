@@ -1,0 +1,187 @@
+#!/bin/bash -e
+#
+#  Update series metadata
+#
+#  This script is likely only relevant for the tasks necessary at a
+#  point in time.  Committed to repo for reference anyway, to be
+#  improved upon or adjusted for later needs.
+
+charms="$(cat charms.txt)"
+src_charms="$(cat source-charms.txt)"
+basedir="$(pwd)"
+branch="$1"
+
+gerrit_topic="update-series-metadata"
+commit_msg_file="$basedir/commit-message-series.txt"
+
+all_params="$@"
+if [[ "$all_params" == *--amend* ]]; then
+    AMEND="True"
+fi
+if [[ "$all_params" == *--no-review* ]]; then
+    NO_REVIEW="True"
+fi
+if [[ "$all_params" == *--force-review* ]]; then
+    FORCE_REVIEW="True"
+fi
+if [[ "$all_params" == *--rebase-master* ]]; then
+    REBASE_MASTER="True"
+fi
+
+usage="usage: update-series-metadata <master||stable/nn.nn>
+
+USAGE EXAMPLES
+
+Clone repos, check out the master branch, make changes and
+submit gerrit reviews:
+  ./update-series-metadata master
+
+Clone repos, check out the master branch, make changes
+but do not actually submit a gerrit review:
+  ./update-series-metadata master --no-review
+
+Re-use local checkout, amend commits and add patchset to
+the existing gerrit review:
+  ./update-series-metadata master --amend
+
+Re-use local checkout, rebase with master, amend commits
+and add patchset to the existing gerrit review:
+  ./update-series-metadata master --amend --rebase-master
+
+Re-use local checkout, rebase with master, amend commits
+and add patchset to the existing gerrit review even if
+no changes detected in the repo.  Useful if manually
+committing changes in the local repo outside this script.
+  ./update-series-metadata master --amend --rebase-master --force-review
+
+Re-use local checkout, amend commits for adding to the review,
+but do not actually submit a gerrit review:
+  ./update-series-metadata master --amend --no-review
+"
+
+if [ -z "$branch" ]; then
+    echo -e "$usage"
+    exit 1
+fi
+
+# Expect user to have git config ready for gerrit use
+git config --get gitreview.username || ( echo " ! Not set: gitreview.username git config option"; echo -e "$usage"; exit 1 )
+
+commit_msg="$(cat $commit_msg_file ||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty."
+    exit 1
+fi
+
+
+function git_get(){
+    (
+    if [[ "${AMEND^^}" != "TRUE" ]] && [[ ! -d $2 ]]; then
+        echo " + Clone $1 -> $2"
+        git clone $1 $2
+        cd $2
+        git checkout $3
+    elif [[ "${AMEND^^}" != "TRUE" ]] && [[ -d $2 ]]; then
+        echo " ! Dir exists: $2.  Consider running 'make clean' or using --amend."
+        exit 1
+    else
+        echo " . Re-using checkout dir $2"
+        cd $2
+        git branch -v
+    fi
+    )
+}
+
+
+function git_review(){
+    if [ "${NO_REVIEW^^}" == "TRUE" ]; then
+        echo " . Not proposing gerrit (dry run)."
+    elif [ "${FORCE_REVIEW^^}" != "TRUE" ]; then
+        echo " . Submitting gerrit review for $charm"
+        git review
+    elif [ "${FORCE_REVIEW^^}" == "TRUE" ]; then
+        echo " . Submitting gerrit review for $charm (non-fatal on failure)"
+        git review ||:
+    else
+        echo " ! Unknown condition in git_review"
+        exit 1
+    fi
+}
+
+
+for charm in $charms; do
+    echo "===== $charm ====="
+    (
+        git_get https://github.com/openstack/charm-$charm $charm $branch
+        cd $charm
+
+        # Set file locations depending on charm type
+        charm_dir="$basedir/$charm"
+        if grep "^$charm$" ../source-charms.txt; then
+            # src charms
+            echo " . source charm"
+            tests_dir="$basedir/$charm/src/tests"
+            test_tox_file="$basedir/$charm/src/tox.ini"
+        else
+            # classic charms
+            echo " . classic charm"
+            tests_dir="$basedir/$charm/tests"
+            test_tox_file="$basedir/$charm/tox.ini"
+        fi
+
+        # Remove eol release tests if they exist
+        for rel in juno kilo liberty newton zesty artful; do
+            git rm "${tests_dir}/*${rel}*"  ||:
+        done
+
+        # Remove deprecated series metadata
+        metadata=$(find $charm_dir -name "metadata.yaml")
+        echo " . metadata file: $metadata"
+        sed -i "/ - precise/d" $metadata   ||:
+        sed -i "/ - yakkety/d" $metadata   ||:
+        sed -i "/ - zesty/d" $metadata     ||:
+        sed -i "/ - artful/d" $metadata    ||:
+
+        # Add current dev series
+        if ! grep " - cosmic" $metadata; then
+            sed -e "s_  - bionic_  - bionic\n  - cosmic_g" $metadata -i
+        fi
+
+        # Check for required series
+        for req in xenial bionic cosmic; do
+            if ! grep "$req" $metadata; then
+                echo " ! No $req in $metadata"
+                exit 1
+            fi
+        done
+
+        # Optionally rebase with master
+        if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then
+            (
+                git checkout master
+                git pull
+                git checkout $gerrit_topic || git checkout -b $gerrit_topic
+                git rebase master
+            )
+        fi
+
+        # Commit if there are changes, or optionally commit even if no changes
+        git_status="$(git status -s)"
+        if [[ "${FORCE_REVIEW^^}" == "TRUE" ]]; then
+            git_status="True"
+        fi
+        if [[ "${AMEND^^}" != "TRUE" ]] && [[ -n "$git_status" ]]; then
+            git checkout -b $gerrit_topic
+            git add .
+            git commit -F $commit_msg_file
+            git_review
+        elif [[ "${AMEND^^}" == "TRUE" ]] && [[ -n "$git_status" ]]; then
+            git checkout $gerrit_topic || git checkout -b $gerrit_topic
+            git add .
+            git commit --amend --no-edit
+            git_review
+        else
+            echo " - No changes for $charm, skipping git review."
+        fi
+    )
+done
