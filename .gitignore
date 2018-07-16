@@ -1,5 +1,6 @@
 *.swp
 bc-tools
+commit-message-tests-yaml.txt
 aodh
 barbican
 barbican-softhsm
@@ -17,10 +18,15 @@ cinder-ceph
 designate
 designate-bind
 glance
+glance-simplestreams-sync
+gnocchi
 hacluster
 heat
 keystone
+keystone-ldap
 lxd
+manila
+manila-generic
 neutron-api
 neutron-api-odl
 neutron-dynamic-routing
@@ -37,8 +43,4 @@ rabbitmq-server
 swift-proxy
 swift-storage
 tempest
-gnocchi
-keystone-ldap
-manila
-manila-generic
 vault

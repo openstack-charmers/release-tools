@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-#  Update Amulet test definitions
+#  Update functional test definitions
 #
 #  This script is likely only relevant for the tasks necessary at a
 #  point in time.  Committed to repo for reference anyway, to be
@@ -11,8 +11,8 @@ src_charms="$(cat source-charms.txt)"
 basedir="$(pwd)"
 branch="$1"
 
-gerrit_topic="update-amulet-defs-bionic"
-commit_msg_file="$basedir/commit-message-amulet-defs.txt"
+gerrit_topic="update-func-defs"
+commit_msg_file="$basedir/commit-message-func-defs.txt"
 
 all_params="$@"
 if [[ "$all_params" == *--amend* ]]; then
@@ -31,39 +31,39 @@ if [[ "$all_params" == *--ch-sync-legacy* ]]; then
   CH_SYNC="True"
 fi
 
-usage="usage: update-amulet-defs <master||stable/nn.nn>
+usage="usage: update-func-defs <master||stable/nn.nn>
 
 USAGE EXAMPLES
 
 Clone repos, check out the master branch, make changes and
 submit gerrit reviews:
-  ./update-amulet-defs master
+  ./update-func-defs master
 
 Clone repos, check out the master branch, performa a legacy
 charm-helper sync, make changes and submit gerrit reviews:
-  ./update-amulet-defs master --ch-sync-legacy
+  ./update-func-defs master --ch-sync-legacy
 
 Clone repos, check out the master branch, make changes
 but do not actually submit a gerrit review:
-  ./update-amulet-defs master --no-review
+  ./update-func-defs master --no-review
 
 Re-use local checkout, amend commits and add patchset to
 the existing gerrit review:
-  ./update-amulet-defs master --amend
+  ./update-func-defs master --amend
 
 Re-use local checkout, rebase with master, amend commits
 and add patchset to the existing gerrit review:
-  ./update-amulet-defs master --amend --rebase-master
+  ./update-func-defs master --amend --rebase-master
 
 Re-use local checkout, rebase with master, amend commits
 and add patchset to the existing gerrit review even if
 no changes detected in the repo.  Useful if manually
 committing changes in the local repo outside this script.
-  ./update-amulet-defs master --amend --rebase-master --force-review
+  ./update-func-defs master --amend --rebase-master --force-review
 
 Re-use local checkout, amend commits for adding to the review,
 but do not actually submit a gerrit review:
-  ./update-amulet-defs master --amend --no-review
+  ./update-func-defs master --amend --no-review
 "
 
 if [ -z "$branch" ]; then
@@ -116,6 +116,53 @@ function git_review(){
 }
 
 
+function update_amulet_tests(){
+    # Update legacy amulet/bundletester style test definitions
+
+    # Use the LTS file as a template to add the current interim release combo test
+    lts_distro_src_file="$tests_dir/gate-basic-bionic-queens"
+    int_distro_dst_file="$tests_dir/dev-basic-cosmic-rocky"
+
+    git rm "$tests_dir/dev-*" ||:
+
+    if [[ ! -f $int_distro_dst_file ]] && [[ -f $lts_distro_src_file ]]; then
+      # Add tests
+      cp -fv $lts_distro_src_file $int_distro_dst_file
+      sed -e "s_queens_rocky_g"  -i $int_distro_dst_file
+      sed -e "s_Queens_Rocky_g"  -i $int_distro_dst_file
+      sed -e "s_bionic_cosmic_g" -i $int_distro_dst_file
+      sed -e "s_Bionic_Cosmic_g" -i $int_distro_dst_file
+      chmod +x $int_distro_dst_file
+
+      # Update smoke test target
+      echo "Update smoke test target"
+      sed -i -e "s/bundletester -vl DEBUG -r json -o func-results.json gate-basic-xenial.* --no-destroy/bundletester -vl DEBUG -r json -o func-results.json gate-basic-bionic-queens --no-destroy/g" $test_tox_file
+    fi
+
+    # Use a LTS + UCA file as a template to add the current LTS + UCA release combo test
+    lts_uca_src_file="$tests_dir/gate-basic-xenial-queens"
+    lts_uca_dst_file="$tests_dir/dev-basic-bionic-rocky"
+
+    if [[ ! -f $lts_uca_dst_file ]] && [[ -f $lts_uca_src_file ]]; then
+      # Add tests
+      cp -fv $lts_uca_src_file $lts_uca_dst_file
+      sed -e "s_queens_rocky_g"  -i $lts_uca_dst_file
+      sed -e "s_Queens_Rocky_g"  -i $lts_uca_dst_file
+      sed -e "s_xenial_bionic_g" -i $lts_uca_dst_file
+      sed -e "s_Xenial_Bionic_g" -i $lts_uca_dst_file
+      chmod +x $lts_uca_dst_file
+    fi
+
+}
+
+
+function fix_hashbangs(){
+    # Fix hashbangs for virtualenv if necessary
+    find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python\$_#\!/usr/bin/env python_g" -i
+    find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python3\$_#\!/usr/bin/env python3_g" -i
+}
+
+
 for charm in $charms; do
   echo "===== $charm ====="
   (
@@ -125,99 +172,27 @@ for charm in $charms; do
     # Set file locations depending on charm type
     charm_dir="$basedir/$charm"
     if grep "^$charm$" ../zaza-charms.txt; then
-      echo "Skipping zaza charm"
-      continue
+      # zaza charms (assumes they are also src charms)
+      echo " . zaza charm"
+      tests_dir="$basedir/$charm/src/tests"
+      test_tox_file="$basedir/$charm/src/tox.ini"
+      # TODO: zaza needs test def updates too
+      fix_hashbangs
     elif grep "^$charm$" ../source-charms.txt; then
       # src charms
       echo " . source charm"
       tests_dir="$basedir/$charm/src/tests"
-	 test_tox_file="$basedir/$charm/src/tox.ini"
+      test_tox_file="$basedir/$charm/src/tox.ini"
+      update_amulet_tests
+      fix_hashbangs
     else
       # classic charms
       echo " . classic charm"
       tests_dir="$basedir/$charm/tests"
-	 test_tox_file="$basedir/$charm/tox.ini"
+      test_tox_file="$basedir/$charm/tox.ini"
+      update_amulet_tests
+      fix_hashbangs
     fi
-
-    x_q_dest_file="$tests_dir/gate-basic-xenial-queens"
-    b_q_src_file="$tests_dir/dev-basic-bionic-queens"
-    b_q_dest_file="$tests_dir/gate-basic-bionic-queens"
-
-    x_m_src_file="$tests_dir/gate-basic-xenial-mitaka"
-    x_o_src_file="$tests_dir/gate-basic-xenial-ocata"
-
-    p_i_del_file="$tests_dir/*precise*"
-    y_n_del_file="$tests_dir/*yakkety*"
-    z_o_del_file="$tests_dir/*zesty*"
-
-
-    if [[ ! -f $b_q_dest_file ]] && [[ ! -f $b_q_src_file ]] && [[ -f $x_m_src_file ]]; then
-      # Add bionic amulet tests
-      echo "Creating bionic-queens test."
-      cp -fv $x_m_src_file $b_q_dest_file
-      sed -e "s_mitaka_queens_g" -i $b_q_dest_file
-      sed -e "s_Mitaka_Queens_g" -i $b_q_dest_file
-      sed -e "s_xenial_bionic_g" -i $b_q_dest_file
-      sed -e "s_Xenial_Bionic_g" -i $b_q_dest_file
-      chmod +x $b_q_dest_file
-    elif [[ -f $b_q_src_file ]]; then
-      echo "Moving bionic-queens test to gate."
-      git mv $b_q_src_file $b_q_dest_file
-    fi
-
-    if [[ ! -f $x_q_dest_file ]] && [[ -f $x_o_src_file ]]; then
-      echo "Creating xenial-queens test"
-      cp -fv $x_o_src_file $x_q_dest_file
-      sed -e "s_ocata_queens_g" -i $x_q_dest_file
-      sed -e "s_Ocata_Queens_g" -i $x_q_dest_file
-      chmod +x $x_q_dest_file
-    fi
-
-    # Enable and disable edges
-    chmod -v +x ${tests_dir}/dev-*     ||:
-    chmod -v +x ${tests_dir}/*newton*  ||:
-    chmod -v +x ${tests_dir}/*ocata*   ||:
-    #chmod -v +x ${tests_dir}/*pike*   ||:
-    chmod -v +x ${tests_dir}/*queens*   ||:
-    chmod -v +x ${tests_dir}/*bionic*   ||:
-    #chmod -v +x ${tests_dir}/*artful* ||:
-
-    # Fix hashbangs if necessary
-    find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python\$_#\!/usr/bin/env python_g" -i
-    find ${tests_dir} -maxdepth 1 -type f | xargs sed -e "s_#\!/usr/bin/python3\$_#\!/usr/bin/env python3_g" -i
-
-    # Remove tests
-    git rm -f $p_i_del_file ||:
-    git rm -f $y_n_del_file ||:
-    git rm -f $z_o_del_file ||:
-
-    # Remove deprecated series
-    metadata=$(find $charm_dir -name "metadata.yaml")
-    echo " . metadata file: $metadata"
-    sed -i "/ - precise/d" $metadata  ||:
-    sed -i "/ - yakkety/d" $metadata  ||:
-    sed -i "/ - zesty/d" $metadata    ||:
-
-    # Add current dev series
-    if ! grep " - bionic" $metadata; then
-      sed -e "s_  - xenial_  - xenial\n  - bionic_g" $metadata -i
-    fi
-
-    if ! grep "bionic" $metadata; then
-      echo " ! No bionic in $metadata"
-      exit 1
-    fi
-
-    if ! grep "artful" $metadata; then
-      echo " ! No artful in $metadata"
-      exit 1
-    fi
-
-    # Update smoke test target
-    echo "Update smoke test target"
-    sed -i -e "s/bundletester -vl DEBUG -r json -o func-results.json gate-basic-xenial.* --no-destroy/bundletester -vl DEBUG -r json -o func-results.json gate-basic-bionic-queens --no-destroy/g" $test_tox_file
-
-
 
     # Optionally rebase with master
     if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then

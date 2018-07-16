@@ -4,7 +4,7 @@
 #  Then, propose gerrit reviews.
 #
 #  e.g. reset_timeout is now default 180s for bundletester
-#  ./update-tests-yaml-files master --kvs reset_timeout:600 will update or add
+#  ./update-bundletester-tests-yaml-files master --kvs reset_timeout:600 will update or add
 #  this value in the first tests.yaml it finds in each charm.
 # 
 #  Note there should only be one tests.yaml per charm.
@@ -15,7 +15,7 @@ src_charms="$(cat source-charms.txt)"
 basedir="$(pwd)"
 branch="$1"
 
-gerrit_topic="update-tests-yaml-files"
+gerrit_topic="update-bundletester-tests-yaml-files"
 commit_msg_template="$basedir/commit-message-tests-yaml.template"
 commit_msg_file="$basedir/commit-message-tests-yaml.txt"
 
@@ -27,7 +27,7 @@ if [[ "$all_params" == *--noreview* ]]; then
   NO_REVIEW="True"
 fi
 
-usage="usage: update-tests-yaml-files <master||stable/nn.nn> --kvs key1:value key2:value
+usage="usage: update-bundletester-tests-yaml-files <master||stable/nn.nn> --kvs key1:value key2:value
 
 IMPORTANT: Ensure --kvs is the last param on the command line.
 
@@ -35,19 +35,19 @@ USAGE EXAMPLES
 
 Clone repos, check out the master branch, make changes and
 submit gerrit reviews:
-  ./update-tests-yaml-files master --kvs key1:value, key2:value
+  ./update-bundletester-tests-yaml-files master --kvs key1:value, key2:value
 
 Clone repos, check out the master branch, make changes
 but do not actually submit a gerrit review:
-  ./update-tests-yaml-files master --noreview --kvs key1:value, key2:value
+  ./update-bundletester-tests-yaml-files master --noreview --kvs key1:value, key2:value
 
 Re-use local checkout, amend commits and add patchset to
 the existing gerrit review:
-  ./update-tests-yaml-files master --amend --kvs key1:value, key2:value
+  ./update-bundletester-tests-yaml-files master --amend --kvs key1:value, key2:value
 
 Re-use local checkout, amend commits for adding to the review,
 but do not actually submit a gerrit review:
-  ./update-tests-yaml-files master --amend --noreview --kvs key1:value, key2:value
+  ./update-bundletester-tests-yaml-files master --amend --noreview --kvs key1:value, key2:value
 "
 
 keys=`echo $@|awk -F '--kvs ' '{print $2}'`
@@ -147,6 +147,14 @@ create_commit_msg_txt
 
 for charm in $charms; do
   echo "===== $charm ====="
+
+    if grep "^$charm$" ../zaza-charms.txt; then
+      # zaza charms (assumes they are also src charms)
+      # zaza's yaml file is a completely different animal
+      echo " . skipping zaza charm"
+      continue
+    fi
+
   (
     git_get https://github.com/openstack/charm-$charm $charm $branch
 

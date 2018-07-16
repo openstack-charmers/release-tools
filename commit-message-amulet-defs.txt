@@ -1,3 +1,0 @@
-Enable Bionic as a gate test
-
-Change bionic test from dev to gate for 18.05.
