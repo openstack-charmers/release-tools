@@ -116,6 +116,42 @@ function git_review(){
 }
 
 
+function update_zaza_tests(){
+
+      # Use the LTS file as a template to add the current interim release combo test
+      lts_distro_src_file="$tests_dir/bundles/bionic-queens-functional.yaml"
+      int_distro_dst_file="$tests_dir/bundles/cosmic-rocky-functional.yaml"
+
+      # Use a LTS + UCA file as a template to add the current LTS + UCA release combo test
+      lts_uca_src_file="$tests_dir/bundles/xenial-queens-functional.yaml"
+      lts_uca_dst_file="$tests_dir/bundles/bionic-rocky-functional.yaml"
+
+      if [[ -f $lts_distro_src_file ]] && [[ -f $lts_uca_src_file ]]; then
+
+        ../yaml_key_shove.py -yv \
+              --from-file     ../zaza-required.yaml \
+              --to-file       "$tests_dir/tests.yaml" \
+              --keys          "gate_bundles,smoke_bundles,dev_bundles"
+
+        # Add tests
+        cp -fv $lts_distro_src_file $int_distro_dst_file
+        sed -e "s_series: bionic_series: cosmic_g" -i $int_distro_dst_file
+
+        cp -fv $lts_uca_src_file $lts_uca_dst_file
+        sed -e "s_queens_rocky_g"  -i $lts_uca_dst_file
+        sed -e "s_xenial_bionic_g" -i $lts_uca_dst_file
+
+        if ! grep "func-dev" $test_tox_file; then
+          echo -e "
+[testenv:func-dev]
+basepython = python3
+commands =
+    functest-run-suite --keep-model --dev" >> $test_tox_file
+        fi
+      fi
+}
+
+
 function update_amulet_tests(){
     # Update legacy amulet/bundletester style test definitions
 
@@ -173,17 +209,23 @@ for charm in $charms; do
     charm_dir="$basedir/$charm"
     if grep "^$charm$" ../zaza-charms.txt; then
       # zaza charms (assumes they are also src charms)
+      # Bonafide openstack charms should look like neutron-dynamic-routing in terms
+      # of bundle names and tests.yaml definitions.
       echo " . zaza charm"
       tests_dir="$basedir/$charm/src/tests"
       test_tox_file="$basedir/$charm/src/tox.ini"
-      # TODO: zaza needs test def updates too
+      if ! grep "^$charm$" ../charms-no-func-test-mgmt.txt; then
+        update_zaza_tests
+      fi
       fix_hashbangs
     elif grep "^$charm$" ../source-charms.txt; then
       # src charms
       echo " . source charm"
       tests_dir="$basedir/$charm/src/tests"
       test_tox_file="$basedir/$charm/src/tox.ini"
-      update_amulet_tests
+      if ! grep "^$charm$" ../charms-no-func-test-mgmt.txt; then
+        update_amulet_tests
+      fi
       fix_hashbangs
     else
       # classic charms

@@ -1,0 +1,10 @@
+# Impose the following on all managed zaza charms
+gate_bundles:
+  - bionic-queens-functional
+  - xenial-pike-functional
+  - xenial-queens-functional
+smoke_bundles:
+  - bionic-queens-functional
+dev_bundles:
+  - bionic-rocky-functional
+  - cosmic-rocky-functional
