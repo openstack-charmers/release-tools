@@ -9,6 +9,7 @@
 branch="$2"
 charm="$1"
 usage="usage: push-and-release charmname <master||stable||stable/nn.nn>
+resource_string=""
 
 NOTE:
   - Now enforcing series declarations in metadata.yaml.  All charms must
@@ -126,8 +127,15 @@ fi
 cs_refs_released="$(mktemp)"
 echo $charm_ref >> $cs_refs_released
 
+# Optionally attach an existing resource prior to charm release
+if [[ -n $(awk '$0~c' c="$charm:$branch" resources.txt) ]]; then
+    resource=$(awk '$0~c' c="$charm:$branch" resources.txt | awk -F':' '{ print $4 }')
+    resource_string="--resource $resource"
+echo " . Using resource $resource"
+fi
+
 echo " . Releasing charm $charm_ref"
-retry_command charm release $charm_ref
+retry_command charm release $charm_ref $resource_string
 
 echo " . Granting global read acl"
 retry_command charm grant $charm_store_url --acl read everyone
