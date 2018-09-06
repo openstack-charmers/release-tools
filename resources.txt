@@ -1,0 +1,3 @@
+# Insructions for charm pusher to attach an existing resource prior to charm release
+openstack-dashboard:master:theme:theme-0
+openstack-dashboard:stable/18.08:theme:theme-0
