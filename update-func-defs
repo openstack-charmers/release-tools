@@ -159,8 +159,6 @@ function update_amulet_tests(){
     lts_distro_src_file="$tests_dir/gate-basic-bionic-queens"
     int_distro_dst_file="$tests_dir/dev-basic-cosmic-rocky"
 
-    git rm "$tests_dir/dev-*" ||:
-
     if [[ ! -f $int_distro_dst_file ]] && [[ -f $lts_distro_src_file ]]; then
       # Add tests
       cp -fv $lts_distro_src_file $int_distro_dst_file
@@ -176,19 +174,22 @@ function update_amulet_tests(){
     fi
 
     # Use a LTS + UCA file as a template to add the current LTS + UCA release combo test
-    lts_uca_src_file="$tests_dir/gate-basic-xenial-queens"
-    lts_uca_dst_file="$tests_dir/dev-basic-bionic-rocky"
+    #lts_uca_src_file="$tests_dir/gate-basic-xenial-queens"
+    #lts_uca_dst_file="$tests_dir/dev-basic-bionic-rocky"
+    #
+    #if [[ ! -f $lts_uca_dst_file ]] && [[ -f $lts_uca_src_file ]]; then
+    #  # Add tests
+    #  cp -fv $lts_uca_src_file $lts_uca_dst_file
+    #  sed -e "s_queens_rocky_g"  -i $lts_uca_dst_file
+    #  sed -e "s_Queens_Rocky_g"  -i $lts_uca_dst_file
+    #  sed -e "s_xenial_bionic_g" -i $lts_uca_dst_file
+    #  sed -e "s_Xenial_Bionic_g" -i $lts_uca_dst_file
+    #  chmod +x $lts_uca_dst_file
+    #fi
 
-    if [[ ! -f $lts_uca_dst_file ]] && [[ -f $lts_uca_src_file ]]; then
-      # Add tests
-      cp -fv $lts_uca_src_file $lts_uca_dst_file
-      sed -e "s_queens_rocky_g"  -i $lts_uca_dst_file
-      sed -e "s_Queens_Rocky_g"  -i $lts_uca_dst_file
-      sed -e "s_xenial_bionic_g" -i $lts_uca_dst_file
-      sed -e "s_Xenial_Bionic_g" -i $lts_uca_dst_file
-      chmod +x $lts_uca_dst_file
+    if [[ -f $tests_dir/dev-basic-bionic-rocky ]]; then
+        mv $tests_dir/dev-basic-bionic-rocky $tests_dir/gate-basic-bionic-rocky
     fi
-
 }
 
 
