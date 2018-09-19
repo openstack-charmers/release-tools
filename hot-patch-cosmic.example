@@ -1,0 +1,12 @@
+diff --git a/charmhelpers/core/host_factory/ubuntu.py b/charmhelpers/core/host_factory/ubuntu.py
+index 99451b59..a6d375af 100644
+--- a/charmhelpers/core/host_factory/ubuntu.py
++++ b/charmhelpers/core/host_factory/ubuntu.py
+@@ -21,6 +21,7 @@ UBUNTU_RELEASES = (
+     'zesty',
+     'artful',
+     'bionic',
++    'cosmic',
+ )
+ 
+ 
