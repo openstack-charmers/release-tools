@@ -121,9 +121,8 @@ for charm in $charms; do
             # src charms
             if grep "^$charm$" ../zaza-charms.txt; then
                 echo " . source charm, with zaza"
-echo " !! SKIPPING $charm"
-#                cp -fv ../global/requirements/source-zaza-charms/*requirements.txt .
-#                cp -fv ../global/requirements/source-zaza-charms/src/*requirements.txt ./src/
+                cp -fv ../global/requirements/source-zaza-charms/*requirements.txt .
+                cp -fv ../global/requirements/source-zaza-charms/src/*requirements.txt ./src/
             else
                 echo " . source charm, no zaza"
 echo " !! SKIPPING $charm"
@@ -135,9 +134,7 @@ echo " !! SKIPPING $charm"
             stat -t tests/charmhelpers && git rm -rf tests/charmhelpers
             if grep "^$charm$" ../zaza-charms.txt; then
                 echo " . classic charm, with zaza"
-echo " !! SKIPPING $charm"
-#                cp -fv ../global/requirements/classic-zaza-charms/*requirements.txt .
-#                cp -fv ../global/requirements/classic-zaza-charms/src/*requirements.txt ./src/
+                cp -fv ../global/requirements/classic-zaza-charms/*requirements.txt .
             else
                 echo " . classic charm, no zaza"
                 cp -fv ../global/requirements/classic-charms/*requirements.txt .
