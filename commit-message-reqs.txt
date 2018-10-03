@@ -1,0 +1,4 @@
+Update requirements
+
+Also remove tests/charm-helpers if present, in favor
+of the pip-installed charm-helpers.

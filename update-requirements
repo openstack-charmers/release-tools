@@ -1,0 +1,176 @@
+#!/bin/bash -e
+#
+#  Update requirements
+#
+#  This script is likely only relevant for the tasks necessary at a
+#  point in time.  Committed to repo for reference anyway, to be
+#  improved upon or adjusted for later needs.
+
+charms="$(cat charms.txt)"
+src_charms="$(cat source-charms.txt)"
+basedir="$(pwd)"
+branch="$1"
+
+gerrit_topic="update-reqs"
+commit_msg_file="$basedir/commit-message-reqs.txt"
+
+all_params="$@"
+if [[ "$all_params" == *--amend* ]]; then
+    AMEND="True"
+fi
+if [[ "$all_params" == *--no-review* ]]; then
+    NO_REVIEW="True"
+fi
+if [[ "$all_params" == *--force-review* ]]; then
+    FORCE_REVIEW="True"
+fi
+if [[ "$all_params" == *--rebase-master* ]]; then
+    REBASE_MASTER="True"
+fi
+
+usage="usage: update-requirements <master||stable/nn.nn>
+
+USAGE EXAMPLES
+
+Clone repos, check out the master branch, make changes and
+submit gerrit reviews:
+  ./update-requirements master
+
+Clone repos, check out the master branch, make changes
+but do not actually submit a gerrit review:
+  ./update-requirements master --no-review
+
+Re-use local checkout, amend commits and add patchset to
+the existing gerrit review:
+  ./update-requirements master --amend
+
+Re-use local checkout, rebase with master, amend commits
+and add patchset to the existing gerrit review:
+  ./update-requirements master --amend --rebase-master
+
+Re-use local checkout, rebase with master, amend commits
+and add patchset to the existing gerrit review even if
+no changes detected in the repo.  Useful if manually
+committing changes in the local repo outside this script.
+  ./update-requirements master --amend --rebase-master --force-review
+
+Re-use local checkout, amend commits for adding to the review,
+but do not actually submit a gerrit review:
+  ./update-requirements master --amend --no-review
+"
+
+if [ -z "$branch" ]; then
+    echo -e "$usage"
+    exit 1
+fi
+
+# Expect user to have git config ready for gerrit use
+git config --get gitreview.username || ( echo " ! Not set: gitreview.username git config option"; echo -e "$usage"; exit 1 )
+
+commit_msg="$(cat $commit_msg_file ||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty."
+    exit 1
+fi
+
+
+function git_get(){
+    (
+    if [[ "${AMEND^^}" != "TRUE" ]] && [[ ! -d $2 ]]; then
+        echo " + Clone $1 -> $2"
+        git clone $1 $2
+        cd $2
+        git checkout $3
+    elif [[ "${AMEND^^}" != "TRUE" ]] && [[ -d $2 ]]; then
+        echo " ! Dir exists: $2.  Consider running 'make clean' or using --amend."
+        exit 1
+    else
+        echo " . Re-using checkout dir $2"
+        cd $2
+        git branch -v
+    fi
+    )
+}
+
+
+function git_review(){
+    if [ "${NO_REVIEW^^}" == "TRUE" ]; then
+        echo " . Not proposing gerrit (dry run)."
+    elif [ "${FORCE_REVIEW^^}" != "TRUE" ]; then
+        echo " . Submitting gerrit review for $charm"
+        git review
+    elif [ "${FORCE_REVIEW^^}" == "TRUE" ]; then
+        echo " . Submitting gerrit review for $charm (non-fatal on failure)"
+        git review ||:
+    else
+        echo " ! Unknown condition in git_review"
+        exit 1
+    fi
+}
+
+
+for charm in $charms; do
+    echo "===== $charm ====="
+    (
+        git_get https://github.com/openstack/charm-$charm $charm $branch
+        cd $charm
+
+        # Set file locations depending on charm type
+        charm_dir="$basedir/$charm"
+        if grep "^$charm$" ../source-charms.txt; then
+            # src charms
+            if grep "^$charm$" ../zaza-charms.txt; then
+                echo " . source charm, with zaza"
+echo " !! SKIPPING $charm"
+#                cp -fv ../global/requirements/source-zaza-charms/*requirements.txt .
+#                cp -fv ../global/requirements/source-zaza-charms/src/*requirements.txt ./src/
+            else
+                echo " . source charm, no zaza"
+echo " !! SKIPPING $charm"
+#                cp -fv ../global/requirements/source-charms/*requirements.txt .
+#                cp -fv ../global/requirements/source-charms/src/*requirements.txt ./src/
+            fi
+        else
+            # classic charms
+            stat -t tests/charmhelpers && git rm -rf tests/charmhelpers
+            if grep "^$charm$" ../zaza-charms.txt; then
+                echo " . classic charm, with zaza"
+echo " !! SKIPPING $charm"
+#                cp -fv ../global/requirements/classic-zaza-charms/*requirements.txt .
+#                cp -fv ../global/requirements/classic-zaza-charms/src/*requirements.txt ./src/
+            else
+                echo " . classic charm, no zaza"
+                cp -fv ../global/requirements/classic-charms/*requirements.txt .
+            fi
+        fi
+
+        # Optionally rebase with master
+        if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then
+            (
+                git checkout master
+                git pull
+                git checkout $gerrit_topic || git checkout -b $gerrit_topic
+                git rebase master
+            )
+        fi
+
+        # Commit if there are changes, or optionally commit even if no changes
+        git_status="$(git status -s)"
+        if [[ "${FORCE_REVIEW^^}" == "TRUE" ]]; then
+            git_status="True"
+        fi
+        if [[ "${AMEND^^}" != "TRUE" ]] && [[ -n "$git_status" ]]; then
+            git checkout -b $gerrit_topic
+            git add .
+            git commit -F $commit_msg_file
+            git_review
+        elif [[ "${AMEND^^}" == "TRUE" ]] && [[ -n "$git_status" ]]; then
+            git checkout $gerrit_topic || git checkout -b $gerrit_topic
+            git add .
+            git commit --amend --no-edit
+            git_review
+        else
+            echo " - No changes for $charm, skipping git review."
+        fi
+    )
+done
