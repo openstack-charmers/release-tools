@@ -1,3 +1,1 @@
-# Build requirements
-charm-tools>=2.4.4
-simplejson
+../source-charms/requirements.txt

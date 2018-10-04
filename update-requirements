@@ -123,11 +123,14 @@ for charm in $charms; do
                 echo " . source charm, with zaza"
                 cp -fv ../global/requirements/source-zaza-charms/*requirements.txt .
                 cp -fv ../global/requirements/source-zaza-charms/src/*requirements.txt ./src/
+                # built charms don't have or need a requirements file
+                git rm ./src/requirements.txt ||:
             else
                 echo " . source charm, no zaza"
-echo " !! SKIPPING $charm"
-#                cp -fv ../global/requirements/source-charms/*requirements.txt .
-#                cp -fv ../global/requirements/source-charms/src/*requirements.txt ./src/
+                cp -fv ../global/requirements/source-charms/*requirements.txt .
+                cp -fv ../global/requirements/source-charms/src/*requirements.txt ./src/
+                # built charms don't have or need a requirements file
+                git rm ./src/requirements.txt ||:
             fi
         else
             # classic charms
