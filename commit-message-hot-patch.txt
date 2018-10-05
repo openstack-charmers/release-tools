@@ -1,0 +1,10 @@
+Add cosmic
+
+Add a tactical change which is already merged into charm-helpers.
+
+This needs to go into all charms to solve the chicken:egg issue
+where cosmic is untestable until this change exists.
+
+Reference:
+
+https://github.com/juju/charm-helpers/commit/4835c6c167c429527ef0a0291d17cf559c9cf880
