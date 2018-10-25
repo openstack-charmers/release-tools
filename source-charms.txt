@@ -1,6 +1,7 @@
 aodh
 barbican
 barbican-softhsm
+barbican-vault
 ceph-fs
 designate
 designate-bind
@@ -10,6 +11,8 @@ manila
 manila-generic
 neutron-api-odl
 neutron-dynamic-routing
+nova-cell-controller
+octavia
 openvswitch-odl
 tempest
 vault

@@ -1,6 +1,7 @@
 aodh
 barbican
 barbican-softhsm
+barbican-vault
 ceilometer
 ceilometer-agent
 ceph-fs
@@ -28,9 +29,11 @@ neutron-api-odl
 neutron-dynamic-routing
 neutron-gateway
 neutron-openvswitch
+nova-cell-controller
 nova-cloud-controller
 nova-compute
 nova-compute-proxy
+octavia
 odl-controller
 openstack-dashboard
 openvswitch-odl
