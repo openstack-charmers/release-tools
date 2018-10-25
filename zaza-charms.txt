@@ -1,3 +1,6 @@
+barbican-vault
 keystone
 neutron-dynamic-routing
+nova-cell-controller
+octavia
 vault
