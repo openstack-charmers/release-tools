@@ -9,10 +9,8 @@ gnocchi
 keystone-ldap
 manila
 manila-generic
-neutron-api-odl
 neutron-dynamic-routing
 nova-cell-controller
 octavia
-openvswitch-odl
 tempest
 vault

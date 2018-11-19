@@ -4,6 +4,7 @@ commit-message-tests-yaml.txt
 aodh
 barbican
 barbican-softhsm
+barbican-vault
 ceilometer
 ceilometer-agent
 ceph
@@ -32,6 +33,7 @@ neutron-api-odl
 neutron-dynamic-routing
 neutron-gateway
 neutron-openvswitch
+nova-cell-controller
 nova-cloud-controller
 nova-compute
 nova-compute-proxy
