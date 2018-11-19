@@ -1,4 +1,5 @@
 barbican-vault
+ceph-osd
 keystone
 neutron-dynamic-routing
 nova-cell-controller
