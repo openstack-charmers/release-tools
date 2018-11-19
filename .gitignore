@@ -37,6 +37,7 @@ nova-cell-controller
 nova-cloud-controller
 nova-compute
 nova-compute-proxy
+octavia
 odl-controller
 openstack-dashboard
 openvswitch-odl
