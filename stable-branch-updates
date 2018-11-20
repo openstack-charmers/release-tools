@@ -30,13 +30,29 @@ if [ -f src/tests/basic_deployment.py ]; then
     git add src/tests/basic_deployment.py
 fi
 
+if [ -d src/tests/bundles ]; then
+    echo "Updating zaza tests to refer to stable branches src"
+    for filename in $(find src/tests/bundles | grep yaml); do
+        sed -i 's#cs:~openstack-charmers-next/#cs:#g' $filename
+    done
+    git add src/tests/bundles
+fi
+
+if [ -d tests/bundles ]; then
+    echo "Updating zaza tests to refer to stable branches src"
+    for filename in $(find tests/bundles | grep yaml); do
+        sed -i 's#cs:~openstack-charmers-next/#cs:#g' $filename
+    done
+    git add tests/bundles
+fi
+
 for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
     if [ -f $ch ]; then
-        sed -i "s/https\:\/\/github.com\/juju\/charm-helpers/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" $ch
+        sed -i "s/https\:\/\/github.com\/juju\/charm-helpers$/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" $ch
         git add $ch
     fi
     if [ -f src/$ch ]; then
-        sed -i "s/https\:\/\/github.com\/juju\/charm-helpers/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" src/$ch
+        sed -i "s/https\:\/\/github.com\/juju\/charm-helpers$/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" src/$ch
         git add src/$ch
     fi
 done
