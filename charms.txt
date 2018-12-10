@@ -33,6 +33,7 @@ nova-cloud-controller
 nova-compute
 nova-compute-proxy
 octavia
+octavia-dashboard
 openstack-dashboard
 percona-cluster
 rabbitmq-server

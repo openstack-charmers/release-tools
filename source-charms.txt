@@ -12,5 +12,6 @@ manila-generic
 neutron-dynamic-routing
 nova-cell-controller
 octavia
+octavia-dashboard
 tempest
 vault
