@@ -1,6 +1,7 @@
 aodh
 barbican
 barbican-softhsm
+barbican-vault
 ceph-fs
 ceph-mon
 ceph-osd
@@ -19,5 +20,7 @@ neutron-gateway
 neutron-openvswitch
 nova-cloud-controller
 nova-compute
+octavia
+octavia-dashboard
 tempest
 vault
