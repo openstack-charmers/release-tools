@@ -62,7 +62,7 @@ fi
 # Expect series metadata and set expected build dir
 if grep '^\"\?series\"\?:$' $charm_dir/src/metadata.yaml &> /dev/null; then
   echo " . $charm_dir is a multi-series charm based on its metadata.yaml"
-  EXPECTED_BUILD_DIR="$charm_dir/build/$charm_name"
+  EXPECTED_BUILD_DIR="$charm_dir/build/builds/$charm_name"
 else
   echo "WARN: $charm_dir does not declare series in metadata. Multi-series metadata is enforced on push/release."
   EXPECTED_BUILD_DIR="$charm_dir/build/trusty/$charm_name"
