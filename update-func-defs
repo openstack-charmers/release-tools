@@ -190,6 +190,9 @@ function update_amulet_tests(){
     if [[ -f $tests_dir/dev-basic-bionic-rocky ]]; then
         mv $tests_dir/dev-basic-bionic-rocky $tests_dir/gate-basic-bionic-rocky
     fi
+
+    git rm $tests_dir/*trusty ||:
+    git rm $tests_dir/*trusty-icehouse ||:
 }
 
 
@@ -213,7 +216,12 @@ for charm in $charms; do
       # Bonafide openstack charms should look like neutron-dynamic-routing in terms
       # of bundle names and tests.yaml definitions.
       echo " . zaza charm"
-      tests_dir="$basedir/$charm/src/tests"
+      if [[ -d $basedir/$charm/src/tests ]]; then
+          tests_dir="$basedir/$charm/src/tests"
+      elif [[ -d $basedir/$charm/tests ]]; then
+          tests_dir="$basedir/$charm/tests"
+      fi
+
       test_tox_file="$basedir/$charm/src/tox.ini"
       if ! grep "^$charm$" ../charms-no-func-test-mgmt.txt; then
         update_zaza_tests
