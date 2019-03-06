@@ -9,6 +9,7 @@ ceph-mon
 ceph-osd
 ceph-proxy
 ceph-radosgw
+ceph-rbd-mirror
 cinder
 cinder-backup
 cinder-ceph
@@ -31,7 +32,6 @@ neutron-openvswitch
 nova-cell-controller
 nova-cloud-controller
 nova-compute
-nova-compute-proxy
 octavia
 octavia-dashboard
 openstack-dashboard

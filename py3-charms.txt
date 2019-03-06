@@ -5,6 +5,7 @@ barbican-vault
 ceph-fs
 ceph-mon
 ceph-osd
+ceph-rbd-mirror
 cinder
 designate
 designate-bind

@@ -1,5 +1,6 @@
 barbican-vault
 ceph-osd
+ceph-rbd-mirror
 keystone
 neutron-dynamic-routing
 nova-cell-controller
