@@ -1,5 +1,2 @@
 # These charms are either maintenace mode, or have unique tests which need to be manually updated.
-neutron-api-odl
-odl-controller
-openvswitch-odl
 vault
