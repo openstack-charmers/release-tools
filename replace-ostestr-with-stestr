@@ -88,10 +88,8 @@ for charm in $charms; do
     git_get https://github.com/openstack/charm-$charm $charm $branch
 
     cd $charm
-    if [ -f tox.ini ]; then
-        sed -i 's/ostestr/stestr run/g' tox.ini
-        sed -i 's/os-testr.*/stestr>=2.2.0/g' test-requirements.txt
-    fi
+    find -type f -name tox.ini | xargs sed 's/ostestr/stestr run/g' -i
+    find -type f -name test-requirements.txt | xargs sed 's/os-testr.*/stestr>=2.2.0/g' -i
     if [ -f .testr.conf ]; then
         git rm .testr.conf
     fi
