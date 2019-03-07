@@ -1,0 +1,115 @@
+#!/bin/bash -e
+
+charms="$(cat charms.txt)"
+basedir="$(pwd)"
+branch="$1"
+
+STESTRCONF="[DEFAULT]\ntest_path=./unit_tests\ntop_dir=./\n"
+
+gerrit_topic="replace-ostestr-with-testr"
+commit_msg_file="$basedir/commit-message-testr.txt"
+
+all_params="$@"
+if [[ "$all_params" == *--amend* ]]; then
+  AMEND="True"
+fi
+if [[ "$all_params" == *--noreview* ]]; then
+  NO_REVIEW="True"
+fi
+
+usage="usage: replace-ostestr-with-testr <master||stable/nn.nn>
+
+USAGE EXAMPLES
+
+Clone repos, check out the master branch, make changes and
+submit gerrit reviews:
+  ./replace-ostestr-with-testr master
+
+Clone repos, check out the master branch, make changes
+but do not actually submit a gerrit review:
+  ./replace-ostestr-with-testr master --noreview
+
+Re-use local checkout, amend commits and add patchset to
+the existing gerrit review:
+  ./replace-ostestr-with-testr master --amend
+
+Re-use local checkout, amend commits for adding to the review,
+but do not actually submit a gerrit review:
+  ./replace-ostestr-with-testr master --amend --noreview
+"
+
+if [ -z "$branch" ]; then
+    echo -e "$usage"
+    exit 1
+fi
+
+# Expect user to have git config ready for gerrit use
+git config --get gitreview.username || ( echo " ! Not set: gitreview.username git config option"; echo -e "$usage"; exit 1 )
+
+commit_msg="$(cat $commit_msg_file ||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty."
+    exit 1
+fi
+
+
+function git_get(){
+  (
+  if [[ "${AMEND^^}" != "TRUE" ]] && [[ ! -d $2 ]]; then
+    echo " + Clone $1 -> $2"
+    git clone $1 $2
+    cd $2
+    git checkout $3
+  elif [[ "${AMEND^^}" != "TRUE" ]] && [[ -d $2 ]]; then
+    echo " ! Dir exists: $2.  Consider running 'make clean' or using --amend."
+    exit 1
+  else
+    echo " . Re-using checkout dir $2"
+    cd $2
+    git branch -v
+  fi
+  )
+}
+
+
+function git_review(){
+  if [ "${NO_REVIEW^^}" == "TRUE" ]; then
+    echo " . Not proposing gerrit (dry run)."
+  else
+    echo " . Submitting gerrit review for $charm"
+    git review
+  fi
+}
+
+
+for charm in $charms; do
+  echo "===== $charm ====="
+  (
+    git_get https://github.com/openstack/charm-$charm $charm $branch
+
+    cd $charm
+    if [ -f tox.ini ]; then
+        sed -i 's/ostestr/stestr run/g' tox.ini
+        sed -i 's/os-testr.*/stestr>=2.2.0/g' test-requirements.txt
+    fi
+    if [ -f .testr.conf ]; then
+        git rm .testr.conf
+    fi
+    printf $STESTRCONF > .stestr.conf
+
+    git_status="$(git status -s)"
+    if [[ "${AMEND^^}" != "TRUE" ]] && [[ -n "$git_status" ]]; then
+      git checkout -b $gerrit_topic
+      git add .
+      git commit -F $commit_msg_file
+      git_review
+    elif [[ "${AMEND^^}" == "TRUE" ]] && [[ -n "$git_status" ]]; then
+      git checkout $gerrit_topic
+      git add .
+      git commit --amend --no-edit
+      git_review
+    else
+      echo " - No changes for $charm, skipping git review."
+    fi
+  )
+done
