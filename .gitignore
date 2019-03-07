@@ -1,4 +1,5 @@
 *.swp
+*~
 bc-tools
 commit-message-tests-yaml.txt
 aodh

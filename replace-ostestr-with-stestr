@@ -4,10 +4,10 @@ charms="$(cat charms.txt)"
 basedir="$(pwd)"
 branch="$1"
 
-STESTRCONF="[DEFAULT]\ntest_path=./unit_tests\ntop_dir=./"
+STESTRCONF="[DEFAULT]\ntest_path=./unit_tests\ntop_dir=./\n"
 
 gerrit_topic="replace-ostestr-with-testr"
-commit_msg_file="$basedir/commit-message-tox.txt"
+commit_msg_file="$basedir/commit-message-testr.txt"
 
 all_params="$@"
 if [[ "$all_params" == *--amend* ]]; then
@@ -88,9 +88,13 @@ for charm in $charms; do
     git_get https://github.com/openstack/charm-$charm $charm $branch
 
     cd $charm
-    sed -i 's/ostestr/stestr run/g' tox.ini
-    sed -i 's/os-testr>=0.4.1/stestr>=2.2.0/g' test-requirements.txt
-    git rm .testr.conf
+    if [ -f tox.ini ]; then
+        sed -i 's/ostestr/stestr run/g' tox.ini
+        sed -i 's/os-testr.*/stestr>=2.2.0/g' test-requirements.txt
+    fi
+    if [ -f .testr.conf ]; then
+        git rm .testr.conf
+    fi
     printf $STESTRCONF > .stestr.conf
 
     git_status="$(git status -s)"
