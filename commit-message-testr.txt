@@ -1,0 +1,4 @@
+Replace ostestr with stestr in testing framework.
+
+A system upgrade broke ostestr. We can fix it by just calling stestr
+directly.
