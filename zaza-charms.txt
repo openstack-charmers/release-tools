@@ -2,8 +2,11 @@ barbican-vault
 ceph-osd
 ceph-rbd-mirror
 keystone
+masakari
+masakari-monitors
 neutron-dynamic-routing
 nova-cell-controller
 octavia
 octavia-dashboard
+pacemaker-remote
 vault

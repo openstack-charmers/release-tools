@@ -13,6 +13,8 @@ glance
 gnocchi
 heat
 keystone-ldap
+masakari
+masakari-monitors
 manila
 manila-generic
 neutron-api
@@ -23,5 +25,6 @@ nova-cloud-controller
 nova-compute
 octavia
 octavia-dashboard
+pacemaker-remote
 tempest
 vault
