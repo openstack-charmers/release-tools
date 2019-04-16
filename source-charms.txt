@@ -10,9 +10,12 @@ gnocchi
 keystone-ldap
 manila
 manila-generic
+masakari
+masakari-monitors
 neutron-dynamic-routing
 nova-cell-controller
 octavia
 octavia-dashboard
+pacemaker-remote
 tempest
 vault

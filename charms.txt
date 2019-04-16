@@ -23,6 +23,8 @@ heat
 keystone
 keystone-ldap
 lxd
+masakari
+masakari-monitors
 manila
 manila-generic
 neutron-api
@@ -34,6 +36,7 @@ nova-cloud-controller
 nova-compute
 octavia
 octavia-dashboard
+pacemaker-remote
 openstack-dashboard
 percona-cluster
 rabbitmq-server
