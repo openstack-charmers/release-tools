@@ -1,5 +1,6 @@
 barbican-vault
 ceph-osd
+ceph-radosgw
 ceph-rbd-mirror
 keystone
 masakari
