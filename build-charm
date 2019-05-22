@@ -52,7 +52,14 @@ if grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null; then
   echo " . Building $charm_dir ($charm_name) via tox"
   DIR="$(pwd)"
   cd $charm_dir
-  tox -e build
+  # Let us retry a couple of times in case of a transient failure fetching bits
+  n=0
+  until [ $n -ge 3 ]
+  do
+    tox -e build && break
+    n=$[$n+1]
+    sleep 3
+  done
   cd $DIR
 else
   echo " . No tox build target in $charm_dir ($charm_name). The charm should support 'tox -e build'!"
