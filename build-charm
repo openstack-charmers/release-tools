@@ -4,6 +4,8 @@
 # Some layer components may be blocked by egress firewalls. It may
 # be necessary to use an http_proxy (set env var beforehand if so).
 
+. helpers.sh
+
 charm_dir="$1"
 charm_name="$2"
 usage="usage: build-charm <charm checkout dir> <charm name>
@@ -53,13 +55,7 @@ if grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null; then
   DIR="$(pwd)"
   cd $charm_dir
   # Let us retry a couple of times in case of a transient failure fetching bits
-  n=0
-  until [ $n -ge 3 ]
-  do
-    tox -e build && break
-    n=$[$n+1]
-    sleep 3
-  done
+  retry tox -e build
   cd $DIR
 else
   echo " . No tox build target in $charm_dir ($charm_name). The charm should support 'tox -e build'!"
