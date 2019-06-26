@@ -130,7 +130,10 @@ echo $charm_ref >> $cs_refs_released
 # Optionally attach an existing resource prior to charm release
 if [[ -n $(awk '$0~c' c="$charm:$branch" resources.txt) ]]; then
     resource=$(awk '$0~c' c="$charm:$branch" resources.txt | awk -F':' '{ print $4 }')
-    resource_string="--resource $resource"
+    resource_string=""
+    for res in $resource; do
+        resource_string="$resource_string --resource $res"
+    done
 echo " . Using resource $resource"
 fi
 
