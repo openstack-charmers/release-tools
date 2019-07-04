@@ -5,3 +5,9 @@ charm-vault:master:core:core-0
 charm-vault:stable/19.04:core:core-0
 charm-vault:master:vault:vault-0
 charm-vault:stable/19.04:vault:vault-0
+keystone-saml-mellon:master:idp-metadata-0
+keystone-saml-mellon:master:sp-private-key-0
+keystone-saml-mellon:master:sp-signing-keyinfo-0
+keystone-saml-mellon:stable/19.04:idp-metadata-0
+keystone-saml-mellon:stable/19.04:sp-private-key-0
+keystone-saml-mellon:stable/19.04:sp-signing-keyinfo-0
