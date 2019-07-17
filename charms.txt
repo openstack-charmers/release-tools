@@ -36,6 +36,7 @@ nova-cloud-controller
 nova-compute
 octavia
 octavia-dashboard
+octavia-diskimage-retrofit
 pacemaker-remote
 openstack-dashboard
 percona-cluster
