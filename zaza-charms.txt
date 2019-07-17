@@ -9,5 +9,6 @@ neutron-dynamic-routing
 nova-cell-controller
 octavia
 octavia-dashboard
+octavia-diskimage-retrofit
 pacemaker-remote
 vault
