@@ -14,7 +14,7 @@ gnocchi
 heat
 keystone
 keystone-ldap
-keystone-samle-mellon
+keystone-saml-mellon
 masakari
 masakari-monitors
 manila
