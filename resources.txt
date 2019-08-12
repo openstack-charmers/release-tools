@@ -1,16 +1,16 @@
 # Insructions for charm pusher to attach an existing resource prior to charm release
 openstack-dashboard:master:theme:theme-0
-openstack-dashboard:stable/19.04:theme:theme-0
+openstack-dashboard:stable/19.07:theme:theme-0
 charm-vault:master:core:core-0
-charm-vault:stable/19.04:core:core-0
+charm-vault:stable/19.07:core:core-0
 charm-vault:master:vault:vault-0
-charm-vault:stable/19.04:vault:vault-0
+charm-vault:stable/19.07:vault:vault-0
 keystone-saml-mellon:master:idp-metadata:idp-metadata-0
 keystone-saml-mellon:master:sp-private-key:sp-private-key-0
 keystone-saml-mellon:master:sp-signing-keyinfo:sp-signing-keyinfo-0
-keystone-saml-mellon:stable/19.04:idp-metadata:idp-metadata-0
-keystone-saml-mellon:stable/19.04:sp-private-key:sp-private-key-0
-keystone-saml-mellon:stable/19.04:sp-signing-keyinfo:sp-signing-keyinfo-0
+keystone-saml-mellon:stable/19.07:idp-metadata:idp-metadata-0
+keystone-saml-mellon:stable/19.07:sp-private-key:sp-private-key-0
+keystone-saml-mellon:stable/19.07:sp-signing-keyinfo:sp-signing-keyinfo-0
 octavia-diskimage-retrofit:master:snapd:snapd-0
 octavia-diskimage-retrofit:master:core18:core18-0
 octavia-diskimage-retrofit:master:octavia-diskimage-retrofit:octavia-diskimage-retrofit-0
