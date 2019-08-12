@@ -12,7 +12,9 @@ designate-bind
 glance
 gnocchi
 heat
+keystone
 keystone-ldap
+keystone-samle-mellon
 masakari
 masakari-monitors
 manila

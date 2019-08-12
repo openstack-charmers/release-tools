@@ -3,6 +3,7 @@ ceph-osd
 ceph-radosgw
 ceph-rbd-mirror
 keystone
+keystone-saml-mellon
 masakari
 masakari-monitors
 neutron-dynamic-routing
