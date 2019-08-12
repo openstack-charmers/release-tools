@@ -14,3 +14,6 @@ keystone-saml-mellon:stable/19.07:sp-signing-keyinfo:sp-signing-keyinfo-0
 octavia-diskimage-retrofit:master:snapd:snapd-0
 octavia-diskimage-retrofit:master:core18:core18-0
 octavia-diskimage-retrofit:master:octavia-diskimage-retrofit:octavia-diskimage-retrofit-0
+octavia-diskimage-retrofit:stable/19.07:snapd:snapd-0
+octavia-diskimage-retrofit:stable/19.07:core18:core18-0
+octavia-diskimage-retrofit:stable/19.07:octavia-diskimage-retrofit:octavia-diskimage-retrofit-0
