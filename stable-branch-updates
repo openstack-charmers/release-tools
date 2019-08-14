@@ -58,3 +58,16 @@ for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
         git add src/$ch
     fi
 done
+
+if [ -f src/layer.yaml ]; then
+    set +e
+    grep -q layer:openstack src/layer.yaml && {
+        grep -q charms.openstack.git@stable src/wheelhouse.txt 2>/dev/null || {
+	    echo "Updating charm wheelhouse, with stable 'charms.openstack'"
+            echo -e "\ngit+https://opendev.org/openstack/charms.openstack.git@stable/$release#egg=charms.openstack" >> src/wheelhouse.txt
+	    set -e
+	    git add src/wheelhouse.txt
+        }
+    }
+    set -e
+fi
