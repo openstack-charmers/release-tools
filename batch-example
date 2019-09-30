@@ -1,0 +1,147 @@
+#!/bin/bash -e
+#
+# A tactical tool to submit batch charm changes.  This is an example which
+# represents a point-in-time need, and it can be re-used and adjusted for
+# similar future tactical needs.
+#
+# REQUIRED:  Update the following gerrit topic and commit message contents
+# to fit the specific goal of your batch.
+basedir="$(pwd)"
+
+gerrit_topic="batch-update"
+commit_msg_file="$basedir/commit-message-foo.txt"
+
+usage="usage: batch-example <master||stable/nn.nn> [arguments]
+
+Arguments:
+  --sync-helpers      Sync charm helpers and ceph helpers
+  --update-tox        Update tox files from globals
+  --update-reqs       Update requirements files from globals
+  --amend             Amend the local commit
+  --force-review      Force a review even if no changes are detected.
+  --skip-clone        Skip the git clone, useful for local iterations.
+  --skip-commit       Skip the commit.
+  --skip-review       Skip the gerrit review.
+  --rebase-master     NOT IMPLEMENTED
+
+Usage examples:
+
+  Clone all charms, do a charm-helpers sync and a ceph sync where applicable,
+  update the tox.ini files and *requirements.txt files throughout, and propose
+  the change as a gerrit review.
+    ./batch-example master --sync-helpers --update-tox --update-reqs
+
+  Useful for iterating over the whole set of charms as a developer:
+    ./batch-example master --skip-clone --skip-commit --skip-review --update-tox --update-reqs
+
+  Pile another patchset onto an existing local batch:
+    ./batch-example master --skip-clone --amend --sync-helpers --update-tox --update-reqs"
+
+charms="$(cat charms.txt)"
+branch="$1"
+all_params="$@"
+
+if [ -z "$branch" ]; then
+    echo -e "$usage" &&  exit 1
+fi
+
+# Expect user to have git config ready for gerrit use
+git config --get gitreview.username || ( echo " ! Not set: gitreview.username git config option"; echo -e "$usage"; exit 1 )
+
+commit_msg="$(cat $commit_msg_file ||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty." && exit 1
+fi
+
+
+function git_get(){
+  (
+  if [[ "$all_params" == *--amend* ]] && [[ ! -d $2 ]]; then
+    echo " + Clone $1 -> $2"
+    git clone $1 $2
+    cd $2
+    git checkout $3
+  elif [[ "$all_params" != *--amend* ]] && [[ -d $2 ]]; then
+    echo " ! Dir exists: $2.  Consider running 'make clean' or using --amend."
+    exit 1
+  else
+    echo " . Re-using checkout dir $2"
+    cd $2
+    git branch -v
+  fi
+  )
+}
+
+
+function git_review(){
+  if [[ "$all_params" == *--skip-review* ]]; then
+    echo " . Skipping gerrit review for $charm."
+  elif [[ "$all_params" != *--force-review* ]]; then
+    echo " . Submitting gerrit review for $charm."
+    git review
+  elif [[ "$all_params" == *--force-review* ]]; then
+    echo " . Submitting gerrit review for $charm (non-fatal on failure)."
+    git review ||:
+  else
+    echo " ! Unknown condition in git_review"
+    exit 1
+  fi
+}
+
+
+# Get charms
+if [[ "$all_params" != *--skip-clone* ]]; then
+  ./get-charms $branch
+fi
+
+# Do stuff
+if [[ "$all_params" == *--update-tox* ]]; then
+  pwd
+  ./_update-tox-files
+fi
+if [[ "$all_params" == *--update-reqs* ]]; then
+  ./_update-requirements
+fi
+if [[ "$all_params" == *--sync-helpers* ]]; then
+  ./_sync-helpers
+fi
+
+
+# Commit
+for charm in $charms; do
+  echo "===== $charm ====="
+  (
+    cd $charm
+    git_status="$(git status -s)"
+    if [[ "$all_params" == *--force-review* ]]; then
+      git_status="The Force is strong."
+    fi
+
+    if [[ "$all_params" != *--amend* ]] && [[ "$all_params" != *--skip-commit* ]] && [[ -n "$git_status" ]]; then
+      git checkout -b $gerrit_topic
+      git add .
+      git commit -F $commit_msg_file
+      git_review
+    elif [[ "$all_params" == *--amend* ]] && [[ "$all_params" != *--skip-commit* ]] && [[ -n "$git_status" ]]; then
+      git checkout $gerrit_topic || git checkout -b $gerrit_topic
+      git add .
+      git commit --amend --no-edit
+      git_review
+    else
+      echo " - No changes for $charm, skipping commit and git review."
+    fi
+  )
+done
+
+
+# TODO: NOT IMPLEMENTED
+
+# Optionally rebase with master
+# if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then
+#   (
+#     git checkout master
+#     git pull
+#     git checkout $gerrit_topic || git checkout -b $gerrit_topic
+#     git rebase master
+#   )
+# fi

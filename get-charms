@@ -1,18 +1,21 @@
 #!/bin/bash -e
-#   - Clones charm branches and checks out the provided branch.
+# Clones charm branches and checks out the provided branch.
 
 branch="$1"
 all_charms="$(cat charms.txt)"
 usage="usage: get-charms <master||stable/nn.nn>"
+base_url="https://github.com/openstack/charm-"
+
+# Optionally useful for local and/or offline iterations:
+# base_url="$HOME/git/release-tools.alt/"
 
 if [ -z "$branch" ]; then
-    echo $usage
-    exit 1
+    echo $usage && exit 1
 fi
 
 for charm in $all_charms; do
     [ -d $charm ] && rm -Rf $charm
-    git clone https://github.com/openstack/charm-$charm $charm
+    git clone $base_url$charm $charm
     (cd $charm; git checkout $branch)
 done
 

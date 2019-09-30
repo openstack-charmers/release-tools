@@ -8,7 +8,7 @@ basedir="$(pwd)"
 
 for charm in $charms; do
     cd $charm
-    git commit -m "$(cat $basedir/commit-message.txt)" && git review
+    git commit -m "$(cat $basedir/commit-message-update-branches.txt)" && git review
     cd $basedir
     echo Sleeping breifly between reviews
     sleep 3

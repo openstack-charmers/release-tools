@@ -1,0 +1,43 @@
+#!/bin/bash -e
+# Identify the charm test framework and charm structure type of a charm git clone
+# Tip: use `./get-charms master` to git clone all charms first.
+
+charm_dir="$1"
+usage="Usage example: ./what-is ~/git/charm-aodh"
+
+if [ -z "$charm_dir" ]; then
+    echo $usage && exit 1
+fi
+
+if [ ! -d "$charm_dir" ]; then
+    echo "Not found ($charm_dir).  Consider using ./get-charms master." && exit 1
+fi
+
+
+# Determine charm test framework (zaza or amulet)
+if (cd $charm_dir && find -maxdepth 3 -type f -name tests.yaml |
+        xargs grep "gate_bundles:" &> /dev/null); then
+    test_framework="zaza"
+elif (cd $charm_dir && find -maxdepth 3 -type f -name tests.yaml |
+        xargs grep "bootstrap:" &> /dev/null); then
+    test_framework="amulet"
+else
+    test_framework="unknown"
+fi
+
+# Determine charm structure (source charm or classic charm)
+if (cd $charm_dir && find -path "./src/*" -name metadata.yaml |
+        xargs grep "name:" &> /dev/null); then
+    charm_structure="source"
+elif (cd $charm_dir && find -maxdepth 1 -name metadata.yaml |
+        xargs grep "name:" &> /dev/null); then
+    charm_structure="classic"
+else
+    charm_structure="unknown"
+fi
+
+if [ -f $charm_dir/.gitreview ]; then
+    echo $charm_structure-$test_framework
+else
+    echo "ERROR: Not a charm" && exit 1
+fi

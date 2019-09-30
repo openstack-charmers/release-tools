@@ -1,0 +1,41 @@
+#!/bin/bash -e
+#  Update *requiremments.txt files from global/*.  Assumes git clones have already
+#  been performed.  Does not commit, push, or submit/review.
+#  See `batch-example` for usage as a batch of charm updates.
+
+charms="$(cat charms.txt)"
+
+for charm in $charms; do
+    if [ ! -d $charm ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is $charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        # Systematically copy *requirements.txt files into repos
+        case $charm_type in
+            source-amulet)
+                # Amulet will die soon, just do tactical hot-edits (no global file).
+                sed -e "s#python-cinderclient>=1.4.0\$#python-cinderclient>=1.4.0,<5.0.0#g" -i $charm/src/test-requirements.txt ||:
+                ;;
+            classic-amulet)
+                # Amulet will die soon, just do tactical hot-edits (no global file).
+                sed -e "s#python-cinderclient>=1.4.0\$#python-cinderclient>=1.4.0,<5.0.0#g" -i $charm/test-requirements.txt ||:
+                ;;
+            source-zaza)
+                cp -fvp global/$charm_type/src/*requirements.txt $charm/src/
+                cp -fvp global/$charm_type/*requirements.txt $charm/
+                ;;
+            classic-zaza)
+                cp -fvp global/$charm_type/*requirements.txt $charm/
+                ;;
+            *)
+                echo "UNKNOWN TYPE" && exit 1
+                ;;
+        esac
+  )
+done

@@ -1,0 +1,40 @@
+#!/bin/bash -e
+#  Sync charm-helpers and ceph helpers where applicable.  Assumes git clones
+#  have already been performed.  Does not commit, push, or submit/review.
+#  See `batch-example` for usage as a batch of charm updates.
+
+charms="$(cat charms.txt)"
+
+for charm in $charms; do
+    if [ ! -d $charm ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is $charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        # Systematically copy *requirements.txt files into repos
+        cd $charm
+        case $charm_type in
+            source-zaza | source-amulet)
+                echo "NOOP on $charm."
+                ;;
+            classic-zaza | classic-amulet)
+
+                # Add policy.d, which is now necessary for some imports
+                if ! grep contrib.openstack.policyd charm-helpers-hooks.yaml; then
+                    echo "    - contrib.openstack.policyd" >> charm-helpers-hooks.yaml
+                fi
+
+                make sync
+                grep ceph-sync Makefile && make ceph-sync ||:
+                ;;
+            *)
+                echo "UNKNOWN TYPE" && exit 1
+                ;;
+        esac
+    )
+done

@@ -1,6 +1,0 @@
-Update tox.ini to stop using unverified package
-
-As of pip 10.0, --allow-unverified is not permitted.
-
-Use of the flag in this repo was previously used to force
-installation of python-apt to accommodate certain unit tests.
