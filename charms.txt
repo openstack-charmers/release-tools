@@ -28,6 +28,7 @@ masakari-monitors
 manila
 manila-generic
 neutron-api
+neutron-api-plugin-ovn
 neutron-dynamic-routing
 neutron-gateway
 neutron-openvswitch
@@ -37,6 +38,9 @@ nova-compute
 octavia
 octavia-dashboard
 octavia-diskimage-retrofit
+ovn-central
+ovn-chassis
+ovn-dedicated-chassis
 pacemaker-remote
 placement
 openstack-dashboard
