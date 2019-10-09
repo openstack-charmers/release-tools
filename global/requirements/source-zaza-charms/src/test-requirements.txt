@@ -1,6 +1,0 @@
-# This file is managed centrally.  If you find the need to modify this as a
-# one-off, please don't.  Intead, consult #openstack-charms and ask about
-# requirements management in charms via bot-control.  Thank you.
-#
-# Zaza func test requirements
-git+https://github.com/openstack-charmers/zaza.git#egg=zaza

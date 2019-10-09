@@ -1,0 +1,57 @@
+#!/bin/bash -e
+#  Update tox.ini files from global/*.  Assumes git clones have already
+#  been performed.  Does not commit, push, or submit/review.
+#  See `batch-example` for usage as a batch of charm updates.
+
+charms="$(cat charms.txt)"
+
+for charm in $charms; do
+    if [ ! -d $charm ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is $charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        # Systematically copy tox.ini files into repos
+        case $charm_type in
+            classic-amulet | classic-zaza)
+                cp -fvp global/$charm_type/tox.ini $charm/tox.ini
+                ;;
+            source-amulet | source-zaza)
+                cp -fvp global/$charm_type/tox.ini $charm/tox.ini
+                cp -fvp global/$charm_type/src/tox.ini $charm/src/tox.ini
+                ;;
+            *)
+                echo "UNKNOWN TYPE" && exit 1
+                ;;
+        esac
+
+        # Ensure certain directories exist, even if not otherwise required.
+        # Makes all repos consistent with things like the flake8 command paths.
+        # https://bugs.launchpad.net/bugs/1843826
+        case $charm_type in
+            classic-amulet | classic-zaza)
+                if [ ! -d $charm/files ]; then
+                    mkdir -v $charm/files
+                    touch $charm/files/.gitkeep
+                fi
+                ;;
+            source-amulet | source-zaza)
+                if [ ! -d $charm/src/files ]; then
+                    mkdir -v $charm/src/files
+                    touch $charm/src/files/.gitkeep
+                fi
+                ;;
+            *)
+                echo "UNKNOWN TYPE" && exit 1
+                ;;
+        esac
+
+        # Death to py27
+        sed -e "s#python-charm-jobs#python35-charm-jobs#g" -i $charm/.zuul.yaml
+  )
+done
