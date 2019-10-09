@@ -19,6 +19,7 @@ File | Purpose / Note
 ```./DEPRECATED_SAVE_EXAMPLES/```         | Bone yard of old scripts which may or may not be useful or dangerous.
 ```batch-example```         | Tactical tool to sync tox, requirements, charm helpers.  Inspect, edit, use, and abuse.
 ```what-is```               | Tactical tool to identify the charm type (classic or source) and test framework (amulet or zaza) based solely on the contents of the cloned repo directory.
+```_*```                    | Not typically used as stand-alone tools;  generally used as a call from another script (see batch-example).
 
 ## To-Do
 
