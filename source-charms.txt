@@ -12,11 +12,16 @@ manila
 manila-generic
 masakari
 masakari-monitors
+neutron-api-plugin-ovn
 neutron-dynamic-routing
 nova-cell-controller
 octavia
 octavia-dashboard
 octavia-diskimage-retrofit
+ovn-central
+ovn-chassis
+ovn-dedicated-chassis
 pacemaker-remote
+placement
 tempest
 vault
