@@ -38,6 +38,7 @@ octavia
 octavia-dashboard
 octavia-diskimage-retrofit
 pacemaker-remote
+placement
 openstack-dashboard
 percona-cluster
 rabbitmq-server

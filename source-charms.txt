@@ -18,5 +18,6 @@ octavia
 octavia-dashboard
 octavia-diskimage-retrofit
 pacemaker-remote
+placement
 tempest
 vault
