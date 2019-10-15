@@ -18,3 +18,8 @@ octavia-diskimage-retrofit:stable/19.07:snapd:snapd-0
 octavia-diskimage-retrofit:stable/19.07:core18:core18-0
 octavia-diskimage-retrofit:stable/19.07:octavia-diskimage-retrofit:octavia-diskimage-retrofit-0
 nova-cloud-controller:master:policyd-override:policyd-override-0
+cinder:master:policyd-override:policyd-override-0
+keystone:master:policyd-override:policyd-override-0
+glance:master:policyd-override:policyd-override-0
+designate:master:policyd-override:policyd-override-0
+neutron-api:master:policyd-override:policyd-override-0
