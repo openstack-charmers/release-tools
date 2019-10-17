@@ -27,6 +27,8 @@ masakari
 masakari-monitors
 manila
 manila-generic
+mysql-innodb-cluster
+mysql-router
 neutron-api
 neutron-api-plugin-ovn
 neutron-dynamic-routing
