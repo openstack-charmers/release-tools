@@ -4,6 +4,7 @@ barbican-softhsm
 barbican-vault
 ceph-fs
 ceph-rbd-mirror
+cinder-purestorage
 designate
 designate-bind
 gnocchi
@@ -12,6 +13,8 @@ manila
 manila-generic
 masakari
 masakari-monitors
+mysql-innodb-cluster
+mysql-router
 neutron-api-plugin-ovn
 neutron-dynamic-routing
 nova-cell-controller
