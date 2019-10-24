@@ -23,3 +23,8 @@ keystone:master:policyd-override:policyd-override-0
 glance:master:policyd-override:policyd-override-0
 designate:master:policyd-override:policyd-override-0
 neutron-api:master:policyd-override:policyd-override-0
+cinder:stable/19.10:policyd-override:policyd-override-0
+keystone:stable/19.10:policyd-override:policyd-override-0
+glance:stable/19.10:policyd-override:policyd-override-0
+designate:stable/19.10:policyd-override:policyd-override-0
+neutron-api:stable/19.10:policyd-override:policyd-override-0
