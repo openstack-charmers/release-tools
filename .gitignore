@@ -1,5 +1,6 @@
 *.swp
 *~
+resource.zip
 bc-tools
 commit-message-tests-yaml.txt
 aodh
@@ -49,3 +50,11 @@ swift-proxy
 swift-storage
 tempest
 vault
+cinder-purestorage
+mysql-innodb-cluster
+mysql-router
+neutron-api-plugin-ovn
+ovn-central
+ovn-chassis
+ovn-dedicated-chassis
+placement

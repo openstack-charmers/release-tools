@@ -134,7 +134,16 @@ if [[ -n $(awk '$0~c' c="$charm:$branch" resources.txt) ]]; then
     for res in $resource; do
         resource_string="$resource_string --resource $res"
     done
-echo " . Using resource $resource"
+
+    resource_raw=$(awk '$0~c' c="$charm:$branch" resources.txt | awk -F':' '{ print $3 }')
+    for res_raw in $resource_raw; do
+        if ! charm pull-resource ${charm_ref} ${res_raw}; then
+            touch resource.zip
+            charm attach ${charm_ref} ${res_raw}=resource.zip
+        fi
+    done
+
+echo " . Using resource $resource (${resource_raw})"
 fi
 
 echo " . Releasing charm $charm_ref"
