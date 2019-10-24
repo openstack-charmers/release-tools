@@ -57,3 +57,4 @@ neutron-api-plugin-ovn
 ovn-central
 ovn-chassis
 ovn-dedicated-chassis
+placement
