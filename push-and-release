@@ -98,10 +98,13 @@ retry_command() {
     i=0
     attempts=10
     while [ $i -lt $attempts ]; do
+        set -x
         $command && break
+        set +x
         let "i+=1"
         [ $i -ge $attempts ] && exit 1
     done
+    set +x
 }
 
 
@@ -139,7 +142,7 @@ if [[ -n $(awk '$0~c' c="$charm:$branch" resources.txt) ]]; then
     for res_raw in $resource_raw; do
         if ! charm pull-resource ${charm_ref} ${res_raw}; then
             touch resource.zip
-            charm attach ${charm_ref} ${res_raw}=resource.zip
+            retry_command charm attach ${charm_ref} ${res_raw}=resource.zip
         fi
     done
 
