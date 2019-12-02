@@ -1,5 +1,6 @@
 # Insructions for charm pusher to attach an existing resource prior to charm release
 openstack-dashboard:master:theme:theme-0
+openstack-dashboard:master:policyd-override:policyd-override-0
 openstack-dashboard:stable/19.10:theme:theme-0
 charm-vault:master:core:core-0
 charm-vault:stable/19.10:core:core-0
