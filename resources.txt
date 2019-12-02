@@ -12,6 +12,7 @@ keystone-saml-mellon:master:sp-signing-keyinfo:sp-signing-keyinfo-0
 keystone-saml-mellon:stable/19.10:idp-metadata:idp-metadata-0
 keystone-saml-mellon:stable/19.10:sp-private-key:sp-private-key-0
 keystone-saml-mellon:stable/19.10:sp-signing-keyinfo:sp-signing-keyinfo-0
+octavia:master:policyd-override:policyd-override-0
 octavia-diskimage-retrofit:master:snapd:snapd-0
 octavia-diskimage-retrofit:master:core18:core18-0
 octavia-diskimage-retrofit:master:octavia-diskimage-retrofit:octavia-diskimage-retrofit-0
