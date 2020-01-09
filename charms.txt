@@ -28,6 +28,7 @@ masakari
 masakari-monitors
 manila
 manila-generic
+manila-ganesha
 mysql-innodb-cluster
 mysql-router
 neutron-api
