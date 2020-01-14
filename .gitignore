@@ -17,6 +17,7 @@ ceph-radosgw
 ceph-rbd-mirror
 cinder
 cinder-backup
+cinder-backup-swift-proxy
 cinder-ceph
 designate
 designate-bind
