@@ -12,6 +12,7 @@ gnocchi
 keystone-ldap
 manila
 manila-generic
+manila-ganesha
 masakari
 masakari-monitors
 mysql-innodb-cluster

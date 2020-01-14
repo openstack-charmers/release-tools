@@ -32,6 +32,7 @@ keystone-saml-mellon
 masakari
 masakari-monitors
 manila
+manila-ganesha
 manila-generic
 neutron-api
 neutron-dynamic-routing
