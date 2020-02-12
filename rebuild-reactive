@@ -1,0 +1,148 @@
+#!/bin/bash -e
+#
+#  A tactical tool to sync charm helpers for all of the
+#  defined charms and propose gerrit reviews.
+
+charms="$(cat source-charms.txt)"
+basedir="$(pwd)"
+branch="$1"
+
+gerrit_topic="rebuild-reactive-2002"
+commit_msg_file="$basedir/commit-message-rebuild-reactive.txt"
+
+all_params="$@"
+if [[ "$all_params" == *--amend* ]]; then
+  AMEND="True"
+fi
+if [[ "$all_params" == *--no-review* ]]; then
+  NO_REVIEW="True"
+fi
+if [[ "$all_params" == *--force-review* ]]; then
+  FORCE_REVIEW="True"
+fi
+if [[ "$all_params" == *--rebase-master* ]]; then
+  REBASE_MASTER="True"
+fi
+
+usage="usage: rebuild-reactive <master||stable/nn.nn>
+USAGE EXAMPLES
+Clone repos, check out the master branch, perform a legacy
+charm-helper sync, make changes and submit gerrit reviews:
+  ./rebuild-reactive master
+Clone repos, check out the master branch, sync charm helpers
+but do not actually submit a gerrit review:
+  ./rebuild-reactive master --no-review
+Re-use local checkout, amend commits and add patchset to
+the existing gerrit review:
+  ./rebuild-reactive master --amend
+Re-use local checkout, rebase with master, amend commits
+and add patchset to the existing gerrit review:
+  ./rebuild-reactive master --amend --rebase-master
+Re-use local checkout, rebase with master, amend commits
+and add patchset to the existing gerrit review even if
+no changes detected in the repo.  Useful if manually
+committing changes in the local repo outside this script.
+  ./rebuild-reactive master --amend --rebase-master --force-review
+Re-use local checkout, amend commits for adding to the review,
+but do not actually submit a gerrit review:
+  ./rebuild-reactive master --amend --no-review
+"
+
+if [ -z "$branch" ]; then
+    echo -e "$usage"
+    exit 1
+fi
+
+# Expect user to have git config ready for gerrit use
+git config --get gitreview.username || ( echo " ! Not set: gitreview.username git config option"; echo -e "$usage"; exit 1 )
+
+commit_msg="$(cat $commit_msg_file ||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty."
+    exit 1
+fi
+
+
+function git_get(){
+  (
+  if [[ "${AMEND^^}" != "TRUE" ]] && [[ ! -d $2 ]]; then
+    echo " + Clone $1 -> $2"
+    git clone $1 $2
+    cd $2
+    git checkout $3
+  elif [[ "${AMEND^^}" != "TRUE" ]] && [[ -d $2 ]]; then
+    echo " ! Dir exists: $2.  Consider running 'make clean' or using --amend."
+    exit 1
+  else
+    echo " . Re-using checkout dir $2"
+    cd $2
+    git branch -v
+  fi
+  )
+}
+
+
+function git_review(){
+  if [ "${NO_REVIEW^^}" == "TRUE" ]; then
+    echo " . Not proposing gerrit (dry run)."
+  elif [ "${FORCE_REVIEW^^}" != "TRUE" ]; then
+    echo " . Submitting gerrit review for $charm"
+    git review
+  elif [ "${FORCE_REVIEW^^}" == "TRUE" ]; then
+    echo " . Submitting gerrit review for $charm (non-fatal on failure)"
+    git review ||:
+  else
+    echo " ! Unknown condition in git_review"
+    exit 1
+  fi
+}
+
+
+UUID=$(uuid)
+MESSAGE="# This file is used to trigger rebuilds
+# when dependencies of the charm change,
+# but nothing in the charm needs to.
+# simply change the uuid to something new
+$UUID"
+for charm in $charms; do
+  echo "===== $charm ====="
+  (
+    git_get https://github.com/openstack/charm-$charm $charm $branch
+    cd $charm
+
+    # Set file locations depending on charm type
+    charm_dir="$basedir/$charm"
+
+    # Optionally rebase with master
+    if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then
+      (
+        git checkout master
+        git pull
+        git checkout $gerrit_topic || git checkout -b $gerrit_topic
+        git rebase master
+      )
+    fi
+
+    # Update the rebuild file
+    echo "${MESSAGE}" > ${charm_dir}/rebuild
+
+    # Commit if there are changes, or optionally commit even if no changes
+    git_status="$(git status -s)"
+    if [[ "${FORCE_REVIEW^^}" == "TRUE" ]]; then
+      git_status="True"
+    fi
+    if [[ "${AMEND^^}" != "TRUE" ]] && [[ -n "$git_status" ]]; then
+      git checkout -b $gerrit_topic
+      git add .
+      git commit -F $commit_msg_file
+      git_review
+    elif [[ "${AMEND^^}" == "TRUE" ]] && [[ -n "$git_status" ]]; then
+      git checkout $gerrit_topic || git checkout -b $gerrit_topic
+      git add .
+      git commit --amend --no-edit
+      git_review
+    else
+      echo " - No changes for $charm, skipping git review."
+    fi
+  )
+done
