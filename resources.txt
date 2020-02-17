@@ -2,6 +2,7 @@
 openstack-dashboard:master:theme:theme-0
 openstack-dashboard:master:policyd-override:policyd-override-0
 openstack-dashboard:stable/20.02:theme:theme-0
+openstack-dashboard:stable/20.02:policyd-override:policyd-override-0
 charm-vault:master:core:core-0
 charm-vault:stable/20.02:core:core-0
 charm-vault:master:vault:vault-0
@@ -13,6 +14,7 @@ keystone-saml-mellon:stable/20.02:idp-metadata:idp-metadata-0
 keystone-saml-mellon:stable/20.02:sp-private-key:sp-private-key-0
 keystone-saml-mellon:stable/20.02:sp-signing-keyinfo:sp-signing-keyinfo-0
 octavia:master:policyd-override:policyd-override-0
+octavia:stable/20.02:policyd-override:policyd-override-0
 octavia-diskimage-retrofit:master:snapd:snapd-0
 octavia-diskimage-retrofit:master:core18:core18-0
 octavia-diskimage-retrofit:master:octavia-diskimage-retrofit:octavia-diskimage-retrofit-0
@@ -32,3 +34,4 @@ keystone:stable/20.02:policyd-override:policyd-override-0
 glance:stable/20.02:policyd-override:policyd-override-0
 designate:stable/20.02:policyd-override:policyd-override-0
 neutron-api:stable/20.02:policyd-override:policyd-override-0
+heat:stable/20.02:policyd-override:policyd-override-0
