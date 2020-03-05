@@ -16,13 +16,15 @@ for charm in $charms; do
     charm_type="$(./what-is $charm)"
     echo "===== $charm ($charm_type) ====="
     (
-        # Systematically copy *requirements.txt files into repos
+        # Do a charm-helpers sync where possible
         cd $charm
         case $charm_type in
             source-zaza | source-amulet)
                 echo "NOOP on $charm."
                 ;;
             classic-zaza | classic-amulet)
+                # Update Makefile to enforce py3x
+                find -type f -name Makefile | xargs sed 's#PYTHON := /usr/bin/env python$#PYTHON := /usr/bin/env python3#g' -i
 
                 # Add policy.d, which is now necessary for some imports
                 if ! grep contrib.openstack.policyd charm-helpers-hooks.yaml; then
@@ -36,5 +38,6 @@ for charm in $charms; do
                 echo "UNKNOWN TYPE" && exit 1
                 ;;
         esac
+
     )
 done
