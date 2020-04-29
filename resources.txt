@@ -36,3 +36,4 @@ openstack-dashboard:master:policyd-override:policyd-override-0
 openstack-dashboard:master:theme:theme-0
 openstack-dashboard:stable/20.02:policyd-override:policyd-override-0
 openstack-dashboard:stable/20.02:theme:theme-0
+trilio-wlm:master:license:license-0
