@@ -15,7 +15,15 @@ fi
 
 for charm in $charms; do
     [ -d $charm ] && rm -Rf $charm
-    git clone https://opendev.org/openstack/charm-$charm $charm
+
+    # Handle repo url overrides if present
+    if grep "^$charm|" repo-link-overrides.txt > /dev/null; then
+       REPO_URL=$(grep "^$charm|" repo-link-overrides.txt | cut -f 2 -d "|")
+    else
+       REPO_URL="https://opendev.org/openstack/charm-${charm}"
+    fi
+
+    git clone $REPO_URL $charm
     (
         cd $charm
         $basedir/stable-branch-updates $release
