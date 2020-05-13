@@ -1,6 +1,7 @@
 #!/bin/bash -ue
 # Check bug links
 
+DISPOSITION=0
 for charm in $(cat charms.txt); do
 
   # Handle bug url overrides if present
