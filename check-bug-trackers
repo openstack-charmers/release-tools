@@ -1,0 +1,25 @@
+#!/bin/bash -ue
+# Check bug links
+
+for charm in $(cat charms.txt); do
+
+  # Handle bug url overrides if present
+  if grep "^$charm|" bug-link-overrides.txt > /dev/null; then
+     BUGS_URL=$(grep "^$charm|" bug-link-overrides.txt | cut -f 2 -d "|")
+  else
+     BUGS_URL="https://bugs.launchpad.net/charm-${charm}/+filebug"
+  fi
+
+  HTTP_CODE=$(curl --head -s -o /dev/null -w "%{http_code}" ${BUGS_URL})
+
+  #if [ $HTTP_CODE != "200" ]; then
+  if [[ $HTTP_CODE =~ ^(200|303)$ ]]; then
+      FMT="\e[0m  "
+  else
+      FMT="\e[31m**"
+      DISPOSITION=1
+  fi
+
+  echo -e "${FMT}$HTTP_CODE    $BUGS_URL"
+done
+exit $DISPOSITION

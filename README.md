@@ -8,6 +8,7 @@ File | Purpose / Note
 :--- | :---
 ```build-charm```           | Build src charms, enforce certain file and directory expectations.  Used by OSCI during tests.  Called by ```push-and-release``` as needed.
 ```charms.txt```            | The master list of all OpenStack charms which are subject to pushing/releasing via the git, gerrit, charm store flow.
+```check-bug-links```       | Check the bug links
 ```create-stable-branch```  | Create stable branches in charm repos.  Called by ```release-charms```, also used by humans during release processes.
 ```generate-repo-info```    | Used by OSCI to generate indentifying information about the checked out git repo and inject it into the charm dir before pushing and releasing.
 ```get-charms```            | Clones charm repos and checks out the provided branch.
