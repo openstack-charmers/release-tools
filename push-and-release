@@ -164,8 +164,15 @@ else
    BUGS_URL="https://bugs.launchpad.net/charm-${charm}/+filebug"
 fi
 
+# Handle repo url overrides if present
+if grep "^$charm|" repo-link-overrides.txt > /dev/null; then
+   REPO_URL=$(grep "^$charm|" repo-link-overrides.txt | cut -f 2 -d "|")
+else
+   REPO_URL="https://opendev.org/openstack/charm-${charm}"
+fi
+
 retry_command charm set $charm_store_url bugs-url=$BUGS_URL \
-    homepage=https://opendev.org/openstack/charm-$charm
+    homepage=$REPO_URL
 
 echo " . Charm store refs released:"
 cat $cs_refs_released
