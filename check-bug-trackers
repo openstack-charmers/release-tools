@@ -12,7 +12,7 @@ for charm in $(cat charms.txt); do
 
   HTTP_CODE=$(curl --head -s -o /dev/null -w "%{http_code}" ${BUGS_URL})
 
-  #if [ $HTTP_CODE != "200" ]; then
+  # Fail on missing bug links
   if [[ $HTTP_CODE =~ ^(200|303)$ ]]; then
       FMT="\e[0m  "
   else
