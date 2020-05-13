@@ -165,7 +165,7 @@ else
 fi
 
 retry_command charm set $charm_store_url bugs-url=$BUGS_URL \
-    homepage=https://github.com/openstack/charm-$charm
+    homepage=https://opendev.org/openstack/charm-$charm
 
 echo " . Charm store refs released:"
 cat $cs_refs_released

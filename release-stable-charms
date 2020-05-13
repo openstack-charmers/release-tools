@@ -15,7 +15,7 @@ fi
 
 for charm in $charms; do
     [ -d $charm ] && rm -Rf $charm
-    git clone https://github.com/openstack/charm-$charm $charm
+    git clone https://opendev.org/openstack/charm-$charm $charm
     (
         cd $charm
         echo "Adding gerrit remote"

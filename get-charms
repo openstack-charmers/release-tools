@@ -4,7 +4,7 @@
 branch="$1"
 all_charms="$(cat charms.txt)"
 usage="usage: get-charms <master||stable/nn.nn>"
-base_url="https://github.com/openstack/charm-"
+base_url="https://opendev.org/openstack/charm-"
 
 # Optionally useful for local and/or offline iterations:
 # base_url="$HOME/git/release-tools.alt/"
