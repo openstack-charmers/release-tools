@@ -6,14 +6,17 @@ Scripts used by OpenStack Charms automated and manual release processes for Char
 ## Files
 File | Purpose / Note
 :--- | :---
+```bug-link-overrides```    | A list of exceptions and overrides for charm bug trackers that deviate from the usual URL structure.
 ```build-charm```           | Build src charms, enforce certain file and directory expectations.  Used by OSCI during tests.  Called by ```push-and-release``` as needed.
 ```charms.txt```            | The master list of all OpenStack charms which are subject to pushing/releasing via the git, gerrit, charm store flow.
+```check-repo-links```      | Check the repo links
 ```check-bug-links```       | Check the bug links
 ```create-stable-branch```  | Create stable branches in charm repos.  Called by ```release-charms```, also used by humans during release processes.
 ```generate-repo-info```    | Used by OSCI to generate indentifying information about the checked out git repo and inject it into the charm dir before pushing and releasing.
 ```get-charms```            | Clones charm repos and checks out the provided branch.
 ```push-and-release```      | Used by OSCI automation to build, push and release charms after changes are merged and changed at the github repos.
 ```release-stable-charms``` | Do a new STABLE RELEASE from MASTER for all charms.
+```repo-link-overrides```   | A list of exceptions and overrides for charm repos that deviate from the usual URL structure.
 ```source-charms.txt```     | Master list of 'source charms,' used by ```update-tox-files```.
 ```stable-branch-updates``` | Post-Release Repo Tasks: Flip stable charm-helpers and Amulet bits;  Update .gitreview with new stable branch name. Called by ```update-stable-charms```.
 ```update-stable-charms```  | Applies stable-branch-updates to all charms.

@@ -1,0 +1,3 @@
+ovn-central|https://opendev.org/x/charm-ovn-central
+ovn-chassis|https://opendev.org/x/charm-ovn-chassis
+ovn-dedicated-chassis|https://opendev.org/x/charm-ovn-dedicated-chassis
