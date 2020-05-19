@@ -11,6 +11,7 @@ File | Purpose / Note
 ```charms.txt```            | The master list of all OpenStack charms which are subject to pushing/releasing via the git, gerrit, charm store flow.
 ```check-repo-links```      | Check the repo links
 ```check-bug-links```       | Check the bug links
+```check-series```          | A crude check for LTS series presence in charm metadata.  It is not gating, just informational.
 ```create-stable-branch```  | Create stable branches in charm repos.  Called by ```release-charms```, also used by humans during release processes.
 ```generate-repo-info```    | Used by OSCI to generate indentifying information about the checked out git repo and inject it into the charm dir before pushing and releasing.
 ```get-charms```            | Clones charm repos and checks out the provided branch.

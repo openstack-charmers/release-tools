@@ -1,0 +1,27 @@
+#!/bin/bash -e
+# A crude check for series presence in charm metadata.
+# Not gating, just informational.
+
+DISPOSITION=0
+
+series="$1"
+usage="Usage example: ./check-series <series>"
+
+if [ -z "$series" ]; then
+    echo $usage && exit 1
+fi
+
+for charm in $(cat charms.txt); do
+    if [ ! -d $charm ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+    cd $charm
+
+    find -name metadata.yaml | xargs grep "\- $series" &> /dev/null && RESULT="${series} OK" ||\
+        RESULT="\e[31m${series} NOT FOUND" && DISPOSITION=1
+
+    echo -e "$RESULT  $charm \e[0m"
+    cd ..
+done
+exit $DISPOSITION
