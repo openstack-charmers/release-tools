@@ -2,6 +2,8 @@ Updates for stable branch creation
 
 Set default branch for git review/gerrit.
 
-Switch amulet tests to stable.
+Switch tests to stable.
 
 Switch to using stable charm-helpers branch.
+
+Switch to using stable charm.openstack branch.

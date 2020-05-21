@@ -60,3 +60,7 @@ ovn-central
 ovn-chassis
 ovn-dedicated-chassis
 placement
+trilio-data-mover
+trilio-dm-api
+trilio-horizon-plugin
+trilio-wlm

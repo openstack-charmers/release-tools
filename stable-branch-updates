@@ -64,8 +64,9 @@ if [ -f src/layer.yaml ]; then
     set +e
     grep -q layer:openstack src/layer.yaml && {
         grep -q charms.openstack.git@stable src/wheelhouse.txt 2>/dev/null || {
-	    echo "Updating charm wheelhouse, with stable 'charms.openstack'"
+	    echo "Updating charm wheelhouse, with stable 'charms.openstack' and 'charmhelpers'"
             echo -e "\ngit+https://opendev.org/openstack/charms.openstack.git@stable/$release#egg=charms.openstack" >> src/wheelhouse.txt
+            echo -e "\ngit+https://github.com/juju/charm-helpers.git@stable/$release#egg=charmhelpers" >> src/wheelhouse.txt
 	    set -e
 	    git add src/wheelhouse.txt
         }
