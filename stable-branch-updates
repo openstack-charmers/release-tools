@@ -32,7 +32,7 @@ fi
 
 if [ -d src/tests/bundles ]; then
     echo "Updating zaza tests to refer to stable branches src"
-    for filename in $(find src/tests/bundles | grep yaml); do
+    for filename in $(find src/tests/bundles -type f | grep yaml); do
         sed -i 's#cs:~openstack-charmers-next/#cs:~openstack-charmers/#g' $filename
         # Quagga actually needs to be in ~openstack-charmers-next
         sed -i 's#cs:~openstack-charmers/quagga#cs:~openstack-charmers-next/quagga#g' $filename
@@ -43,7 +43,7 @@ fi
 
 if [ -d tests/bundles ]; then
     echo "Updating zaza tests to refer to stable branches src"
-    for filename in $(find tests/bundles | grep yaml); do
+    for filename in $(find tests/bundles -type f | grep yaml); do
         sed -i 's#cs:~openstack-charmers-next/#cs:~openstack-charmers/#g' $filename
     done
     git add tests/bundles
