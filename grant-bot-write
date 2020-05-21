@@ -6,6 +6,6 @@
 charms=$(cat charms.txt)
 
 for charm in $charms; do
-  charm grant cs:~openstack-charmers-next/$charm --channel stable --acl write uosci-testing-bot
-  charm grant cs:~openstack-charmers/$charm --channel stable --acl write uosci-testing-bot
+  charm grant cs:~openstack-charmers-next/$charm --channel stable --acl write uosci-testing-bot,openstack-charmers
+  charm grant cs:~openstack-charmers/$charm --channel stable --acl write uosci-testing-bot,openstack-charmers
 done
