@@ -1,0 +1,37 @@
+#!/bin/bash -e
+#  Sync charm-helpers and ceph helpers where applicable.  Assumes git clones
+#  have already been performed.  Does not commit, push, or submit/review.
+#  See `batch-example` for usage as a batch of charm updates.
+
+charms="$(cat charms.txt)"
+
+for charm in $charms; do
+    if [ ! -d $charm ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is $charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        # Do a charm-helpers sync where possible
+        cd $charm
+        case $charm_type in
+            source-zaza | source-amulet)
+                # update/add the rebuild file to trigger a rebuild
+                uuid=$(uuid)
+                echo "$uuid" > ./rebuild
+                ;;
+            classic-zaza | classic-amulet)
+                echo "NOOP on $charm as it is a classic charm."
+                ;;
+            *)
+                echo "UNKNOWN TYPE" && exit 1
+                ;;
+        esac
+
+    )
+done
+
