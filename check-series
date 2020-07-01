@@ -12,11 +12,11 @@ if [ -z "$series" ]; then
 fi
 
 for charm in $(cat charms.txt); do
-    if [ ! -d $charm ]; then
+    if [ ! -d charms/$charm ]; then
         echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
         exit 1
     fi
-    cd $charm
+    cd charms/$charm
 
     find -name metadata.yaml | xargs grep "\- $series" &> /dev/null && RESULT="${series} OK" ||\
         RESULT="\e[31m${series} NOT FOUND" && DISPOSITION=1

@@ -85,9 +85,9 @@ function git_review(){
 for charm in $charms; do
   echo "===== $charm ====="
   (
-    git_get https://github.com/openstack/charm-$charm $charm $branch
+    git_get https://github.com/openstack/charm-$charm charms/$charm $branch
 
-    cd $charm
+    cd charms/$charm
     find -type f -name tox.ini | xargs sed 's/ostestr/stestr run/g' -i
     find -type f -name test-requirements.txt | xargs sed 's/os-testr.*/stestr>=2.2.0/g' -i
     if [ -f .testr.conf ]; then

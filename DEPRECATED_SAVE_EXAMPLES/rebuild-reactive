@@ -114,11 +114,11 @@ $UUID"
 for charm in $charms; do
   echo "===== $charm ====="
   (
-    git_get https://github.com/openstack/charm-$charm $charm $branch
-    cd $charm
+    git_get https://github.com/openstack/charm-$charm charms/$charm $branch
+    cd charms/$charm
 
     # Set file locations depending on charm type
-    charm_dir="$basedir/$charm"
+    charm_dir="$basedir/charms/$charm"
 
     # Optionally rebase with master
     if [[ "${REBASE_MASTER^^}" == "TRUE" ]]; then

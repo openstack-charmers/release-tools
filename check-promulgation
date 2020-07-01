@@ -3,7 +3,7 @@
 
 DISPOSITION=0
 for charm in $(cat charms.txt); do
-  if charm show $charm -o /dev/null &> /dev/null; then
+  if charm show charms/$charm -o /dev/null &> /dev/null; then
       FMT="\e[0mOK  "
   else
       FMT="\e[31m**FAIL  "

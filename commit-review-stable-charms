@@ -3,13 +3,34 @@
 # Submit gerrit reviews on changes made in local charm checkout dirs
 # Generally useful for humans during batch changes (not used in OSCI).
 
+topic="$1"
+msg_file="$2"
+usage="<topic> and <msg-file> are required: Usage example: commit-review-stable-charms <topic> <msg-file>"
+
+if [ -z "$topic" ] ||  [ -z "$msg_file" ]; then
+    echo $usage && exit 1
+fi
+
+if [ ! -f "$msg_file" ]; then
+    echo "$msg_file doesn't exist"
+    exit 1
+fi
+
 charms="$(cat charms.txt)"
 basedir="$(pwd)"
 
 for charm in $charms; do
-    cd $charm
-    git commit -m "$(cat $basedir/commit-message-update-branches.txt)" && git review
-    cd $basedir
-    echo Sleeping breifly between reviews
-    sleep 3
+    (
+        cd charms/$charm
+        git_status="$(git status -s)"
+        echo ".. checking $charm for commit: status '$git_status' .."
+        if [ -n "$git_status" ]; then
+            echo "=== Doing charm $charm ==="
+            git add .
+            git commit -m "$(cat $basedir/$msg_file)"
+            git review -t $topic
+            echo Sleeping breifly between reviews
+            sleep 3
+        fi
+    )
 done
