@@ -55,6 +55,7 @@ vault
 cinder-purestorage
 mysql-innodb-cluster
 mysql-router
+neutron-api-plugin-arista
 neutron-api-plugin-ovn
 ovn-central
 ovn-chassis
