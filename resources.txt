@@ -1,4 +1,5 @@
 # Instructions for charm pusher to attach an existing resource prior to charm release
+aodh:master:policyd-override:policyd-override-0
 charm-vault:master:core:core-0
 charm-vault:master:vault:vault-0
 charm-vault:stable/20.05:core:core-0
