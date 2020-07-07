@@ -37,5 +37,6 @@ openstack-dashboard:master:policyd-override:policyd-override-0
 openstack-dashboard:master:theme:theme-0
 openstack-dashboard:stable/20.05:policyd-override:policyd-override-0
 openstack-dashboard:stable/20.05:theme:theme-0
+swift-proxy:master:policyd-override:policyd-override-0
 trilio-wlm:master:license:license-0
 trilio-wlm:stable/20.05:license:license-0
