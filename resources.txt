@@ -9,6 +9,7 @@ designate:master:policyd-override:policyd-override-0
 designate:stable/20.05:policyd-override:policyd-override-0
 glance:master:policyd-override:policyd-override-0
 glance:stable/20.05:policyd-override:policyd-override-0
+gnocchi:master:policyd-override:policyd-override-0
 heat:master:policyd-override:policyd-override-0
 heat:stable/20.05:policyd-override:policyd-override-0
 keystone:master:policyd-override:policyd-override-0
