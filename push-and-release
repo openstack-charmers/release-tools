@@ -28,7 +28,7 @@ if [ -n "$WORKSPACE" ]; then
     charm_dir="$WORKSPACE/$charm"
 else
     # Expect a local checkout in the current dir.
-    charm_dir="$charm"
+    charm_dir="charms/$charm"
 fi
 if [ ! -d $charm_dir ]; then
     echo "$charm_dir dir does not exist, cannot push."

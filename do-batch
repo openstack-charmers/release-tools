@@ -8,8 +8,8 @@
 # to fit the specific goal of your batch.
 basedir="$(pwd)"
 
-gerrit_topic="batch-update"
-commit_msg_file="$basedir/commit-message-foo.txt"
+gerrit_topic="batch-groovy-ch-libs"
+commit_msg_file="$basedir/commit-message-2008-groovy.txt"
 
 usage="usage: batch-example <master||stable/nn.nn> [arguments]
 
@@ -19,9 +19,9 @@ Arguments:
   --update-reqs       Update requirements files from globals
   --amend             Amend the local commit
   --force-review      Force a review even if no changes are detected.
-  --skip-clone        Skip the git clone, useful for local iterations.
-  --skip-commit       Skip the commit.
-  --skip-review       Skip the gerrit review.
+  --do-clone          Do the git clone
+  --do-commit         Do the commit.
+  --do-review         Do the gerrit review.
   --rebase-master     NOT IMPLEMENTED
 
 Usage examples:
@@ -29,13 +29,15 @@ Usage examples:
   Clone all charms, do a charm-helpers sync and a ceph sync where applicable,
   update the tox.ini files and *requirements.txt files throughout, and propose
   the change as a gerrit review.
-    ./batch-example master --sync-helpers --update-tox --update-reqs
+    ./batch-example master --sync-helpers --update-tox --update-reqs -do-clone --do-commit --do-review
 
   Useful for iterating over the whole set of charms as a developer:
-    ./batch-example master --skip-clone --skip-commit --skip-review --update-tox --update-reqs
+  Note no clone, no commit, no review
+    ./batch-example master --update-tox --update-reqs
 
   Pile another patchset onto an existing local batch:
-    ./batch-example master --skip-clone --amend --sync-helpers --update-tox --update-reqs"
+  Note, no clone
+    ./batch-example master --do-commit --do-review --amend --sync-helpers --update-tox --update-reqs"
 
 charms="$(cat charms.txt)"
 branch="$1"
@@ -74,7 +76,7 @@ function git_get(){
 
 
 function git_review(){
-  if [[ "$all_params" == *--skip-review* ]]; then
+  if [[ "$all_params" != *--do-review* ]]; then
     echo " . Skipping gerrit review for $charm."
   elif [[ "$all_params" != *--force-review* ]]; then
     echo " . Submitting gerrit review for $charm."
@@ -90,7 +92,7 @@ function git_review(){
 
 
 # Get charms
-if [[ "$all_params" != *--skip-clone* ]]; then
+if [[ "$all_params" == *--do-clone* ]]; then
   ./get-charms $branch
 fi
 
@@ -111,21 +113,23 @@ fi
 for charm in $charms; do
   echo "===== $charm ====="
   (
-    cd charms/$charm
+    cd "charms/$charm"
     git_status="$(git status -s)"
     if [[ "$all_params" == *--force-review* ]]; then
       git_status="The Force is strong."
     fi
 
-    if [[ "$all_params" != *--amend* ]] && [[ "$all_params" != *--skip-commit* ]] && [[ -n "$git_status" ]]; then
+    if [[ "$all_params" != *--amend* ]] && [[ "$all_params" == *--do-commit* ]] && [[ -n "$git_status" ]]; then
       git checkout -b $gerrit_topic
       git add .
       git commit -F $commit_msg_file
       git_review
-    elif [[ "$all_params" == *--amend* ]] && [[ "$all_params" != *--skip-commit* ]] && [[ -n "$git_status" ]]; then
+    elif [[ "$all_params" == *--amend* ]] && [[ "$all_params" == *--do-commit* ]] && [[ -n "$git_status" ]]; then
       git checkout $gerrit_topic || git checkout -b $gerrit_topic
       git add .
       git commit --amend --no-edit
+      git_review
+    elif [[ "$all_params" == *--do-review* ]]; then
       git_review
     else
       echo " - No changes for $charm, skipping commit and git review."

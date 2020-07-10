@@ -1,5 +1,6 @@
 #!/bin/bash -e
 # Clones charm branches and checks out the provided branch.
+# Note it clones into the charms/ subdirectory
 
 branch="$1"
 all_charms="$(cat charms.txt)"
@@ -12,8 +13,10 @@ if [ -z "$branch" ]; then
     echo $usage && exit 1
 fi
 
+[ ! -d "./charms" ] && mkdir charms
+
 for charm in $all_charms; do
-    [ -d $charm ] && rm -Rf $charm
+    [ -d "charms/$charm" ] && rm -Rf "charms/$charm"
 
     # Handle repo url overrides if present
     if grep "^$charm|" repo-link-overrides.txt > /dev/null; then
@@ -22,7 +25,7 @@ for charm in $all_charms; do
        REPO_URL="https://opendev.org/openstack/charm-${charm}"
     fi
 
-    git clone $REPO_URL $charm
-    (cd $charm; git checkout $branch)
+    git clone $REPO_URL charms/$charm
+    (cd charms/$charm; git checkout $branch)
 done
 

@@ -1,0 +1,62 @@
+#!/bin/bash -e
+#
+# Apply stable-branch-updates to just reactive charms (typically post-release charm-helper and amulet stable bit flips).
+
+charms="$(cat charms.txt)"
+basedir="$(pwd)"
+username="$2"
+release="$1"
+usage="usage: update-reactive-stable-charms release-name"
+
+if [ -z "$release" ]; then
+    echo $usage
+    exit 1
+fi
+
+# function to download a charm
+function download_charm(){
+    local charm=$1
+    echo "doing $charm"
+    # Handle repo url overrides if present
+    if grep "^$charm|" repo-link-overrides.txt > /dev/null; then
+       REPO_URL=$(grep "^$charm|" repo-link-overrides.txt | cut -f 2 -d "|")
+    else
+       REPO_URL="https://opendev.org/openstack/charm-${charm}"
+    fi
+
+    git clone $REPO_URL charms/$charm
+}
+
+
+
+for charm in $charms; do
+    if [ -d charms/$charm ]; then
+        # charm exists, so check if it's actually a reactive charm
+        charm_type="$(./what-is charms/$charm)"
+        case $charm_type in
+            source-zaza | source-amulet)
+                echo "===== $charm ($charm_type) =====, but need to redownload"
+                rm -Rf charms/$charm
+                download_charm $charm
+        esac
+    else
+        # charm does not exist, so download it.
+        download_charm $charm
+    fi
+
+    charm_type="$(./what-is charms/$charm)"
+    case $charm_type in
+        classic-zaza | classic-amulet)
+            echo "NOOP on $charm."
+            ;;
+
+        source-zaza | source-amulet)
+
+
+            # perform the action
+            (
+                cd charms/$charm
+                $basedir/stable-branch-updates $release
+            )
+    esac
+done

@@ -1,0 +1,4 @@
+Update to reactive charms for stable testing
+
+Updates the test-requirements.txt to use the stable branch of charms.openstack
+in unit tests.

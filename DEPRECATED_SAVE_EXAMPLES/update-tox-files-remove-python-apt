@@ -83,9 +83,9 @@ function git_review(){
 for charm in $charms; do
   echo "===== $charm ====="
   (
-    git_get https://github.com/openstack/charm-$charm $charm $branch
+    git_get https://github.com/openstack/charm-$charm charms/$charm $branch
 
-    cd $charm
+    cd charms/$charm
     find -type f -name tox.ini | xargs sed -e "s# --allow-unverified python-apt##g" -i
 
     git_status="$(git status -s)"

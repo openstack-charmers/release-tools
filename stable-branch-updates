@@ -70,6 +70,11 @@ if [ -f src/layer.yaml ]; then
 	    set -e
 	    git add src/wheelhouse.txt
         }
+        # also ensure that the test-requirements.txt for the unit-tests target the stable version of charms.openstack
+        grep -q charms.openstack.git@stable tests-requirements.txt 2>/dev/null || {
+            echo "Updating unit-tests test-requirements.txt in repository route with stable charms.openstack"
+            sed -i "s#openstack/charms.openstack.git#openstack/charms.openstack.git@stable/$release#g" test-requirements.txt
+        }
     }
     set -e
 fi

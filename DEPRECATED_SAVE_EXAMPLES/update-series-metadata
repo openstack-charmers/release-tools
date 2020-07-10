@@ -112,21 +112,21 @@ function git_review(){
 for charm in $charms; do
     echo "===== $charm ====="
     (
-        git_get https://github.com/openstack/charm-$charm $charm $branch
-        cd $charm
+        git_get https://github.com/openstack/charm-$charm charms/$charm $branch
+        cd charms/$charm
 
         # Set file locations depending on charm type
-        charm_dir="$basedir/$charm"
+        charm_dir="$basedir/charms/$charm"
         if grep "^$charm$" ../source-charms.txt; then
             # src charms
             echo " . source charm"
-            tests_dir="$basedir/$charm/src/tests"
-            test_tox_file="$basedir/$charm/src/tox.ini"
+            tests_dir="$basedir/charms/$charm/src/tests"
+            test_tox_file="$basedir/charms/$charm/src/tox.ini"
         else
             # classic charms
             echo " . classic charm"
-            tests_dir="$basedir/$charm/tests"
-            test_tox_file="$basedir/$charm/tox.ini"
+            tests_dir="$basedir/charms/$charm/tests"
+            test_tox_file="$basedir/charms/$charm/tox.ini"
         fi
 
         # Remove eol release tests if they exist

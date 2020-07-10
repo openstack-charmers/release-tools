@@ -1,0 +1,26 @@
+#!/bin/bash -e
+# Update the charms metadata with a command line "add" "groovy"
+
+charms="$(cat charms.txt)"
+cmd=$1
+shift
+shift
+params=$@
+
+if [ ! -d ".tox/py3" ]; then
+    tox -e py3 --notest
+fi
+
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    echo "===== $charm ====="
+    .tox/py3/bin/python _update-metadata.py $charm $cmd $params
+done
+

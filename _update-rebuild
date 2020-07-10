@@ -17,22 +17,15 @@ for charm in $charms; do
     echo "===== $charm ($charm_type) ====="
     (
         # Do a charm-helpers sync where possible
-        cd charms/$charm
+        cd "charms/$charm"
         case $charm_type in
             source-zaza | source-amulet)
-                echo "NOOP on $charm."
+                # update/add the rebuild file to trigger a rebuild
+                uuid=$(uuid)
+                echo -e "# This file is used to trigger rebuilds\n# when dependencies of the charm change,\n# but nothing in the charm needs to.\n# simply change the uuid to something new\n$uuid" > ./rebuild
                 ;;
             classic-zaza | classic-amulet)
-                # Update Makefile to enforce py3x
-                find -type f -name Makefile | xargs sed 's#PYTHON := /usr/bin/env python$#PYTHON := /usr/bin/env python3#g' -i
-
-                # Add policy.d, which is now necessary for some imports
-                if ! grep contrib.openstack.policyd charm-helpers-hooks.yaml; then
-                    echo "    - contrib.openstack.policyd" >> charm-helpers-hooks.yaml
-                fi
-
-                make sync
-                grep ceph-sync Makefile && make ceph-sync ||:
+                echo "NOOP on $charm as it is a classic charm."
                 ;;
             *)
                 echo "UNKNOWN TYPE" && exit 1
@@ -41,3 +34,4 @@ for charm in $charms; do
 
     )
 done
+

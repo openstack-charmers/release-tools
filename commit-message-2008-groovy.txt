@@ -1,0 +1,6 @@
+Updates for 20.08 cycle start for groovy and libs
+
+- Adds groovy to the series in the metadata
+- Classic charms: sync charm-helpers.
+- Classic ceph based charms:  also sync charms.ceph
+- Reactive charms: trigger a rebuild

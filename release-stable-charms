@@ -14,7 +14,7 @@ if [ -z "$release" ] || [ -z "$username" ]; then
 fi
 
 for charm in $charms; do
-    [ -d $charm ] && rm -Rf $charm
+    [ -d charms/$charm ] && rm -Rf charms/$charm
 
     # Handle repo url overrides if present
     if grep "^$charm|" repo-link-overrides.txt > /dev/null; then
@@ -25,9 +25,9 @@ for charm in $charms; do
        TLP=openstack
     fi
 
-    git clone $REPO_URL $charm
+    git clone $REPO_URL charms/$charm
     (
-        cd $charm
+        cd charms/$charm
         echo "Adding gerrit remote"
         git remote add gerrit ssh://${username}@review.openstack.org:29418/${TLP}/charm-${charm}.git
         echo "Creating stable branch for release $release"

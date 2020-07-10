@@ -6,24 +6,24 @@
 charms="$(cat charms.txt)"
 
 for charm in $charms; do
-    if [ ! -d $charm ]; then
+    if [ ! -d charms/$charm ]; then
         echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
         exit 1
     fi
 done
 
 for charm in $charms; do
-    charm_type="$(./what-is $charm)"
+    charm_type="$(./what-is charms/$charm)"
     echo "===== $charm ($charm_type) ====="
     (
         # Systematically copy tox.ini files into repos
         case $charm_type in
             classic-amulet | classic-zaza)
-                cp -fvp global/$charm_type/tox.ini $charm/tox.ini
+                cp -fvp global/$charm_type/tox.ini charms/$charm/tox.ini
                 ;;
             source-amulet | source-zaza)
-                cp -fvp global/$charm_type/tox.ini $charm/tox.ini
-                cp -fvp global/$charm_type/src/tox.ini $charm/src/tox.ini
+                cp -fvp global/$charm_type/tox.ini charms/$charm/tox.ini
+                cp -fvp global/$charm_type/src/tox.ini charms/$charm/src/tox.ini
                 ;;
             *)
                 echo "UNKNOWN TYPE" && exit 1
@@ -35,15 +35,15 @@ for charm in $charms; do
         # https://bugs.launchpad.net/bugs/1843826
         case $charm_type in
             classic-amulet | classic-zaza)
-                if [ ! -d $charm/files ]; then
-                    mkdir -v $charm/files
-                    touch $charm/files/.gitkeep
+                if [ ! -d charms/$charm/files ]; then
+                    mkdir -v charms/$charm/files
+                    touch charms/$charm/files/.gitkeep
                 fi
                 ;;
             source-amulet | source-zaza)
-                if [ ! -d $charm/src/files ]; then
-                    mkdir -v $charm/src/files
-                    touch $charm/src/files/.gitkeep
+                if [ ! -d charms/$charm/src/files ]; then
+                    mkdir -v charms/$charm/src/files
+                    touch charms/$charm/src/files/.gitkeep
                 fi
                 ;;
             *)
@@ -52,6 +52,6 @@ for charm in $charms; do
         esac
 
         # Death to py27
-        sed -e "s#python-charm-jobs#python35-charm-jobs#g" -i $charm/.zuul.yaml
+        sed -e "s#python-charm-jobs#python35-charm-jobs#g" -i charms/$charm/.zuul.yaml
   )
 done

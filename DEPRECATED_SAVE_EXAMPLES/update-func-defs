@@ -206,23 +206,23 @@ function fix_hashbangs(){
 for charm in $charms; do
   echo "===== $charm ====="
   (
-    git_get https://github.com/openstack/charm-$charm $charm $branch
-    cd $charm
+    git_get https://github.com/openstack/charm-$charm charms/$charm $branch
+    cd charms/$charm
 
     # Set file locations depending on charm type
-    charm_dir="$basedir/$charm"
+    charm_dir="$basedir/charms/$charm"
     if grep "^$charm$" ../zaza-charms.txt; then
       # zaza charms (assumes they are also src charms)
       # Bonafide openstack charms should look like neutron-dynamic-routing in terms
       # of bundle names and tests.yaml definitions.
       echo " . zaza charm"
-      if [[ -d $basedir/$charm/src/tests ]]; then
-          tests_dir="$basedir/$charm/src/tests"
-      elif [[ -d $basedir/$charm/tests ]]; then
-          tests_dir="$basedir/$charm/tests"
+      if [[ -d $basedir/charms/$charm/src/tests ]]; then
+          tests_dir="$basedir/charms/$charm/src/tests"
+      elif [[ -d $basedir/charms/$charm/tests ]]; then
+          tests_dir="$basedir/charms/$charm/tests"
       fi
 
-      test_tox_file="$basedir/$charm/src/tox.ini"
+      test_tox_file="$basedir/charms/$charm/src/tox.ini"
       if ! grep "^$charm$" ../charms-no-func-test-mgmt.txt; then
         update_zaza_tests
       fi
@@ -230,8 +230,8 @@ for charm in $charms; do
     elif grep "^$charm$" ../source-charms.txt; then
       # src charms
       echo " . source charm"
-      tests_dir="$basedir/$charm/src/tests"
-      test_tox_file="$basedir/$charm/src/tox.ini"
+      tests_dir="$basedir/charms/$charm/src/tests"
+      test_tox_file="$basedir/charms/$charm/src/tox.ini"
       if ! grep "^$charm$" ../charms-no-func-test-mgmt.txt; then
         update_amulet_tests
       fi
@@ -239,8 +239,8 @@ for charm in $charms; do
     else
       # classic charms
       echo " . classic charm"
-      tests_dir="$basedir/$charm/tests"
-      test_tox_file="$basedir/$charm/tox.ini"
+      tests_dir="$basedir/charms/$charm/tests"
+      test_tox_file="$basedir/charms/$charm/tox.ini"
       update_amulet_tests
       fix_hashbangs
     fi
