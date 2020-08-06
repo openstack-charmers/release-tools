@@ -3,7 +3,6 @@ barbican
 barbican-softhsm
 barbican-vault
 ceph-fs
-ceph-iscsi
 ceph-rbd-mirror
 cinder-backup-swift-proxy
 cinder-purestorage

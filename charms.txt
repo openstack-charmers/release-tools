@@ -5,7 +5,6 @@ barbican-vault
 ceilometer
 ceilometer-agent
 ceph-fs
-ceph-iscsi
 ceph-mon
 ceph-osd
 ceph-proxy
