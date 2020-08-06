@@ -23,6 +23,7 @@ gnocchi
 hacluster
 heat
 keystone
+keystone-kerberos
 keystone-ldap
 keystone-saml-mellon
 manila

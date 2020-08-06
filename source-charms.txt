@@ -9,6 +9,7 @@ cinder-purestorage
 designate
 designate-bind
 gnocchi
+keystone-kerberos
 keystone-ldap
 manila
 manila-generic
