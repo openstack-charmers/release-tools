@@ -13,6 +13,116 @@ usage="usage: build-charm <charm checkout dir> <charm name>
   If <charm name> is not provided, attempt to detect and set
   it from the charm checkout dir.
 "
+required_files="config.yaml .build.manifest copyright README.md metadata.yaml"
+
+
+function build_charm () {
+  local charm_dir="${1}"
+  local charm_name="${2}"
+  # Build via tox
+  if grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null; then
+    echo " . Building $charm_dir ($charm_name) via tox"
+    local DIR="$(pwd)"
+    cd $charm_dir
+    # Let us retry a couple of times in case of a transient failure fetching bits
+    n=0
+    until [ $n -ge 3 ]
+    do
+      tox -e build && break
+      n=$[$n+1]
+      sleep 3
+    done
+    cd $DIR
+  else
+    echo " . No tox build target in $charm_dir ($charm_name). The charm should support 'tox -e build'!"
+    exit 1
+  fi
+}
+
+
+function set_charm_name () {
+  local charm_dir="${1}"
+  # Attempt to learn the charm/asset name from the metadata.yaml if not specified
+  # as a parameter, then from the charm dir if not specified in metadata.yaml.
+  if [[ -z "$_charm_name" ]]; then
+    # Prefer name from metadata yaml
+    charm_name="$(grep "^name:" $charm_dir/src/metadata.yaml | awk '{ print $2 }')"
+    [[ -z "$charm_name" ]] && charm_name="$(grep "^name:" $charm_dir/metadata.yaml | awk '{ print $2 }')"
+
+    # /path/to/charm-foo yields foo
+    [[ -z "$charm_name" ]] && charm_name="$(echo "$charm_dir" | sed -n -e 's/^.*charm-//p')"
+
+    # /path/to/charm-foo yields charm-foo
+    [[ -z "$charm_name" ]] && charm_name="${charm_dir##*/}"
+
+    # /path/to/charm-foo yields /path/to/charm-foo
+    [[ -z "$charm_name" ]] && charm_name="$charm_dir"
+    echo " + Autodetected charm name as: $charm_name"
+  else
+    echo " + Using specified charm name: $charm_name"
+  fi
+}
+
+
+function set_charm_type () {
+  local charm_dir="${1}"
+  local charm_name="${2}"
+  # Get charm type and perform very basic pre-flight checks
+  if [[ -f "$charm_dir/layer.yaml" ]] ||\
+     [[ -f "$charm_dir/src/layer.yaml" ]]; then
+    charm_type='REACTIVE'
+  elif [[ -f "$charm_dir/src/charm.py" ]]; then
+    charm_type='OPERATOR'
+  fi
+  if [[ -z $charm_type ]]; then
+      echo " ! $charm_name is of unknown type"
+      exit 1
+  fi
+}
+
+
+function validate_build_charm_o () {
+  local charm_dir="${1}"
+  local charm_name="${2}"
+  local required_files="${3}"
+  BUILT_ASSET_FILE="${charm_dir}/${charm_name}.charm"
+  [[ -f $BUILT_ASSET_FILE ]] || { echo "Cannot find charm archive file"; exit 1; }
+  for file in $required_files; do
+    unzip -l $BUILT_ASSET_FILE $file || { echo "$file missing from build charm"; exit 1; }
+  done
+}
+
+
+function validate_build_charm_r () {
+  local charm_dir="${1}"
+  local charm_name="${2}"
+  local required_files="${3}"
+  # Expect series metadata and set expected build dir
+  if grep '^\"\?series\"\?:$' $charm_dir/src/metadata.yaml &> /dev/null; then
+    echo " . $charm_dir is a multi-series charm based on its metadata.yaml"
+    EXPECTED_BUILD_DIR="$charm_dir/build/builds/$charm_name"
+  else
+    echo "WARN: $charm_dir does not declare series in metadata. Multi-series metadata is enforced on push/release."
+    EXPECTED_BUILD_DIR="$charm_dir/build/trusty/$charm_name"
+  fi
+
+  # OSCI automation relies on this env var being set after build.
+  export BUILT_ASSET_DIR="$(readlink -f $EXPECTED_BUILD_DIR)"
+
+  # Very basic validation of the built artifact.
+  if [[ -d "$charm_dir/src" ]]; then
+    # Expect files to exist in all built src charms.  These may or may not
+    # exist in layer test builds.
+    for file in $required_files; do
+        [[ -f "$BUILT_ASSET_DIR/$file" ]] || { echo "$file missing from build charm"; exit 1; }
+    done
+  fi
+  if [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]]; then
+    echo " ! Unable to confirm the built artifact in: $BUILT_ASSET_DIR"
+    exit 1
+  fi
+}
+
 
 if [[ ! -d "$charm_dir" ]]; then
   echo "$usage"
@@ -20,80 +130,13 @@ if [[ ! -d "$charm_dir" ]]; then
   exit 1
 fi
 
-# Attempt to learn the charm/asset name from the metadata.yaml if not specified
-# as a parameter, then from the charm dir if not specified in metadata.yaml.
-if [[ -z "$charm_name" ]]; then
-  # Prefer name from metadata yaml
-  charm_name="$(grep "^name:" $charm_dir/src/metadata.yaml | awk '{ print $2 }')"
-  [[ -z "$charm_name" ]] && charm_name="$(grep "^name:" $charm_dir/metadata.yaml | awk '{ print $2 }')"
-
-  # /path/to/charm-foo yields foo
-  [[ -z "$charm_name" ]] && charm_name="$(echo "$charm_dir" | sed -n -e 's/^.*charm-//p')"
-
-  # /path/to/charm-foo yields charm-foo
-  [[ -z "$charm_name" ]] && charm_name="${charm_dir##*/}"
-
-  # /path/to/charm-foo yields /path/to/charm-foo
-  [[ -z "$charm_name" ]] && charm_name="$charm_dir"
-  echo " + Autodetected charm name as: $charm_name"
+set_charm_name $charm_dir
+set_charm_type $charm_dir $charm_name
+build_charm $charm_dir $charm_name
+if [[ $charm_type == 'REACTIVE' ]]; then
+  validate_build_charm_r $charm_dir $charm_name "$required_files"
+  echo " . Built asset dir: $BUILT_ASSET_DIR"
 else
-  echo " + Using specified charm name: $charm_name"
+  validate_build_charm_o $charm_dir $charm_name "$required_files"
+  echo " . Built asset file: $BUILT_ASSET_FILE"
 fi
-
-# Very basic pre-flight checks
-if [[ ! -f "$charm_dir/layer.yaml" ]] &&\
-   [[ ! -f "$charm_dir/src/layer.yaml" ]]; then
-  echo " ! $charm_name has no layer.yaml"
-  exit 1
-fi
-
-# Build via tox
-if grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null; then
-  echo " . Building $charm_dir ($charm_name) via tox"
-  DIR="$(pwd)"
-  cd $charm_dir
-  # Let us retry a couple of times in case of a transient failure fetching bits
-  n=0
-  until [ $n -ge 3 ]
-  do
-    tox -e build && break
-    n=$[$n+1]
-    sleep 3
-  done
-  cd $DIR
-else
-  echo " . No tox build target in $charm_dir ($charm_name). The charm should support 'tox -e build'!"
-  exit 1
-fi
-
-# Expect series metadata and set expected build dir
-if grep '^\"\?series\"\?:$' $charm_dir/src/metadata.yaml &> /dev/null; then
-  echo " . $charm_dir is a multi-series charm based on its metadata.yaml"
-  EXPECTED_BUILD_DIR="$charm_dir/build/builds/$charm_name"
-else
-  echo "WARN: $charm_dir does not declare series in metadata. Multi-series metadata is enforced on push/release."
-  EXPECTED_BUILD_DIR="$charm_dir/build/trusty/$charm_name"
-fi
-
-# OSCI automation relies on this env var being set after build.
-export BUILT_ASSET_DIR="$(readlink -f $EXPECTED_BUILD_DIR)"
-
-# Very basic validation of the built artifact.
-if [[ -d $charm_dir/src ]]; then
-  # Expect files to exist in all built src charms.  These may or may not
-  # exist in layer test builds.
-  if [[ ! -f "$BUILT_ASSET_DIR/config.yaml" ]] || \
-     [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]] || \
-     [[ ! -f "$BUILT_ASSET_DIR/copyright" ]] || \
-     [[ ! -f "$BUILT_ASSET_DIR/README.md" ]] || \
-     [[ ! -f "$BUILT_ASSET_DIR/metadata.yaml" ]]; then
-    echo " ! Built charm will not pass later proof tests: $BUILT_ASSET_DIR"
-    exit 1
-  fi
-fi
-if [[ ! -f "$BUILT_ASSET_DIR/.build.manifest" ]]; then
-  echo " ! Unable to confirm the built artifact in: $BUILT_ASSET_DIR"
-  exit 1
-fi
-
-echo " . Built asset dir: $BUILT_ASSET_DIR"
