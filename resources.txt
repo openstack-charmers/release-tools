@@ -14,13 +14,14 @@ gnocchi:master:policyd-override:policyd-override-0
 heat:master:policyd-override:policyd-override-0
 heat:stable/20.05:policyd-override:policyd-override-0
 keystone:master:policyd-override:policyd-override-0
+keystone:stable/20.05:policyd-override:policyd-override-0
+keystone-kerberos:master:keystone_keytab:keystone_keytab-0
 keystone-saml-mellon:master:idp-metadata:idp-metadata-0
 keystone-saml-mellon:master:sp-private-key:sp-private-key-0
 keystone-saml-mellon:master:sp-signing-keyinfo:sp-signing-keyinfo-0
 keystone-saml-mellon:stable/20.05:idp-metadata:idp-metadata-0
 keystone-saml-mellon:stable/20.05:sp-private-key:sp-private-key-0
 keystone-saml-mellon:stable/20.05:sp-signing-keyinfo:sp-signing-keyinfo-0
-keystone:stable/20.05:policyd-override:policyd-override-0
 mysql-innodb-cluster:master:mysql-shell:mysql-shell-0
 mysql-innodb-cluster:stable/20.05:mysql-shell:mysql-shell-0
 neutron-api:master:policyd-override:policyd-override-0
