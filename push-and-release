@@ -138,11 +138,15 @@ if [[ -n $(awk '$0~c' c="$charm:$branch" resources.txt) ]]; then
         resource_string="$resource_string --resource $res"
     done
 
+    mkdir -p resources/
+    resource_ext=$(awk '$0~c' c="$charm:$branch" resources.txt | awk -F':' '{ print $5 }')
+    resource_file="resources/resource.${resource_ext}"
+    touch "${resource_file}"
+
     resource_raw=$(awk '$0~c' c="$charm:$branch" resources.txt | awk -F':' '{ print $3 }')
     for res_raw in $resource_raw; do
         if ! charm pull-resource ${charm_ref} ${res_raw}; then
-            touch resource.zip
-            retry_command charm attach ${charm_ref} ${res_raw}=resource.zip
+            retry_command charm attach ${charm_ref} ${res_raw}=${resource_file}
         fi
     done
 

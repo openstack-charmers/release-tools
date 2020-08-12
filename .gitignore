@@ -1,7 +1,9 @@
+/charms/
+/resources/
+
 *.swp
 *~
 .tox
 resource.zip
 bc-tools
 commit-message-tests-yaml.txt
-charms/
