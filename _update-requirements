@@ -20,13 +20,11 @@ for charm in $charms; do
         case $charm_type in
             source-amulet)
                 # Amulet will die soon, just do tactical hot-edits (no global file).
-                sed -e
-                "s#python-cinderclient>=1.4.0\$#python-cinderclient>=1.4.0,<5.0.0#g" -i charms/$charm/src/test-requirements.txt ||:
+                sed -e "s#python-cinderclient>=1.4.0\$#python-cinderclient>=1.4.0,<5.0.0#g" -i charms/$charm/src/test-requirements.txt ||:
                 ;;
             classic-amulet)
                 # Amulet will die soon, just do tactical hot-edits (no global file).
-                sed -e
-                "s#python-cinderclient>=1.4.0\$#python-cinderclient>=1.4.0,<5.0.0#g" -i charms/$charm/test-requirements.txt ||:
+                sed -e "s#python-cinderclient>=1.4.0\$#python-cinderclient>=1.4.0,<5.0.0#g" -i charms/$charm/test-requirements.txt ||:
                 ;;
             source-zaza)
                 cp -fvp global/$charm_type/src/*requirements.txt charms/$charm/src/

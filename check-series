@@ -16,12 +16,13 @@ for charm in $(cat charms.txt); do
         echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
         exit 1
     fi
-    cd charms/$charm
+    (
+        cd charms/$charm
 
-    find -name metadata.yaml | xargs grep "\- $series" &> /dev/null && RESULT="${series} OK" ||\
-        RESULT="\e[31m${series} NOT FOUND" && DISPOSITION=1
+        find -name metadata.yaml | xargs grep "\- $series" &> /dev/null && RESULT="${series} OK" ||\
+            RESULT="\e[31m${series} NOT FOUND" && DISPOSITION=1
 
-    echo -e "$RESULT  $charm \e[0m"
-    cd ..
+        echo -e "$RESULT  $charm \e[0m"
+    )
 done
 exit $DISPOSITION
