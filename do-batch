@@ -8,8 +8,8 @@
 # to fit the specific goal of your batch.
 basedir="$(pwd)"
 
-gerrit_topic="batch-groovy-ch-libs"
-commit_msg_file="$basedir/commit-message-2008-groovy.txt"
+gerrit_topic="batch-2008-release-sync"
+commit_msg_file="$basedir/commit-message-2008-sync-rebuild.txt"
 
 usage="usage: batch-example <master||stable/nn.nn> [arguments]
 
@@ -127,7 +127,7 @@ for charm in $charms; do
     elif [[ "$all_params" == *--amend* ]] && [[ "$all_params" == *--do-commit* ]] && [[ -n "$git_status" ]]; then
       git checkout $gerrit_topic || git checkout -b $gerrit_topic
       git add .
-      git commit --amend --no-edit
+      git commit --amend -F $commit_msg_file
       git_review
     elif [[ "$all_params" == *--do-review* ]]; then
       git_review
