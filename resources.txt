@@ -18,6 +18,7 @@ heat:stable/20.08:policyd-override:policyd-override-0:zip
 keystone:master:policyd-override:policyd-override-0:zip
 keystone:stable/20.08:policyd-override:policyd-override-0:zip
 keystone-kerberos:master:keystone_keytab:keystone_keytab-0:keytab
+keystone-kerberos:stable/20.08:keystone_keytab:keystone_keytab-0:keytab
 keystone-saml-mellon:master:idp-metadata:idp-metadata-0:zip
 keystone-saml-mellon:master:sp-private-key:sp-private-key-0:zip
 keystone-saml-mellon:master:sp-signing-keyinfo:sp-signing-keyinfo-0:zip
