@@ -71,7 +71,7 @@ elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
         exit 1
     fi
 else
-    echo " . $charm ($local_charm) does not need to build before pushing or releasing"
+    echo " . $charm ($charm_dir) does not need to build before pushing or releasing"
 fi
 
 
