@@ -13,8 +13,7 @@ usage="usage: build-charm <charm checkout dir> <charm name>
   If <charm name> is not provided, attempt to detect and set
   it from the charm checkout dir.
 "
-required_files="config.yaml .build.manifest copyright README.md metadata.yaml"
-
+required_files="config.yaml copyright README.md metadata.yaml"
 
 function build_charm () {
   local charm_dir="${1}"
