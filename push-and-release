@@ -48,16 +48,30 @@ elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
     # Build!
     echo " . $charm ($charm_dir) needs to build before pushing or releasing"
 
+    echo -e "\n*$charm $branch*"
+    echo " + Generating repo info and adding as $charm_dir/repo-info"
+    ./generate-repo-info $charm_dir > $charm_dir/repo-info
+    echo "$(cat $charm_dir/repo-info | sed -e 's/^/   /')"
+
     # Source it to preserve BUILT_ASSET_DIR, etc.
     . build-charm $charm_dir
 
-    # Check for required value
-    [[ -z "$BUILT_ASSET_DIR" ]] && (echo " ! Built charm asset dir invalid"; exit 1)
-
-    # Use the built charm asset dir instead of the checked out repo dir
-    charm_dir="$BUILT_ASSET_DIR"
+    if [[ -n "$BUILT_ASSET_FILE" ]]; then
+        built_charm=$BUILT_ASSET_FILE
+        # The post build checks inspect the charm so explode the built charm
+        # so checks can inspect it.
+        charm_dir=$(mktemp -d)
+        unzip -qq $built_charm -d $charm_dir
+    elif [[ -n "$BUILT_ASSET_DIR" ]]; then
+        mv $charm_dir/repo-info $BUILT_ASSET_DIR
+        built_charm=$BUILT_ASSET_DIR
+        charm_dir=$BUILT_ASSET_DIR
+    else
+        echo " ! Built charm asset dir invalid"
+        exit 1
+    fi
 else
-    echo " . $charm ($charm_dir) does not need to build before pushing or releasing"
+    echo " . $charm ($local_charm) does not need to build before pushing or releasing"
 fi
 
 
@@ -108,14 +122,8 @@ retry_command() {
 }
 
 
-# And, go!
-echo -e "\n*$charm $branch*"
-echo " + Generating repo info and adding as $charm_dir/repo-info"
-./generate-repo-info $charm_dir > $charm_dir/repo-info
-echo "$(cat $charm_dir/repo-info | sed -e 's/^/   /')"
-
-echo " + Pushing $charm_store_url from path: $charm_dir"
-charm_push="$(retry_command charm push $charm_dir $charm_store_url)"
+echo " + Pushing $charm_store_url from path: $built_charm"
+charm_push="$(retry_command charm push $built_charm $charm_store_url)"
 echo $charm_push
 
 echo " . Checking charm ref"
