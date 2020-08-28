@@ -16,6 +16,13 @@ NOTE:
     declare at least one series.
 "
 
+function add_repo_info () {
+    local charm_dir="${1}"
+    echo " + Generating repo info and adding as $charm_dir/repo-info"
+    ./generate-repo-info $charm_dir > $charm_dir/repo-info
+    echo "$(cat $charm_dir/repo-info | sed -e 's/^/   /')"
+}
+
 if [ -z "$charm" ] || [ -z "$branch" ]; then
     echo -e "$usage"
     exit 1
@@ -51,9 +58,7 @@ elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
 
 
     echo -e "\n*$charm $branch*"
-    echo " + Generating repo info and adding as $charm_dir/repo-info"
-    ./generate-repo-info $charm_dir > $charm_dir/repo-info
-    echo "$(cat $charm_dir/repo-info | sed -e 's/^/   /')"
+    add_repo_info $charm_dir
 
     # Source it to preserve BUILT_ASSET_DIR, etc.
     . build-charm $charm_dir
@@ -78,6 +83,7 @@ elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
     fi
 else
     echo " . $charm ($charm_dir) does not need to build before pushing or releasing"
+    add_repo_info $charm_dir
     built_charm="$charm_dir"
 fi
 
@@ -132,7 +138,6 @@ retry_command() {
 echo " + Pushing $charm_store_url from path: $built_charm"
 charm_push="$(retry_command charm push $built_charm $charm_store_url)"
 echo $charm_push
-
 echo " . Checking charm ref"
 charm_ref="$(echo $charm_push | grep -m 1 url | awk '{ print $2 }')"
 echo $charm_ref
