@@ -57,11 +57,15 @@ elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
     . build-charm $charm_dir
 
     if [[ -n "$BUILT_ASSET_FILE" ]]; then
-        built_charm=$BUILT_ASSET_FILE
         # The post build checks inspect the charm so explode the built charm
         # so checks can inspect it.
         charm_dir=$(mktemp -d)
-        unzip -qq $built_charm -d $charm_dir
+        unzip -qq $BUILT_ASSET_FILE -d $charm_dir
+        # When we switch to using 'charmcraft upload' built_charm should be
+        # switched to point at BUILT_ASSET_FILE but until then need to point
+        # the pusher at the exploded charm as 'charm push' does not support
+        # .charm files.
+        built_charm=$charm_dir
     elif [[ -n "$BUILT_ASSET_DIR" ]]; then
         mv $charm_dir/repo-info $BUILT_ASSET_DIR
         built_charm=$BUILT_ASSET_DIR
