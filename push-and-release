@@ -40,6 +40,7 @@ fi
 if [[ -n "$BUILT_ASSET_DIR" ]]; then
     echo " . $charm is a built charm asset"
     charm_dir="$BUILT_ASSET_DIR"
+    built_charm="$BUILT_ASSET_DIR"
 
 elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
      [[ ! -f "$charm_dir/.build.manifest" ]] &&\
@@ -47,6 +48,7 @@ elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
 
     # Build!
     echo " . $charm ($charm_dir) needs to build before pushing or releasing"
+
 
     echo -e "\n*$charm $branch*"
     echo " + Generating repo info and adding as $charm_dir/repo-info"
@@ -76,6 +78,7 @@ elif grep "^\[testenv:build\]$" $charm_dir/tox.ini &> /dev/null &&\
     fi
 else
     echo " . $charm ($charm_dir) does not need to build before pushing or releasing"
+    built_charm="$charm_dir"
 fi
 
 
