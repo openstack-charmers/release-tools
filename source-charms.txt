@@ -9,6 +9,8 @@ cinder-purestorage
 designate
 designate-bind
 gnocchi
+ironic-api
+ironic-conductor
 keystone-kerberos
 keystone-ldap
 manila
@@ -19,6 +21,7 @@ masakari-monitors
 mysql-innodb-cluster
 mysql-router
 neutron-api-plugin-arista
+neutron-api-plugin-ironic
 neutron-api-plugin-ovn
 neutron-dynamic-routing
 nova-cell-controller
