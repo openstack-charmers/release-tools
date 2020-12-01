@@ -3,9 +3,9 @@
 # choices of *requirements.txt files for OpenStack Charms:
 #     https://github.com/openstack-charmers/release-tools
 #
-setuptools<50.0.0  # https://github.com/pypa/setuptools/commit/04e3df22df840c6bb244e9b27bc56750c44b7c85
+setuptools==49.6.0  # https://github.com/pypa/setuptools/commit/04e3df22df840c6bb244e9b27bc56750c44b7c85
 # Build requirements
-charm-tools>=2.4.4
+charm-tools>=2.7.7
 # importlib-resources 1.1.0 removed Python 3.5 support
 importlib-resources<1.1.0
-simplejson
+simplejson>=3.17.2

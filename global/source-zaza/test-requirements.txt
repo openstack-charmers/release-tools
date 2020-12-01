@@ -3,22 +3,22 @@
 # choices of *requirements.txt files for OpenStack Charms:
 #     https://github.com/openstack-charmers/release-tools
 #
-setuptools<50.0.0  # https://github.com/pypa/setuptools/commit/04e3df22df840c6bb244e9b27bc56750c44b7c85
+setuptools==49.6.0  # https://github.com/pypa/setuptools/commit/04e3df22df840c6bb244e9b27bc56750c44b7c85
 # Lint and unit test requirements
-flake8>=2.2.4
-stestr>=2.2.0
-requests>=2.18.4
+flake8>=3.8.3
+stestr>=2.6.0
+requests>=2.24.0
 charms.reactive
-mock>=1.2
+mock>=3.0.4
 nose>=1.3.7
-coverage>=3.6
+coverage>=5.2.1
 git+https://github.com/openstack/charms.openstack.git#egg=charms.openstack
 #
 # Revisit for removal / mock improvement:
-netifaces        # vault
-psycopg2-binary  # vault
-tenacity         # vault
-pbr              # vault
-cryptography     # vault, keystone-saml-mellon
-lxml             # keystone-saml-mellon
-hvac             # vault, barbican-vault
+netifaces>=0.10.8  # vault
+psycopg2-binary    # vault
+tenacity           # vault
+pbr>=5.4.5         # vault
+cryptography       # vault, keystone-saml-mellon
+lxml               # keystone-saml-mellon
+hvac               # vault, barbican-vault
