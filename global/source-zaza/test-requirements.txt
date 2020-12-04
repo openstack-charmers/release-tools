@@ -16,6 +16,7 @@ cliff<3.0.0
 # Dependencies of stestr. Newer versions use keywords that didn't exist in
 # python 3.5 yet (e.g. "ModuleNotFoundError")
 importlib-metadata<3.0.0
+importlib-resources<3.0.0
 
 requests>=2.18.4
 charms.reactive
