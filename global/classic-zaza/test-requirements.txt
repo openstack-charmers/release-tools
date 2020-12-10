@@ -18,7 +18,8 @@ requests>=2.18.4
 
 # Newer mock seems to have some syntax which is newer than python3.5 (e.g.
 # f'{something}'
-mock>=1.2,<4.0.0
+mock>=1.2,<4.0.0; python_version < '3.6'
+mock>=1.2; python_version >= '3.6'
 
 flake8>=2.2.4
 stestr>=2.2.0
@@ -29,8 +30,8 @@ cliff<3.0.0
 
 # Dependencies of stestr. Newer versions use keywords that didn't exist in
 # python 3.5 yet (e.g. "ModuleNotFoundError")
-importlib-metadata<3.0.0
-importlib-resources<3.0.0
+importlib-metadata<3.0.0; python_version < '3.6'
+importlib-resources<3.0.0; python_version < '3.6'
 
 coverage>=4.5.2
 pyudev              # for ceph-* charm unit tests (need to fix the ceph-* charm unit tests/mocking)
