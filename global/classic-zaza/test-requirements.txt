@@ -33,6 +33,11 @@ cliff<3.0.0
 importlib-metadata<3.0.0; python_version < '3.6'
 importlib-resources<3.0.0; python_version < '3.6'
 
+# Some Zuul nodes sometimes pull newer versions of these dependencies which
+# dropped support for python 3.5:
+osprofiler<2.7.0;python_version<'3.6'
+stevedore<1.31.0;python_version<'3.6'
+
 coverage>=4.5.2
 pyudev              # for ceph-* charm unit tests (need to fix the ceph-* charm unit tests/mocking)
 git+https://github.com/openstack-charmers/zaza.git#egg=zaza;python_version>='3.0'
@@ -40,6 +45,6 @@ git+https://github.com/openstack-charmers/zaza-openstack-tests.git#egg=zaza.open
 
 # Needed for charm-glance:
 git+https://opendev.org/openstack/tempest.git#egg=tempest;python_version>='3.6'
-tempest;python_version<'3.6'
+tempest<24.0.0;python_version<'3.6'
 
 croniter            # needed for charm-rabbitmq-server unit tests
