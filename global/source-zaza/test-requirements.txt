@@ -18,6 +18,11 @@ cliff<3.0.0
 importlib-metadata<3.0.0; python_version < '3.6'
 importlib-resources<3.0.0; python_version < '3.6'
 
+# Some Zuul nodes sometimes pull newer versions of these dependencies which
+# dropped support for python 3.5:
+osprofiler<2.7.0;python_version<'3.6'
+stevedore<1.31.0;python_version<'3.6'
+
 requests>=2.18.4
 charms.reactive
 
