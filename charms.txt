@@ -28,6 +28,7 @@ keystone
 keystone-kerberos
 keystone-ldap
 keystone-saml-mellon
+magpie
 manila
 manila-ganesha
 manila-generic
