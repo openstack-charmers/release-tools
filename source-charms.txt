@@ -13,6 +13,7 @@ ironic-api
 ironic-conductor
 keystone-kerberos
 keystone-ldap
+magpie
 manila
 manila-generic
 manila-ganesha
