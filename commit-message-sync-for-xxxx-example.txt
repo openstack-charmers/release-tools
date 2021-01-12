@@ -1,0 +1,9 @@
+Updates for testing period for 20.01 release
+
+* charm-helpers sync for classic charms
+* rebuild for reactive charms
+* ensure tox.ini is from release-tools
+* ensure requirements.txt files are from release-tools
+* On reactive charms:
+  - ensure master branch for charms.openstack
+  - ensure master branch for charm-helpers

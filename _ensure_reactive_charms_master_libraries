@@ -1,0 +1,54 @@
+#!/bin/bash -e
+#
+# Ensure that charm-helpers and charms.openstack are from the master branch in
+# git.
+
+charms="$(cat charms.txt)"
+basedir="$(pwd)"
+username="$2"
+release="$1"
+usage="usage: _ensure_reactive_charms_master_libraries"
+
+
+function ensure_line {
+    search="$1"
+    add_line="$2"
+    if grep "$search" src/wheelhouse.txt >/dev/null; then
+        # line exists so replace it.
+        cmd="/$search/c\\$add_line"
+        $(sed -i $cmd src/wheelhouse.txt)
+    else
+        # line doesn't exist so add it
+        echo -e "\n$add_line" >> src/wheelhouse.txt
+    fi
+}
+
+
+# ensure that charm-helpers and charms.openstack master branches are in the
+# wheelhouse.txt
+# the directory needs to be in the root for the charm repo for this function
+function ensure_lines {
+    charm_type="$($basedir/what-is .)"
+    case $charm_type in
+        classic-zaza | classic-amulet)
+            echo "$charm is a classic charm - no changes."
+            ;;
+
+        source-zaza | source-amulet)
+            echo "$charm is a source charm (reactive) - possibly making changes"
+            ensure_line "charms.openstack" "git+https://opendev.org/openstack/charms.openstack.git#egg=charms.openstack"
+            ensure_line "charm-helpers" "git+https://github.com/juju/charm-helpers.git#egg=charmhelpers"
+            ;;
+    esac
+}
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "charm dir $charm is missing. exiting"
+        exit 1
+    fi
+    (
+        cd charms/$charm
+        ensure_lines
+    )
+done
