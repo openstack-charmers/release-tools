@@ -1,0 +1,79 @@
+#!/bin/bash -e
+# For charms that are on master, checkout to the topic branch and do the review
+
+commit_msg_file="commit-message-sync-for-xxxx-example.txt"
+gerrit_topic="sync-for-21-01"
+
+basedir="$(pwd)"
+
+
+# fix up the commit message
+if [[ ! "$commit_msg_file" =~ ^// ]]; then
+    commit_msg_file="$basedir/$commit_msg_file"
+    echo "absolute for commit_msg_file is: $commit_msg_file"
+fi
+
+
+commit_msg="$(cat $commit_msg_file ||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty." && exit 1
+fi
+
+
+charms="$(cat charms.txt)"
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        #exit 1
+    fi
+done
+
+
+# check the branch is master, returns 0 in res if that's the case
+function check_branch_is_master {
+    local result
+    result=$(git branch --show-current | tr -d '[:space:]')
+    echo "$result"
+    if [[ "xxx$result" == "xxxmaster" ]]; then
+        res=0
+    else
+        res=1
+    fi
+}
+
+
+for charm in $charms; do
+    echo "===== $charm git status ====="
+    (
+        if [ -d "charms/$charm" ]; then
+            charm_type="$(./what-is charms/$charm)"
+            case $charm_type in
+                classic-zaza | classic-amulet)
+                    echo "$charm is a classic charm."
+                    ;;
+
+                source-zaza | source-amulet)
+                    echo "$charm is a source charm (reactive)."
+                    ;;
+            esac
+
+            cd "charms/$charm"
+            check_branch_is_master
+            if [[ $res -eq 0 ]]; then
+                echo "Is master, so we can do that commit review"
+                git_status="$(git status -s)"
+                if [[ -n "$git_status" ]]; then
+                    # there is something to do so let's add files, commit, and
+                    # review
+                    git checkout -b $gerrit_topic
+                    git add .
+                    git commit -F $commit_msg_file
+                    git review
+                fi
+
+            fi
+        fi
+    )
+done
+

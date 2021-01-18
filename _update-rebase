@@ -1,0 +1,54 @@
+#!/bin/bash -e
+# For each charm, see if it is on a branch, and if so, do a rebase on master
+
+charms="$(cat charms.txt)"
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        #exit 1
+    fi
+done
+
+
+# check the branch is master, returns 0 in res if that's the case
+function check_branch_is_master {
+    local result
+    result=$(git branch --show-current | tr -d '[:space:]')
+    echo "$result"
+    if [[ "xxx$result" == "xxxmaster" ]]; then
+        res=0
+    else
+        res=1
+    fi
+}
+
+
+for charm in $charms; do
+    echo "===== $charm git status ====="
+    (
+        if [ -d "charms/$charm" ]; then
+            charm_type="$(./what-is charms/$charm)"
+            case $charm_type in
+                classic-zaza | classic-amulet)
+                    echo "$charm is a classic charm."
+                    ;;
+
+                source-zaza | source-amulet)
+                    echo "$charm is a source charm (reactive)."
+                    ;;
+            esac
+
+            cd "charms/$charm"
+            check_branch_is_master
+            if [[ $res -eq 1 ]]; then
+                echo "Not master, so attempting a rebase ... this may go wrong"
+                git fetch --all
+                git stash
+                git rebase origin/master
+                git stash pop
+            fi
+        fi
+    )
+done
+

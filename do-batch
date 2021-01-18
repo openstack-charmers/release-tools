@@ -148,7 +148,12 @@ for charm in $charms; do
       git commit -F $commit_msg_file
       git_review
     elif [[ "$all_params" == *--amend* ]] && [[ "$all_params" == *--do-commit* ]] && [[ -n "$git_status" ]]; then
-      git checkout $gerrit_topic || git checkout -b $gerrit_topic
+      result=$(git branch --show-current | tr -d '[:space:]')
+      if [[ "xxx$result" != "xxx$gerrit_topic" ]]; then
+          echo "doesn't exist?"
+          exit 1
+          git checkout $gerrit_topic || git checkout -b $gerrit_topic
+      fi
       git add .
       git commit --amend -F $commit_msg_file
       git_review

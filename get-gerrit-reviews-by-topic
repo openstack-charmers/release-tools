@@ -1,0 +1,32 @@
+#!/bin/bash -e
+# iterate through the charms.txt and fetch the reviews by the passed topic
+
+
+basedir="$(pwd)"
+topic="$1"
+usage="Usage example: ./get-gerrit-review-bytopic <topic>"
+
+if [ -z "$topic" ]; then
+    echo $usage && exit 1
+fi
+
+for charm in $(cat charms.txt); do
+    if [ ! -d charms/$charm ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+    (
+        cd charms/$charm
+
+        echo "---- fetching $topic for charm: $charm ----"
+
+        set +e
+        unset error
+        $basedir/_get-review.py $topic || error=true
+        set -e
+        if [ $error ]; then
+            echo "No current review for charm $charm -- skipping"
+        fi
+        echo "done"
+    )
+done
