@@ -96,14 +96,12 @@ function validate_build_charm_r () {
   local charm_dir="${1}"
   local charm_name="${2}"
   local required_files="${3}"
-  # Expect series metadata and set expected build dir
-  if grep '^\"\?series\"\?:$' $charm_dir/src/metadata.yaml &> /dev/null; then
-    echo " . $charm_dir is a multi-series charm based on its metadata.yaml"
-    EXPECTED_BUILD_DIR="$charm_dir/build/builds/$charm_name"
-  else
-    echo "WARN: $charm_dir does not declare series in metadata. Multi-series metadata is enforced on push/release."
-    EXPECTED_BUILD_DIR="$charm_dir/build/trusty/$charm_name"
-  fi
+
+  # NOTE(lourot): on charm-tools<2.8 the behaviour was different and the
+  # EXPECTED_BUILD_DIR was either "$charm_dir/build/builds/$charm_name" or
+  # "$charm_dir/build/trusty/$charm_name", depending on whether metadata.yaml
+  # was explicitly declaring series or not.
+  EXPECTED_BUILD_DIR="$charm_dir/build/$charm_name"
 
   # OSCI automation relies on this env var being set after build.
   export BUILT_ASSET_DIR="$(readlink -f $EXPECTED_BUILD_DIR)"
