@@ -1,0 +1,34 @@
+#!/bin/bash -e
+# iterate through the charms.txt and print any charms with duplicate reviews by
+# topic
+
+
+basedir="$(pwd)"
+help="$1"
+usage="Usage example: ./find-duplicate-reviews"
+
+if [ ! -z "$help" ]; then
+    echo $usage && exit 0
+fi
+
+for charm in $(cat charms.txt); do
+    if [ ! -d charms/$charm ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+    (
+        cd charms/$charm
+
+        echo "---- checking charm: $charm for duplicate reviews ----"
+
+        set +e
+        unset error
+        $basedir/_find-duplicate-review-by-topic.py || error=true
+        set -e
+        if [ $error ]; then
+            echo "Something when wrong with charm $charm"
+            exit 1
+        fi
+        echo "done"
+    )
+done

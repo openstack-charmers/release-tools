@@ -157,7 +157,7 @@ for charm in $charms; do
       git add .
       git commit --amend -F $commit_msg_file
       git_review
-    elif [[ "$all_params" == *--do-review* ]]; then
+    elif [[ "$all_params" == *--do-review* ]] && [[ -n "$git_status" ]]; then
       git_review || true
     else
       echo " - No changes for $charm, skipping commit and git review."
