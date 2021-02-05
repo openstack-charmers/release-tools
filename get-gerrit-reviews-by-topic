@@ -20,10 +20,8 @@ for charm in $(cat charms.txt); do
 
         echo "---- fetching $topic for charm: $charm ----"
 
-        set +e
         unset error
         $basedir/_get-review.py $topic || error=true
-        set -e
         if [ $error ]; then
             echo "No current review for charm $charm -- skipping"
         fi
