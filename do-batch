@@ -148,10 +148,11 @@ for charm in $charms; do
       git commit -F $commit_msg_file
       git_review
     elif [[ "$all_params" == *--amend* ]] && [[ "$all_params" == *--do-commit* ]] && [[ -n "$git_status" ]]; then
+      # check to see if the currently checked out branch matches the topic that
+      # is to be commited.  If not, either try to check it out, or create the
+      # branch.
       result=$(git branch --show-current | tr -d '[:space:]')
-      if [[ "xxx$result" != "xxx$gerrit_topic" ]]; then
-          echo "doesn't exist?"
-          exit 1
+      if [[ "$result" != "$gerrit_topic" ]]; then
           git checkout $gerrit_topic || git checkout -b $gerrit_topic
       fi
       git add .

@@ -6,7 +6,6 @@ charms="$(cat charms.txt)"
 for charm in $charms; do
     if [ ! -d "charms/$charm" ]; then
         echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
-        #exit 1
     fi
 done
 
@@ -16,7 +15,7 @@ function check_branch_is_master {
     local result
     result=$(git branch --show-current | tr -d '[:space:]')
     echo "$result"
-    if [[ "xxx$result" == "xxxmaster" ]]; then
+    if [[ "$result" == "master" ]]; then
         res=0
     else
         res=1

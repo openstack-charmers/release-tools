@@ -1,7 +1,4 @@
-Updates for testing period for 20.01 release
-
-Includes updates to charmhelpers/charms.openstack for cert_utils
-and unit-get for the install hook error on Juju 2.9
+Updates for testing period for 2x.xx release
 
 * charm-helpers sync for classic charms
 * rebuild for reactive charms
