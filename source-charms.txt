@@ -34,7 +34,6 @@ ovn-chassis
 ovn-dedicated-chassis
 pacemaker-remote
 placement
-tempest
 trilio-data-mover
 trilio-dm-api
 trilio-horizon-plugin
