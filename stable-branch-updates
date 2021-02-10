@@ -71,11 +71,11 @@ if [ -f src/layer.yaml ]; then
             sed -i "s#juju/charm-helpers.git#juju/charm-helpers.git@stable/${release}#g" src/wheelhouse.txt
         }
         grep -q charms.openstack.git@stable tests-requirements.txt 2>/dev/null || {
-            echo "Updating unit-tests test-requirements.txt in repository with stable charms.openstack"
+            echo "Updating test-requirements.txt in repository with stable charms.openstack"
             sed -i "s#openstack/charms.openstack.git#openstack/charms.openstack.git@stable/$release#g" test-requirements.txt
         }
         grep -q zaza-openstack-tests.git@stable src/tests-requirements.txt 2>/dev/null || {
-            echo "Updating unit-tests test-requirements.txt in repository with stable Zaza"
+            echo "Updating src/test-requirements.txt in repository with stable Zaza"
             sed -i "s#openstack-charmers/zaza.git#openstack-charmers/zaza.git@stable/$release#g" src/test-requirements.txt
             sed -i "s#openstack-charmers/zaza-openstack-tests.git#openstack-charmers/zaza-openstack-tests.git@stable/$release#g" src/test-requirements.txt
         }
@@ -83,10 +83,9 @@ if [ -f src/layer.yaml ]; then
 else
     set +e
         grep -q zaza-openstack-tests.git@stable tests-requirements.txt 2>/dev/null || {
-            echo "Updating unit-tests test-requirements.txt in repository with stable Zaza"
+            echo "Updating test-requirements.txt in repository with stable Zaza"
             sed -i "s#openstack-charmers/zaza.git#openstack-charmers/zaza.git@stable/$release#g" test-requirements.txt
             sed -i "s#openstack-charmers/zaza-openstack-tests.git#openstack-charmers/zaza-openstack-tests.git@stable/$release#g" test-requirements.txt
         }
     set -e
 fi
-
