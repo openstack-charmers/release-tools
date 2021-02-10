@@ -62,19 +62,31 @@ done
 
 if [ -f src/layer.yaml ]; then
     set +e
-    grep -q layer:openstack src/layer.yaml && {
         grep -q charms.openstack.git@stable src/wheelhouse.txt 2>/dev/null || {
-	    echo "Updating charm wheelhouse, with stable 'charms.openstack' and 'charmhelpers'"
-            echo -e "\ngit+https://opendev.org/openstack/charms.openstack.git@stable/$release#egg=charms.openstack" >> src/wheelhouse.txt
-            echo -e "\ngit+https://github.com/juju/charm-helpers.git@stable/$release#egg=charmhelpers" >> src/wheelhouse.txt
-	    set -e
-	    git add src/wheelhouse.txt
+            echo "Updating charm wheelhouse, with stable 'charms.openstack'"
+            sed -i "s#openstack/charms.openstack.git#openstack/charms.openstack.git@stable/$release#g" src/wheelhouse.txt
         }
-        # also ensure that the test-requirements.txt for the unit-tests target the stable version of charms.openstack
+        grep -q charm-helpers.git@stable src/wheelhouse.txt 2>/dev/null || {
+            echo "Updating charm wheelhouse, with stable 'charmhelpers'"
+            sed -i "s#juju/charm-helpers.git#juju/charm-helpers.git@stable/${release}#g" src/wheelhouse.txt
+        }
         grep -q charms.openstack.git@stable tests-requirements.txt 2>/dev/null || {
-            echo "Updating unit-tests test-requirements.txt in repository route with stable charms.openstack"
+            echo "Updating unit-tests test-requirements.txt in repository with stable charms.openstack"
             sed -i "s#openstack/charms.openstack.git#openstack/charms.openstack.git@stable/$release#g" test-requirements.txt
         }
-    }
+        grep -q zaza-openstack-tests.git@stable src/tests-requirements.txt 2>/dev/null || {
+            echo "Updating unit-tests test-requirements.txt in repository with stable Zaza"
+            sed -i "s#openstack-charmers/zaza.git#openstack-charmers/zaza.git@stable/$release#g" src/test-requirements.txt
+            sed -i "s#openstack-charmers/zaza-openstack-tests.git#openstack-charmers/zaza-openstack-tests.git@stable/$release#g" src/test-requirements.txt
+        }
+    set -e
+else
+    set +e
+        grep -q zaza-openstack-tests.git@stable tests-requirements.txt 2>/dev/null || {
+            echo "Updating unit-tests test-requirements.txt in repository with stable Zaza"
+            sed -i "s#openstack-charmers/zaza.git#openstack-charmers/zaza.git@stable/$release#g" test-requirements.txt
+            sed -i "s#openstack-charmers/zaza-openstack-tests.git#openstack-charmers/zaza-openstack-tests.git@stable/$release#g" test-requirements.txt
+        }
     set -e
 fi
+
