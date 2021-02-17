@@ -26,8 +26,8 @@ for charm in $charms; do
             esac
 
             cd "charms/$charm"
-            git diff --color=always
+            # Show both staged and unchanged changes:
+            git diff --color=always HEAD
         fi
     )
 done
-
