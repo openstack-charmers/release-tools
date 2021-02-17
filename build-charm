@@ -97,12 +97,12 @@ function validate_build_charm_r () {
   local charm_name="${2}"
   local required_files="${3}"
 
-  # NOTE(lourot): starting with charm-tools>=2.8 the behaviour will be different
-  # and the EXPECTED_BUILD_DIR won't depend on having `series` in metadata.yaml
-  # anymore but will simply always be:
-  # EXPECTED_BUILD_DIR="$charm_dir/build/$charm_name"
-  # Note that the `builds/` subfolder has vanished.
-  # This works only up to charm-tools 2.7:
+  # NOTE(ajkavanagh): starting with charm-tools>=2.8 the default behaviour of
+  # the charm build '-d' option has changed, in that in no longer appends
+  # 'builds' to the directory.  However, as we need to support both stable
+  # (charm-tools < 2.8) and master (charm-tools >=2.8), the tox for master now
+  # forces the build into the same ./build/builds/ directory.
+  # This note can be reviewed in the post 21.04 cycle.
   if grep '^\"\?series\"\?:$' $charm_dir/src/metadata.yaml &> /dev/null; then
     echo " . $charm_dir is a multi-series charm based on its metadata.yaml"
     EXPECTED_BUILD_DIR="$charm_dir/build/builds/$charm_name"
