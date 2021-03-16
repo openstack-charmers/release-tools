@@ -46,4 +46,4 @@ openstack-dashboard:stable/21.01:theme:theme-0:zip
 swift-proxy:master:policyd-override:policyd-override-0:zip
 swift-proxy:stable/21.01:policyd-override:policyd-override-0:zip
 trilio-wlm:master:license:license-0:zip
-trilio-wlm:stable/21.01:license:license-0:zip
+trilio-wlm:stable/21.03:license:license-0:zip
