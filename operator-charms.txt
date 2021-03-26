@@ -1,0 +1,6 @@
+# NOTE(lourot): this file isn't used anywhere yet. It is intended to be a
+# complete list of all our Operator charms until release-tools supports them.
+# For now these charms may require manual actions on Release Day.
+
+ceph-iscsi
+manila-netapp

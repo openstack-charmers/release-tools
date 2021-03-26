@@ -29,7 +29,10 @@ keystone-kerberos
 keystone-ldap
 keystone-saml-mellon
 magpie
+magnum
+magnum-dashboard
 manila
+manila-dashboard
 manila-ganesha
 manila-generic
 masakari
