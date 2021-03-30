@@ -1,0 +1,35 @@
+#!/bin/bash -e
+#  Build only reactive charms; requires the charms to have been synced using
+# ./get-charms
+
+charms="$(cat charms.txt)"
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is charms/$charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        # Do a charm-helpers sync where possible
+        cd "charms/$charm"
+        case $charm_type in
+            source-zaza | source-amulet)
+                # Build the charm.
+                tox -e build
+                ;;
+            classic-zaza | classic-amulet)
+                echo "NOOP on $charm as it is a classic charm."
+                ;;
+            *)
+                echo "UNKNOWN TYPE" && exit 1
+                ;;
+        esac
+
+    )
+done
+
