@@ -13,8 +13,11 @@ ironic-api
 ironic-conductor
 keystone-kerberos
 keystone-ldap
+magnum
+magnum-dashboard
 magpie
 manila
+manila-dashboard
 manila-generic
 manila-ganesha
 masakari
