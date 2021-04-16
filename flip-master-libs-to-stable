@@ -23,11 +23,9 @@ fi
 for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
     if [ -f $ch ]; then
         sed -i "s/https\:\/\/github.com\/juju\/charm-helpers$/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" $ch
-        #git add $ch
     fi
     if [ -f src/$ch ]; then
         sed -i "s/https\:\/\/github.com\/juju\/charm-helpers$/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" src/$ch
-        #git add src/$ch
     fi
 done
 
