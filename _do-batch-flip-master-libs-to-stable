@@ -1,0 +1,32 @@
+#!/bin/bash -e
+#  For all the charms, flip the master libs to stable ON THE MASTER branch
+# This is for the freeze period and ensures that during freeze the charms only
+# take updates from the stable libraries.
+# ./get-charms
+
+release="$1"
+
+if [ -z "$release" ]; then
+    echo "Please provide release as only parameter"
+    exit 1
+fi
+
+charms="$(cat charms.txt)"
+_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is charms/$charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        cd "charms/$charm"
+        ${_dir}/flip-master-libs-to-stable $release
+    )
+done
+

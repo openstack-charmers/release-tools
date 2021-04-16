@@ -1,0 +1,26 @@
+#!/bin/bash -e
+# Add a lock file to the charm (assume it is a reactive charm).
+# Run in the charm's root directory.
+# Uses the 'add-build-lock-file' tox target.
+# then cleans up afterwards.
+# Run AFTER switching the charm to stable libraries (flip-master-libs-to-stable)
+
+_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+charm_type="$(${_dir}/what-is .)"
+
+case $charm_type in
+    source-zaza | source-amulet)
+        # Build the charm.
+        if [ ! -f src/build.lock ]; then
+            tox -e add-build-lock-file
+            rm -rf .tox
+            rm -rf build
+            # temporarily workaround the stable branch detection - charm-tools Bug: #606
+            sed -i "s#refs/heads/master\\\\nrefs/heads/stable/#refs/heads/stable/#g" src/build.lock
+        fi
+        ;;
+    *)
+        ;;
+esac
+
