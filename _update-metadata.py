@@ -53,8 +53,9 @@ def run_command(cmd, yml):
         add_series(cmd, yml)
     elif cmd.cmd == "remove":
         remove_series(cmd, yml)
-    elif cmd.cmd == "ensure":
-        ensure_series_is(cmd, yml)
+    # NOTE(ajkavanagh) - this hasn't actually been written yet.
+    # elif cmd.cmd == "ensure":
+    #     ensure_series_is(cmd, yml)
     else:
         print("Command?? {}".format(cmd))
         sys.exit(1)
@@ -96,6 +97,17 @@ def add_series(cmd, yml):
     yml['series'].append(series)
     print("Adding series '{}' to metadata".format(series))
     write_yaml(cmd, yml)
+
+
+def remove_series(cmd, yml):
+    series = cmd.params[0].lower()
+    if series not in yml['series']:
+        print("Series '{}' not present; ignoring remove".format(series))
+        return
+    yml['series'].remove(series)
+    print("Removed series '{}' from metadata".format(series))
+    write_yaml(cmd, yml)
+
 
 def run():
     cmd = parse_args()

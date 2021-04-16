@@ -1,0 +1,60 @@
+#!/bin/bash -e
+#
+# Freeze tasks for 21.04+ (flipping branches to stable)
+# - charm-helpers
+# - charms.openstack
+# - charms.ceph
+# - zaza
+# - zaza-openstack-tests
+#
+# DOES NOT flip the .gitreview nor update the tests bundles
+#
+# the release (21.xx) is in the 1st param.
+# Run in the directory of the charm that is to be flipped.
+# Does NOT stage commits.
+
+release="$1"
+
+if [ -z "$release" ]; then
+    echo "Please provide release as only parameter"
+    exit 1
+fi
+
+for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
+    if [ -f $ch ]; then
+        sed -i "s/https\:\/\/github.com\/juju\/charm-helpers$/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" $ch
+    fi
+    if [ -f src/$ch ]; then
+        sed -i "s/https\:\/\/github.com\/juju\/charm-helpers$/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" src/$ch
+    fi
+done
+
+if [ -f src/layer.yaml ]; then
+    set +e
+        grep -q charms.openstack.git@stable src/wheelhouse.txt 2>/dev/null || {
+            echo "Updating charm wheelhouse, with stable 'charms.openstack'"
+            sed -i "s#openstack/charms.openstack.git#openstack/charms.openstack.git@stable/$release#g" src/wheelhouse.txt
+        }
+        grep -q charm-helpers.git@stable src/wheelhouse.txt 2>/dev/null || {
+            echo "Updating charm wheelhouse, with stable 'charmhelpers'"
+            sed -i "s#juju/charm-helpers.git#juju/charm-helpers.git@stable/${release}#g" src/wheelhouse.txt
+        }
+        grep -q charms.openstack.git@stable tests-requirements.txt 2>/dev/null || {
+            echo "Updating test-requirements.txt in repository with stable charms.openstack"
+            sed -i "s#openstack/charms.openstack.git#openstack/charms.openstack.git@stable/$release#g" test-requirements.txt
+        }
+        grep -q zaza-openstack-tests.git@stable src/tests-requirements.txt 2>/dev/null || {
+            echo "Updating src/test-requirements.txt in repository with stable Zaza"
+            sed -i "s#openstack-charmers/zaza.git#openstack-charmers/zaza.git@stable/$release#g" src/test-requirements.txt
+            sed -i "s#openstack-charmers/zaza-openstack-tests.git#openstack-charmers/zaza-openstack-tests.git@stable/$release#g" src/test-requirements.txt
+        }
+    set -e
+else
+    set +e
+        grep -q zaza-openstack-tests.git@stable tests-requirements.txt 2>/dev/null || {
+            echo "Updating test-requirements.txt in repository with stable Zaza"
+            sed -i "s#openstack-charmers/zaza.git#openstack-charmers/zaza.git@stable/$release#g" test-requirements.txt
+            sed -i "s#openstack-charmers/zaza-openstack-tests.git#openstack-charmers/zaza-openstack-tests.git@stable/$release#g" test-requirements.txt
+        }
+    set -e
+fi

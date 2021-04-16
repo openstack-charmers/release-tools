@@ -1,0 +1,35 @@
+#!/bin/bash -e
+#  Build only reactive charms with build.lock files; requires the charms to have been synced using
+# ./get-charms
+
+charms="$(cat charms.txt)"
+_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is charms/$charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        cd "charms/$charm"
+        case $charm_type in
+            source-zaza | source-amulet)
+                # Build the charm with a lock file and clean-up afterwards
+                ${_dir}/add-build-lock-file
+                ;;
+            classic-zaza | classic-amulet)
+                echo "NOOP on $charm as it is a classic charm."
+                ;;
+            *)
+                echo "UNKNOWN TYPE" && exit 1
+                ;;
+        esac
+
+    )
+done
+
