@@ -1,0 +1,22 @@
+#!/bin/bash -e
+#  Do a reset in all the charms; great for undoing damage and starting again.
+
+charms="$(cat charms.txt)"
+branch=$1
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is charms/$charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        cd "charms/$charm"
+        git reset --hard $branch
+    )
+done
+

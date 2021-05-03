@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 #
 # Ensure that charm-helpers, charms.openstack, charms.ceph, zaza and
 # zaza-openstack-tests are from the master branch.
@@ -14,8 +14,7 @@ function ensure_line {
     if grep "$search" "$file" >/dev/null; then
         # line exists so replace it.
         cmd="/$search/c\\$add_line"
-        #$(sed -i $cmd src/wheelhouse.txt)
-        $(sed -i $cmd $file)
+        sed -i "$cmd" $file
     else
         # line doesn't exist so add it
         echo -e "\n$add_line" >> $file
@@ -30,8 +29,7 @@ function ensure_line_if_exists {
     if grep "$search" "$file" >/dev/null; then
         # line exists so replace it.
         cmd="/$search/c\\$add_line"
-        #$(sed -i $cmd src/wheelhouse.txt)
-        $(sed -i $cmd $file)
+        sed -i "$cmd" $file
     fi
 }
 
@@ -44,10 +42,10 @@ function ensure_lines {
             echo "$charm is a classic charm - possibly making changes."
 
             # charm-helpers-hooks.yaml
-            ensure_line "charm-helpers" "https://github.com/juju/charm-helpers" "charm-helpers-hooks.yaml"
+            ensure_line "charm-helpers" "repo: https://github.com/juju/charm-helpers" "charm-helpers-hooks.yaml"
 
             # test-requirements.txt
-            ensure_line "zaza.git" "git+https://github.org/openstack-charmers/zaza.git#egg=zaza;python_version>='3.0'" "test-requirements.txt"
+            ensure_line "zaza.git" "git+https://github.com/openstack-charmers/zaza.git#egg=zaza;python_version>='3.0'" "test-requirements.txt"
             ensure_line "zaza-openstack-tests" "git+https://github.com/openstack-charmers/zaza-openstack-tests.git#egg=zaza.openstack" "test-requirements.txt"
             ;;
 
@@ -55,15 +53,15 @@ function ensure_lines {
             echo "$charm is a source charm (reactive) - possibly making changes"
 
             # src/wheelhouse.txt
-            ensure_line "charms.openstack" "git+https://opendev.org/openstack/charms.openstack.git#egg=charms.openstack" "src/wheelhouse.txt"
+            ensure_line "charms.openstack" "git+https://github.com/openstack/charms.openstack.git#egg=charms.openstack" "src/wheelhouse.txt"
             ensure_line "charm-helpers" "git+https://github.com/juju/charm-helpers.git#egg=charmhelpers" "src/wheelhouse.txt"
             ensure_line_if_exists "charms.ceph" "git+https://github.com/openstack/charms.ceph.git#egg=charms.ceph" "src/wheelhouse.txt"
 
             # test-requirements.txt
-            ensure_line "charms.openstack" "git+https://opendev.org/openstack/charms.openstack.git#egg=charms.openstack" "test-requirements.txt"
+            ensure_line "charms.openstack" "git+https://github.com/openstack/charms.openstack.git#egg=charms.openstack" "test-requirements.txt"
 
             # src/test-requirements.txt
-            ensure_line "zaza.git" "git+https://github.org/openstack-charmers/zaza.git#egg=zaza;python_version>='3.0'" "src/test-requirements.txt"
+            ensure_line "zaza.git" "git+https://github.com/openstack-charmers/zaza.git#egg=zaza" "src/test-requirements.txt"
             ensure_line "zaza-openstack-tests" "git+https://github.com/openstack-charmers/zaza-openstack-tests.git#egg=zaza.openstack" "src/test-requirements.txt"
 
             # remote the build lock if present
@@ -74,7 +72,7 @@ function ensure_lines {
 
 
 function remove_build_lock_if_present {
-    test -e src/build.lock && rm src/build.lock
+    [ -e src/build.lock ] && rm src/build.lock
 }
 
 for charm in $charms; do
