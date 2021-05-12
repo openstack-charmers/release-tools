@@ -1,0 +1,25 @@
+#!/bin/bash -e
+#  git add . then amend no-edit and then review.  Topic in param
+#  This is used after a build step when making reproducible reactive charms.
+
+charms="$(cat charms.txt)"
+topic=$1
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is charms/$charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        cd "charms/$charm"
+        git add .
+        git commit --amend --no-edit
+        git review -t $topic
+    )
+done
+
