@@ -4,7 +4,6 @@
 charms="$(cat charms.txt)"
 cmd=$1
 shift
-shift
 params=$@
 
 if [ ! -d ".tox/py3" ]; then
