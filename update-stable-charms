@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Apply stable-branch-updates to all charms (typically post-release charm-helper and amulet stable bit flips).
+# Apply stable-branch-updates to all charms (typically post-release charm-helper and zaza stable bit flips).
 
 charms="$(cat charms.txt)"
 basedir="$(pwd)"

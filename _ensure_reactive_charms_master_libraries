@@ -27,11 +27,11 @@ function ensure_line {
 function ensure_lines {
     charm_type="$($basedir/what-is .)"
     case $charm_type in
-        classic-zaza | classic-amulet)
+        classic-zaza)
             echo "$charm is a classic charm - no changes."
             ;;
 
-        source-zaza | source-amulet)
+        source-zaza)
             echo "$charm is a source charm (reactive) - possibly making changes"
             ensure_line "charms.openstack" "git+https://github.com/openstack/charms.openstack.git#egg=charms.openstack"
             ensure_line "charm-helpers" "git+https://github.com/juju/charm-helpers.git#egg=charmhelpers"

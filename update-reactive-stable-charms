@@ -1,6 +1,6 @@
 #!/bin/bash -e
 #
-# Apply stable-branch-updates to just reactive charms (typically post-release charm-helper and amulet stable bit flips).
+# Apply stable-branch-updates to just reactive charms (typically post-release charm-helper and zaza stable bit flips).
 
 charms="$(cat charms.txt)"
 basedir="$(pwd)"
@@ -34,7 +34,7 @@ for charm in $charms; do
         # charm exists, so check if it's actually a reactive charm
         charm_type="$(./what-is charms/$charm)"
         case $charm_type in
-            source-zaza | source-amulet)
+            source-zaza)
                 echo "===== $charm ($charm_type) =====, but need to redownload"
                 rm -Rf charms/$charm
                 download_charm $charm
@@ -46,13 +46,11 @@ for charm in $charms; do
 
     charm_type="$(./what-is charms/$charm)"
     case $charm_type in
-        classic-zaza | classic-amulet)
+        classic-zaza)
             echo "NOOP on $charm."
             ;;
 
-        source-zaza | source-amulet)
-
-
+        source-zaza)
             # perform the action
             (
                 cd charms/$charm

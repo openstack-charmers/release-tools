@@ -17,11 +17,11 @@ for charm in $charms; do
     (
         cd "charms/$charm"
         case $charm_type in
-            source-zaza | source-amulet)
+            source-zaza)
                 rm -rf build
                 rm -rf .tox
                 ;;
-            classic-zaza | classic-amulet)
+            classic-zaza)
                 echo "NOOP on $charm as it is a classic charm."
                 ;;
             *)

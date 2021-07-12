@@ -38,7 +38,7 @@ function ensure_line_if_exists {
 function ensure_lines {
     charm_type="$($basedir/what-is .)"
     case $charm_type in
-        classic-zaza | classic-amulet)
+        classic-zaza)
             echo "$charm is a classic charm - possibly making changes."
 
             # charm-helpers-hooks.yaml
@@ -49,7 +49,7 @@ function ensure_lines {
             ensure_line "zaza-openstack-tests" "git+https://github.com/openstack-charmers/zaza-openstack-tests.git#egg=zaza.openstack" "test-requirements.txt"
             ;;
 
-        source-zaza | source-amulet)
+        source-zaza)
             echo "$charm is a source charm (reactive) - possibly making changes"
 
             # src/wheelhouse.txt

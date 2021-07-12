@@ -1,9 +1,7 @@
-There are 4 basic combinations of OpenStack Charm structure:
+There are 2 basic OpenStack Charm structure:
 
-1. Classic (non-reactive) + Amulet functional tests (legacy, py2)
-2. Classic (non-reactive) + Zaza functional tests
-3. Source (reactive) + Amulet functional tests (legacy, py2)
-4. Source (reactive) + Zaza functional tests
+1. Classic (non-reactive) + Zaza functional tests
+2. Source (reactive) + Zaza functional tests
 
 The 'global' dir contains gold reference files for each of the above,
 which should be maintained as the source of truth, and pushed out

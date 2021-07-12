@@ -19,11 +19,11 @@ File | Purpose / Note
 ```release-stable-charms``` | Do a new STABLE RELEASE from MASTER for all charms.
 ```repo-link-overrides```   | A list of exceptions and overrides for charm repos that deviate from the usual URL structure.
 ```source-charms.txt```     | Master list of 'source charms,' used by ```update-tox-files```.
-```stable-branch-updates``` | Post-Release Repo Tasks: Flip stable charm-helpers and Amulet bits;  Update .gitreview with new stable branch name. Called by ```update-stable-charms```.
+```stable-branch-updates``` | Post-Release Repo Tasks: Flip stable charm-helpers and Zaza bits;  Update .gitreview with new stable branch name. Called by ```update-stable-charms```.
 ```update-stable-charms```  | Applies stable-branch-updates to all charms.
 ```./DEPRECATED_SAVE_EXAMPLES/```         | Bone yard of old scripts which may or may not be useful or dangerous.
 ```batch-example```         | Tactical tool to sync tox, requirements, charm helpers.  Inspect, edit, use, and abuse.
-```what-is```               | Tactical tool to identify the charm type (classic or source) and test framework (amulet or zaza) based solely on the contents of the cloned repo directory.
+```what-is```               | Tactical tool to identify the charm type (classic or source) based solely on the contents of the cloned repo directory.
 ```_*```                    | Not typically used as stand-alone tools;  generally used as a call from another script (see batch-example).
 
 ## To-Do

@@ -18,11 +18,11 @@ for charm in $charms; do
     (
         cd "charms/$charm"
         case $charm_type in
-            source-zaza | source-amulet)
+            source-zaza)
                 # Build the charm with a lock file and clean-up afterwards
                 ${_dir}/add-build-lock-file
                 ;;
-            classic-zaza | classic-amulet)
+            classic-zaza)
                 echo "NOOP on $charm as it is a classic charm."
                 ;;
             *)

@@ -19,12 +19,12 @@ for charm in $charms; do
         # Do a charm-helpers sync where possible
         cd "charms/$charm"
         case $charm_type in
-            source-zaza | source-amulet)
+            source-zaza)
                 # update/add the rebuild file to trigger a rebuild
                 uuid=$(uuid)
                 echo -e "# This file is used to trigger rebuilds\n# when dependencies of the charm change,\n# but nothing in the charm needs to.\n# simply change the uuid to something new\n$uuid" > ./rebuild
                 ;;
-            classic-zaza | classic-amulet)
+            classic-zaza)
                 echo "NOOP on $charm as it is a classic charm."
                 ;;
             *)

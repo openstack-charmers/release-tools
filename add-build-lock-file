@@ -10,7 +10,7 @@ _dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 charm_type="$(${_dir}/what-is .)"
 
 case $charm_type in
-    source-zaza | source-amulet)
+    source-zaza)
         # Build the charm.
         if [ ! -f src/build.lock ]; then
             tox -e add-build-lock-file
@@ -23,4 +23,3 @@ case $charm_type in
     *)
         ;;
 esac
-
