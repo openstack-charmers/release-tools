@@ -19,10 +19,10 @@ for charm in $charms; do
         # Do a charm-helpers sync where possible
         cd charms/$charm
         case $charm_type in
-            source-zaza | source-amulet)
+            source-zaza)
                 echo "NOOP on $charm."
                 ;;
-            classic-zaza | classic-amulet)
+            classic-zaza)
                 # Update Makefile to enforce py3x
                 find -type f -name Makefile | xargs sed 's#PYTHON := /usr/bin/env python$#PYTHON := /usr/bin/env python3#g' -i
 

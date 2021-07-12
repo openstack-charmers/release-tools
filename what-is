@@ -14,13 +14,10 @@ if [ ! -d "$charm_dir" ]; then
 fi
 
 
-# Determine charm test framework (zaza or amulet)
+# Determine charm test framework
 if (cd $charm_dir && find -maxdepth 3 -type f -name tests.yaml |
         xargs grep "gate_bundles:" &> /dev/null); then
     test_framework="zaza"
-elif (cd $charm_dir && find -maxdepth 3 -type f -name tests.yaml |
-        xargs grep "bootstrap:" &> /dev/null); then
-    test_framework="amulet"
 else
     test_framework="unknown"
 fi

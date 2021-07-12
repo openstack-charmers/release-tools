@@ -16,11 +16,11 @@ for charm in $charms; do
         if [ -d "charms/$charm" ]; then
             charm_type="$(./what-is charms/$charm)"
             case $charm_type in
-                classic-zaza | classic-amulet)
+                classic-zaza)
                     echo "$charm is a classic charm."
                     ;;
 
-                source-zaza | source-amulet)
+                source-zaza)
                     echo "$charm is a source charm (reactive)."
                     ;;
             esac

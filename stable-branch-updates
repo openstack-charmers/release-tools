@@ -1,7 +1,7 @@
 #!/bin/bash -e
 #
 # Post-Release Repo Tasks
-#   - Flip stable charm-helpers and Amulet bits.
+#   - Flip stable charm-helpers and Zaza bits.
 #   - Update .gitreview with new stable branch name.
 
 release="$1"
@@ -17,18 +17,6 @@ grep -q defaultbranch .gitreview || {
     echo -e "\ndefaultbranch=stable/$release" >> .gitreview
     git add .gitreview
 }
-
-if [ -f tests/basic_deployment.py ]; then
-    echo "Updating amulet tests to refer to stable branches"
-    sed -i 's/stable=False/stable=True/g' tests/basic_deployment.py
-    git add tests/basic_deployment.py
-fi
-
-if [ -f src/tests/basic_deployment.py ]; then
-    echo "Updating amulet tests to refer to stable branches src"
-    sed -i 's/stable=False/stable=True/g' src/tests/basic_deployment.py
-    git add src/tests/basic_deployment.py
-fi
 
 if [ -d src/tests/bundles ]; then
     echo "Updating zaza tests to refer to stable branches src"
