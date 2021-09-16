@@ -4,6 +4,7 @@ barbican-vault
 ceph-fs
 ceph-rbd-mirror
 cinder-backup-swift-proxy
+cinder-lvm
 cinder-purestorage
 designate
 designate-bind

@@ -13,6 +13,7 @@ cinder
 cinder-backup
 cinder-backup-swift-proxy
 cinder-ceph
+cinder-lvm
 cinder-purestorage
 designate
 designate-bind
