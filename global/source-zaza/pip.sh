@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-
+#
+# This file is managed centrally by release-tools and should not be modified
+# within individual charm repos.  See the 'global' dir contents for available
+# choices of tox.ini for OpenStack Charms:
+#     https://github.com/openstack-charmers/release-tools
+#
 # setuptools 58.0 dropped the support for use_2to3=true which is needed to
 # install blessings (an indirect dependency of charm-tools).
 #
