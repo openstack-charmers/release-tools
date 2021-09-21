@@ -20,11 +20,11 @@ for charm in $charms; do
         case $charm_type in
             classic-zaza)
                 cp -fvp global/$charm_type/tox.ini charms/$charm/tox.ini
-                cp -fvp global/$charm_type/tox.ini charms/$charm/pip.sh
+                cp -fvp global/$charm_type/pip.sh charms/$charm/pip.sh
                 ;;
             source-zaza)
                 cp -fvp global/$charm_type/tox.ini charms/$charm/tox.ini
-                cp -fvp global/$charm_type/tox.ini charms/$charm/pip.sh
+                cp -fvp global/$charm_type/pip.sh charms/$charm/pip.sh
                 cp -fvp global/$charm_type/src/tox.ini charms/$charm/src/tox.ini
                 ;;
             *)
