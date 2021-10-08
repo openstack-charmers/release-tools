@@ -9,7 +9,7 @@
 import itertools
 import os
 import pathlib
-from typing import Optional, List
+from typing import List
 import re
 import sys
 
@@ -95,33 +95,74 @@ def add_channel_to(charms: List[str],
 
     new_lines = []
 
+    ###
+    # The following for-loop code implements an algorithm that searches for a
+    # 'charm:' specification line that matches the regex in CHARM_MATCH, and
+    # when found, it then looks for a 'channel:' specification in the same
+    # level block in the yaml file. The CHARM_MATCH regex extracts the indent
+    # of the line and the name of the charm.  The CHANNEL_MATCH regex also
+    # extracts the indent of the line and the channel that is assigned.
+    #
+    # The 'indent' variable both indicates the indent of the yaml dictionary
+    # that the 'charm:' key is at AND whether the for-loop is searching for a
+    # 'channel:' key.
+    #
+    # The algorithm is:
+    #  * set the indent to None, so that the for-loop searches for a charm:
+    #    key.
+    #  * If a 'charm:' match is found, store the indent, to indicate to search
+    #    for a 'channel:' key.
+    #  * When seaching for the channel:
+    #    - if the line doesn't start with the indent string, then the yaml
+    #      dictionary that the charm: was found in has ended so ADD the
+    #      channel: spec at that point, and then go back to searching for
+    #      charm:.
+    #    - if the line does start with the indent string, see if it is a match
+    #      to the CHANNEL_REGEX. If so, check the indents are the same, and if
+    #      so, replace the channel, go back to searching for charm: AND don't
+    #      add the existing channel: line.
+    #  * If th indent is still a string at the end of the file, then add the
+    #    channel: as the yaml dictionary with the 'charm:' key was at the end
+    #    of the file.
+    #
+    #  The 'continue' statement is to drop the channel: line that is being
+    #  replaced.  In all other cases a channel: line is added to the block.
+    #
+    ###
+
     indent = None
     for line in file_lines:
-        # line = line.rstrip()
         if indent is not None:
+            # searching for channel: inside the same yaml dict as charm: found
             if line.startswith(indent):
                 channel_match = CHANNEL_MATCH.match(line)
                 if channel_match:
+                    # only replace the channel: if it is at the same indent.
                     if channel_match[1] == indent:
                         # replace the channel at the indent for the charm block
-                        new_lines.append("{}channel: {}\n".format(indent, channel))
+                        new_lines.append(
+                            "{}channel: {}\n".format(indent, channel))
                         indent = None
                         continue
             else:
+                # reached the end of the yaml dict with the charm: key, so add
+                # the channel: spec at the end of that dict, then go back to
+                # searching for charm:
                 new_lines.append("{}channel: {}\n".format(indent, channel))
                 indent = None
         match = CHARM_MATCH.match(line)
         if match and match[2] in charms:
+            # store the indent of the yaml dict, so that the channel: can be
+            # either replaced or inserted in the same dict.
             indent = match[1]
         new_lines.append(line)
-    # it's possible the charm block was at the end of the file
+    # if indent is still set, the charm block was at the end of the file
     if indent is not None:
         new_lines.append("{}channel: {}\n".format(indent, channel))
 
     print("file:\n{}".format("".join(new_lines)))
 
     with open(new_file_name, "wt") as f:
-        # f.write("\n".join(new_lines))
         f.writelines(new_lines)
     # now overwrite the file
     os.rename(new_file_name, bundle_filename)
