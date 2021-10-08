@@ -2,5 +2,7 @@
 # complete list of all our Operator charms until release-tools supports them.
 # For now these charms may require manual actions on Release Day.
 
+ceph-dashboard
 ceph-iscsi
 manila-netapp
+openstack-loadbalancer
