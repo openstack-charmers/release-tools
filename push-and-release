@@ -4,16 +4,20 @@
 # from a local checkout dir.
 #   - Charm series metadata is required.
 #   - Take no action if env var CHARM_PUSH_DRY_RUN is True.
+#   - Push to channel if 3rd param channel is passed
 #   - Listen for Jenkins $WORKSPACE env var and use it if found.
 
+channel="$3"
 branch="$2"
 charm="$1"
-usage="usage: push-and-release charmname <master||stable||stable/nn.nn>
+usage="usage: push-and-release charmname <master||stable||stable/nn.nn> <channel>
 resource_string=""
 
 NOTE:
   - Now enforcing series declarations in metadata.yaml.  All charms must
     declare at least one series.
+  - channel must either be missing, or one of stable, candidate, beta, edge.
+    If missing, then the channel is stable.
 "
 
 function add_repo_info () {
@@ -24,6 +28,7 @@ function add_repo_info () {
 }
 
 if [ -z "$charm" ] || [ -z "$branch" ]; then
+    echo -e "The charmname and branch params must be present."
     echo -e "$usage"
     exit 1
 fi
@@ -114,6 +119,23 @@ case "$branch" in
     ;;
 esac
 
+# Check the channel parameter; if blank then no channel, spec, otherwise match
+# it to stable, candidate, beta, or edge.
+channel_lc="${channel,,}"
+case "$channel_lc" in
+    stable|"")
+        channel_spec=""
+        channel_lc="stable"
+    ;;
+    candidate|beta|edge)
+        channel_spec="--channel=$charm_lc"
+    ;;
+    *)
+        echo " ! channel "$channel" is not one of stable, candidate, beta, edge."
+        echo $usage
+        exit 1
+    ;;
+esac
 
 # Wrapper to deal with potential charm store timeouts
 retry_command() {
@@ -173,8 +195,8 @@ if [[ -n $(awk '$0~c' c="$charm:$branch" resources.txt) ]]; then
 echo " . Using resource $resource (${resource_raw})"
 fi
 
-echo " . Releasing charm $charm_ref"
-retry_command charm release $charm_ref $resource_string
+echo " . Releasing charm $charm_ref to channel $channel_lc"
+retry_command charm release $charm_ref $resource_string $channel_spec
 
 echo " . Granting global read acl"
 retry_command charm grant $charm_store_url --acl read everyone
