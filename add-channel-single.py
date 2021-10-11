@@ -7,11 +7,18 @@
 # candidate channel
 
 import itertools
+import logging
 import os
 import pathlib
 from typing import List
 import re
 import sys
+
+
+logger = logging.getLogger(__name__)
+# change to logging.DEBUG to get debug information
+logger.setLevel(logging.INFO)
+
 
 CUR_DIR = pathlib.Path(__file__).parent.resolve()
 CHARMS_FILE = os.path.join(CUR_DIR, 'charms.txt')
@@ -43,7 +50,7 @@ def find_bundles_dirs(charm_dir: str) -> List[str]:
 
     found_list = []
     for path in paths:
-        print(path)
+        logging.debug("Searching: %s", path)
         dir_ = os.path.abspath(os.path.join(charm_dir, *path))
         if os.path.isdir(dir_):
             found_list.append(dir_)
@@ -56,7 +63,7 @@ def find_bundles(bundles_dir: str) -> List[str]:
     :param bundles_dir: the directory with bundles (hopefully).
     :returns: List of filenames of bundles (yaml or yaml.j2)
     """
-    print("scanning:", bundles_dir)
+    logger.debug("scanning: %s", bundles_dir)
     bundles = []
     for file in os.listdir(bundles_dir):
         path = os.path.join(bundles_dir, file)
@@ -160,7 +167,7 @@ def add_channel_to(charms: List[str],
     if indent is not None:
         new_lines.append("{}channel: {}\n".format(indent, channel))
 
-    print("file:\n{}".format("".join(new_lines)))
+    logger.debug("file:\n%s", "".join(new_lines))
 
     with open(new_file_name, "wt") as f:
         f.writelines(new_lines)
@@ -230,13 +237,13 @@ def main() -> None:
         usage()
         print("\n!!! Charm dir {} doesn't exist".format(charm_dir))
         sys.exit(1)
-    print("Charm: {}, adding/changing channel to {}"
-          .format(charm_name, channel))
+    logging.info("Charm: %s, adding/changing channel to %s",
+                 charm_name, channel)
     dirs = find_bundles_dirs(os.path.join(CUR_DIR, 'charms', charm_name))
     bundles = find_bundles_in_dirs(dirs)
     charms = get_charms_list(CHARMS_FILE)
     update_bundles(charms, bundles, channel)
-    print("done.")
+    logging.info("done.")
 
 
 if __name__ == '__main__':
