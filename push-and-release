@@ -128,7 +128,7 @@ case "$channel_lc" in
         channel_lc="stable"
     ;;
     candidate|beta|edge)
-        channel_spec="--channel=$charm_lc"
+        channel_spec="--channel=$channel_lc"
     ;;
     *)
         echo " ! channel "$channel" is not one of stable, candidate, beta, edge."
@@ -199,7 +199,7 @@ echo " . Releasing charm $charm_ref to channel $channel_lc"
 retry_command charm release $charm_ref $resource_string $channel_spec
 
 echo " . Granting global read acl"
-retry_command charm grant $charm_store_url --acl read everyone
+retry_command charm grant $charm_store_url $channel_spec --acl read everyone
 
 echo " . Setting charm homepage and bugs-url options"
 
