@@ -17,6 +17,7 @@ designate:stable/21.10:policyd-override:policyd-override-0:zip
 glance:master:policyd-override:policyd-override-0:zip
 glance:stable/21.04:policyd-override:policyd-override-0:zip
 glance:stable/21.10:policyd-override:policyd-override-0:zip
+glance-simplestreams-sync:master:simplestreams:simplestreams-0:snap
 gnocchi:master:policyd-override:policyd-override-0:zip
 gnocchi:stable/21.04:policyd-override:policyd-override-0:zip
 gnocchi:stable/21.10:policyd-override:policyd-override-0:zip
