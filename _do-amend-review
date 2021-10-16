@@ -3,7 +3,6 @@
 #  This is used after a build step when making reproducible reactive charms.
 
 charms="$(cat charms.txt)"
-topic=$1
 
 for charm in $charms; do
     if [ ! -d "charms/$charm" ]; then
@@ -17,9 +16,12 @@ for charm in $charms; do
     echo "===== $charm ($charm_type) ====="
     (
         cd "charms/$charm"
-        git add .
-        git commit --amend --no-edit
-        git review -t $topic
+        git_status="$(git status -s)"
+        if [ -n "$git_status" ]; then
+            git add .
+            git commit --amend --no-edit
+            git review -T
+        fi
     )
 done
 
