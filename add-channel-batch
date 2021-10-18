@@ -1,6 +1,6 @@
 #!/bin/bash -e
 # Add the channel passed in param $1 to the batch of charms using
-# ./add-channel-single.py helper.
+# ./update-channel-single.py helper.
 
 charms="$(cat charms.txt)"
 channel=$1
@@ -16,7 +16,7 @@ for charm in $charms; do
     charm_type="$(./what-is charms/$charm)"
     echo "===== $charm ($charm_type) ====="
     (
-        ./add-channel-single.py $charm $channel
+        ./update-channel-single.py --channel $channel charms/$charm
     )
 done
 
