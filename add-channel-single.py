@@ -6,17 +6,17 @@
 # It looks in ./charms/<name> and adds (or changes) the bundle to read from the
 # candidate channel
 
+import argparse
 import itertools
 import logging
 import os
 import pathlib
-from typing import List
+from typing import List, Optional
 import re
 import sys
 
 
 logger = logging.getLogger(__name__)
-# change to logging.DEBUG to get debug information
 logger.setLevel(logging.INFO)
 
 
@@ -30,11 +30,6 @@ CHARM_MATCH = re.compile(
 CHANNEL_MATCH = re.compile(r'^(\s*)channel:\s+(\S+)\s*(?:|#.*)$')
 
 
-def usage() -> None:
-    """Print the usage for the script."""
-    print("{} <charm-name> <channel>".format(sys.argv[0]))
-    print("")
-    print("Change or add the juju channel to the bundles for the charm.")
 
 
 def find_bundles_dirs(charm_dir: str) -> List[str]:
@@ -67,7 +62,7 @@ def find_bundles(bundles_dir: str) -> List[str]:
     bundles = []
     for file in os.listdir(bundles_dir):
         path = os.path.join(bundles_dir, file)
-        if os.path.isfile(path):
+        if os.path.isfile(path) and not os.path.islink(path):
             if path.endswith(".yaml") or path.endswith(".yaml.j2"):
                 bundles.append(path)
     return bundles
@@ -83,18 +78,23 @@ def find_bundles_in_dirs(bundles_dirs: List[str]) -> List[str]:
         *(find_bundles(path) for path in bundles_dirs))))
 
 
-def add_channel_to(charms: List[str],
+def modify_channel(charms: List[str],
                    bundle_filename: str,
-                   channel: str
+                   channel: Optional[str]
                    ) -> None:
-    """Add the candidate channel to the bundle as needed.
+    """Modify the candidate channel to the bundle as needed.
 
-    Adds a channel: candidate to the charms in the bundle that match one of the
-    charms in the :param:`charms` for ~openstack-charmers or
-    ~openstack-charmers-next.
+    If the :param:`channel` is not None, then it adds a "channel: <channel>" to
+    the charms in the bundle that match one of the charms in the
+    :param:`charms` for ~openstack-charmers or ~openstack-charmers-next.
+
+    If the :param:`channel` is None, then the "channel:" specify is removed
+    from the charm spec (as long as it matches one of the charms in
+    :param:`charms`).
 
     :param charms: the list of charms that this will apply to.
-    :bundle_filename: the filename of the bundle to update.
+    :param bundle_filename: the filename of the bundle to update.
+    :param channel: the channel to add/modify or if None, remove.
     """
     new_file_name = "{}.new".format(bundle_filename)
     with open(bundle_filename) as f:
@@ -147,15 +147,20 @@ def add_channel_to(charms: List[str],
                     # only replace the channel: if it is at the same indent.
                     if channel_match[1] == indent:
                         # replace the channel at the indent for the charm block
-                        new_lines.append(
-                            "{}channel: {}\n".format(indent, channel))
+                        # if the specified channel is not None:
+                        if channel is not None:
+                            new_lines.append(
+                                "{}channel: {}\n".format(indent, channel))
                         indent = None
                         continue
             else:
                 # reached the end of the yaml dict with the charm: key, so add
                 # the channel: spec at the end of that dict, then go back to
-                # searching for charm:
-                new_lines.append("{}channel: {}\n".format(indent, channel))
+                # searching for "charm:"
+                # add the channel at the indent for the charm block
+                # if the specified channel is not None:
+                if channel is not None:
+                    new_lines.append("{}channel: {}\n".format(indent, channel))
                 indent = None
         match = CHARM_MATCH.match(line)
         if match and match[2] in charms:
@@ -163,8 +168,10 @@ def add_channel_to(charms: List[str],
             # either replaced or inserted in the same dict.
             indent = match[1]
         new_lines.append(line)
-    # if indent is still set, the charm block was at the end of the file
-    if indent is not None:
+    # if indent is still set, the charm block was at the end of the file then
+    # add the channel at the indent for the charm block if the specified
+    # channel is not None:
+    if indent is not None and channel is not None:
         new_lines.append("{}channel: {}\n".format(indent, channel))
 
     logger.debug("file:\n%s", "".join(new_lines))
@@ -187,21 +194,10 @@ def get_charms_list(charms_file: str) -> List[str]:
 
 def update_bundles(charms: List[str],
                    bundle_paths: List[str],
-                   channel: str) -> None:
+                   channel: Optional[str]) -> None:
     for path in bundle_paths:
-        add_channel_to(charms, path, channel)
-
-
-def validate_channel(channel: str) -> str:
-    """Validate that the channel is valid.
-
-    :param channel: the channel string to check.
-    :returns: lowercased version of the channel
-    :raises: AssertionError if not valid
-    """
-    channel = channel.lower()
-    assert channel in ('stable', 'candidate', 'beta', 'edge')
-    return channel
+        logger.debug("Doing path: %s", path)
+        modify_channel(charms, path, channel)
 
 
 def check_charm_dir_exists(charm_dir: str) -> None:
@@ -213,33 +209,74 @@ def check_charm_dir_exists(charm_dir: str) -> None:
     assert os.path.isdir(charm_dir)
 
 
+def parse_args(argv: List[str]) -> argparse.Namespace:
+    """Parse command line arguments.
+
+    :param argv: List of configure functions functions
+    :returns: Parsed arguments
+    """
+    parser = argparse.ArgumentParser(
+        description=('Change or add the juju channel to the bundles '
+                     'for the charm.'),
+        epilog=("Either pass the directory of the charm, or be in that "
+                "directory when the script is called."))
+    parser.add_argument('dir', nargs='?',
+                        help="Optional directory argument")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--channel',
+                       dest='channel',
+                       type=str.lower,
+                       choices=('stable', 'candidate', 'beta', 'edge'),
+                       help=('If present, adds channel spec to openstack '
+                             'charms. Must use --remove-channel if this is '
+                             'not supplied.')),
+    group.add_argument('--remove-channel',
+                       dest="remove_channel",
+                       help=("Remove the channel specifier.  Don't use with "
+                             "--channel."),
+                       action='store_true')
+    parser.add_argument('--log', dest='loglevel',
+                        type=str.upper,
+                        default='INFO',
+                        choices=('DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
+                        help='Loglevel')
+    parser.set_defaults(channel=None,
+                        remove_channel=False,
+                        loglevel='INFO')
+    return parser.parse_args(argv)
+
+
 def main() -> None:
-    try:
-        charm_name = sys.argv[1].lower()
-        if charm_name in ('-h', '--help'):
-            usage()
-            sys.exit(0)
-        channel = sys.argv[2].lower()
-    except Exception:
-        usage()
-        print("\n !!! Must pass 'charm' and 'channel' to script.")
+    args = parse_args(sys.argv[1:])
+    logger.setLevel(logging.INFO)
+    logger.setLevel(getattr(logging, args.loglevel, 'INFO'))
+
+    if args.channel:
+        channel = args.channel
+    elif args.remove_channel:
+        channel = None
+    else:
+        logger.error("Something went drastically wrong!")
         sys.exit(1)
-    try:
-        channel = validate_channel(channel)
-    except AssertionError:
-        usage()
-        print("Channel must be one of stable, candidate, beta or edge")
-        sys.exit(1)
-    charm_dir = os.path.abspath(os.path.join(CUR_DIR, 'charms', charm_name))
+
+    if args.dir:
+        charm_dir = os.path.abspath(args.dir)
+    else:
+        charm_dir = os.getcwd()
+
     try:
         check_charm_dir_exists(charm_dir)
     except AssertionError:
-        usage()
         print("\n!!! Charm dir {} doesn't exist".format(charm_dir))
         sys.exit(1)
-    logging.info("Charm: %s, adding/changing channel to %s",
-                 charm_name, channel)
-    dirs = find_bundles_dirs(os.path.join(CUR_DIR, 'charms', charm_name))
+
+    if channel is not None:
+        logger.info("Charm dir: %s, adding/changing channel to %s",
+                    charm_dir, channel)
+    else:
+        logger.info("Charm dir: %s, removing the channel spec.", charm_dir)
+
+    dirs = find_bundles_dirs(charm_dir)
     bundles = find_bundles_in_dirs(dirs)
     charms = get_charms_list(CHARMS_FILE)
     update_bundles(charms, bundles, channel)
