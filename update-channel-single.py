@@ -24,12 +24,14 @@ CUR_DIR = pathlib.Path(__file__).parent.resolve()
 CHARMS_FILE = os.path.join(CUR_DIR, 'charms.txt')
 assert os.path.isfile(CHARMS_FILE), "{} doesn't exist?".format(CHARMS_FILE)
 
+# This matches against a charm: <spec> where spec is either quoted or unquoted
+# version of cs:~openstack-charmers/<name> or
+# cs:~openstack-charmers-next/<name>
 CHARM_MATCH = re.compile(
-    r'^(\s*)charm:\s+cs:(?:~openstack-charmers/|~openstack-charmers-next/)'
-    r'(\S+)\s*(?:|#.*)$')
+    r'^(\s*)charm:\s+(?:|' + r"'" + r'|")'
+    r'cs:(?:~openstack-charmers/|~openstack-charmers-next/)'
+    r'([a-zA-Z0-9-]+)(?:|' + r"'" + r'|")\s*(?:|#.*)$')
 CHANNEL_MATCH = re.compile(r'^(\s*)channel:\s+(\S+)\s*(?:|#.*)$')
-
-
 
 
 def find_bundles_dirs(charm_dir: str) -> List[str]:
@@ -163,18 +165,19 @@ def modify_channel(charms: List[str],
                     new_lines.append("{}channel: {}\n".format(indent, channel))
                 indent = None
         match = CHARM_MATCH.match(line)
-        if match and match[2] in charms:
-            # store the indent of the yaml dict, so that the channel: can be
-            # either replaced or inserted in the same dict.
-            indent = match[1]
+        if match:
+            logger.debug("Matched charm %s on line\n%s", match[2], line)
+            if match[2] in charms:
+                # store the indent of the yaml dict, so that the channel: can
+                # be either replaced or inserted in the same dict.
+                logger.debug("Matched charm %s valid", match[2])
+                indent = match[1]
         new_lines.append(line)
     # if indent is still set, the charm block was at the end of the file then
     # add the channel at the indent for the charm block if the specified
     # channel is not None:
     if indent is not None and channel is not None:
         new_lines.append("{}channel: {}\n".format(indent, channel))
-
-    logger.debug("file:\n%s", "".join(new_lines))
 
     with open(new_file_name, "wt") as f:
         f.writelines(new_lines)
