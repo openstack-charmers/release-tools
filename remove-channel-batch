@@ -1,0 +1,21 @@
+#!/bin/bash -e
+# Remove the channel from the bundles of all of the charms using the
+# ./update-channel-single.py helper.
+
+charms="$(cat charms.txt)"
+
+for charm in $charms; do
+    if [ ! -d "charms/$charm" ]; then
+        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
+        exit 1
+    fi
+done
+
+for charm in $charms; do
+    charm_type="$(./what-is charms/$charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        ./update-channel-single.py --remove-channel charms/$charm
+    )
+done
+
