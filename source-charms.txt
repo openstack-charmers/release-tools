@@ -5,6 +5,7 @@ ceph-fs
 ceph-rbd-mirror
 cinder-backup-swift-proxy
 cinder-lvm
+cinder-netapp
 cinder-purestorage
 designate
 designate-bind
