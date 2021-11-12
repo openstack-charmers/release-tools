@@ -184,6 +184,13 @@ def execute_on_instance(name: str, cmd: List[str],
     return subprocess.check_output(" ".join(_cmd), shell=True).decode()
 
 
+def clean_pip_cache(instance_name: str, user: str = 'ubuntu') -> None:
+    execute_on_instance(
+        instance_name,
+        ["[ -e ~/.cache/pip ] && rm -rf ~/.cache/pip"],
+        user=user)
+
+
 def get_charm_source(charm: str) -> str:
     """Get the source repo for the charm.
 
@@ -221,18 +228,48 @@ def find_tox_targets_on_instance(instance_name: str, dir_: str
     :returns: a list of tox names to use.
     """
     matcher = re.compile(r"^\[testenv:(\S+)\]")
-    tox_file = execute_on_instance(instance_name,
-                                   ['cat', f"{dir_}/tox.ini"],
-                                   user='ubuntu')
-    targets = []
-    for line in tox_file.splitlines():
-        line = line.strip()
-        match = matcher.match(line)
-        if match and match[1] in TOX_TARGETS:
-            targets.append(("", match[1]))
-    if 'build' in targets:
-        targets.append('src', 'func-target')
+
+    def _extract_tox_targets(prefix: str) -> List[Tuple[str, str]]:
+        targets = []
+        tdir = f"{prefix}/" if prefix else ""
+        tox_file = execute_on_instance(instance_name,
+                                       ['cat', f"{dir_}/{tdir}tox.ini"],
+                                       user='ubuntu')
+        for line in tox_file.splitlines():
+            line = line.strip()
+            match = matcher.match(line)
+            if match and match[1] in TOX_TARGETS:
+                targets.append((prefix, match[1]))
+        return targets
+
+    targets = _extract_tox_targets("")
+    if ('', 'build') in targets:
+        targets.extend(_extract_tox_targets("src"))
+    logger.debug("All targets found: %s",
+                 ', '.join(f"{x}/{y}" if x else y
+                           for x, y in targets))
     return targets
+
+
+def filter_targets(current: List[Tuple[str, str]],
+                   picks: List[str]) -> List[Tuple[str, str]]:
+    if not picks:
+        return current
+    # otherwise, clean pick using targets.
+    results = []
+    for target in picks:
+        if '/' in target:
+            prefix, target = target.split('/', 2)
+        else:
+            prefix = ""
+        if (prefix, target) in current:
+            results.append((prefix, target))
+        else:
+            logger.warning("Not using %s as it's not one of %s.",
+                           target,
+                           ', '.join(f"{x}/{y}" if x else y
+                                     for x, y in current))
+    return results
 
 
 def merge_pip_reports(reports: List[List[str]]) -> List[str]:
@@ -249,6 +286,12 @@ def merge_pip_reports(reports: List[List[str]]) -> List[str]:
         lowest_modules = pick_lowest(lowest_modules, modules)
     return [f"{m}=={str(lowest_modules[m])}"
             for m in sorted(lowest_modules.keys())]
+
+
+def get_wheelhouse(instance_name: str,
+                   dir_: str) -> List[str]:
+    modules = get_build_modules(instance_name, dir_)
+    return [f"{m}=={str(modules[m])}" for m in sorted(modules.keys())]
 
 
 def load_module_version(report: List[str]) -> Dict[str, LooseVersion]:
@@ -288,6 +331,7 @@ def get_pip_report_for(instance_name: str,
         to_dir = f"{dir_}/{target[0]}"
     else:
         to_dir = dir_
+    clean_pip_cache(instance_name)
     cmd = f"cd {to_dir}; tox -e {target[1]} --notest"
     execute_on_instance(instance_name, [cmd], user='ubuntu')
     pip_file = execute_on_instance(
@@ -296,6 +340,35 @@ def get_pip_report_for(instance_name: str,
         user='ubuntu')
     logger.debug(pip_file)
     return [l.strip() for l in pip_file.splitlines()]
+
+
+def get_build_modules(instance_name: str,
+                      dir_: str
+                      ) -> None:
+    """Get the python modules from the build.lock file.
+
+    Note that it ignores vcs revisions and only uses modules that have version
+    numbers.
+    """
+    clean_pip_cache(instance_name)
+    cmd = f"cd {dir_}; tox -e add-build-lock-file"
+    execute_on_instance(instance_name, [cmd], user='ubuntu')
+    lockfile = execute_on_instance(
+        instance_name,
+        ['cat', f"{dir_}/src/build.lock"],
+        user='ubuntu')
+    logger.debug(lockfile)
+    return process_build_lock(lockfile)
+
+
+def process_build_lock(lock_file: str) -> Dict[str, str]:
+    """Process the build.lock file."""
+    locks = yaml.safe_load(lock_file)
+    modules = {}
+    for lock in locks['locks']:
+        if lock['type'] == 'python_module' and lock.get('vcs', None) is None:
+            modules[lock['package']] = lock['version']
+    return modules
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -326,6 +399,20 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument('--file',
                         default=None,
                         help="Write output to a file")
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument('-t', '--target', dest='targets',
+                       nargs='*',
+                       help=('Define a target (repeat for multiple). '
+                             'Otherwise, runs all available targets that '
+                             'match one of [{}] in the '
+                             'tox.ini files.  For "src" charms, use '
+                             '"src/<target>" to specify a target in the src '
+                             'tox.ini after the build has been done.'
+                             .format(', '.join(TOX_TARGETS))))
+    group.add_argument('-w', '--get-wheelhouse',
+                       dest='extract_wheelhouse',
+                       action='store_true',
+                       help=('Do a tox -e build and grab the wheelhouse.txt.'))
     parser.add_argument('--log', dest='loglevel',
                         type=str.upper,
                         default='INFO',
@@ -344,11 +431,21 @@ def main() -> None:
     ensure_instance(
         instance_name, args.ubuntu, args.always_new_builder)
     ensure_pkgs_on_instance(instance_name, ['python3-pip'])
-    ensure_user_modules(instance_name, ['tox>=3.18'], user='ubuntu')
+    clean_pip_cache(instance_name)
+    ensure_user_modules(instance_name, ['"tox>=3.18"'], user='ubuntu')
     dir_ = fetch_charm_source_on_instance(instance_name, args.charm)
     targets = find_tox_targets_on_instance(instance_name, dir_)
-    python_modules = merge_pip_reports(
-        get_pip_reports_for(instance_name, dir_, targets))
+    if args.extract_wheelhouse:
+        targets = filter_targets(targets, ['build'])
+        if targets:
+            python_modules = get_wheelhouse(instance_name, dir_)
+        else:
+            logger.error("No build target found")
+            sys.exit(1)
+    else:
+        targets = filter_targets(targets, args.targets)
+        python_modules = merge_pip_reports(
+            get_pip_reports_for(instance_name, dir_, targets))
     formatted = "{}\n".format("\n".join(python_modules))
     if args.file:
         with open(args.file, "wt") as f:
