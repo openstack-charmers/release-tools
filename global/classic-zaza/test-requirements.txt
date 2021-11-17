@@ -46,4 +46,3 @@ git+https://opendev.org/openstack/tempest.git#egg=tempest;python_version>='3.6'
 tempest<24.0.0;python_version<'3.6'
 
 croniter            # needed for charm-rabbitmq-server unit tests
-psutil              # ceilometer
