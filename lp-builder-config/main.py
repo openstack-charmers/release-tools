@@ -229,6 +229,11 @@ class LaunchpadTools:
                 logger.error('Failed to set the default repository for '
                              f'{project.name} to {repo.git_https_url}')
 
+        if not project.vcs:
+            logger.debug(f'Setting project {project.name} vcs to Git')
+            project.vcs = 'Git'
+            project.lp_save()
+
         return repo
 
     def get_charm_recipes(self, owner: 'team', project: 'project') \
