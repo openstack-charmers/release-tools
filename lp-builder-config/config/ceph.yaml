@@ -1,0 +1,64 @@
+# Ceph Charms
+defaults:
+  team: openstack-charmers
+  branches:
+    master:
+      channels:
+        - latest/edge
+        - quincy/edge
+    stable/luminous:
+      channels:
+        - openstack-queens/edge
+        - openstack-rocky/edge
+        - luminous/edge
+    stable/mimic:
+      channels:
+        - openstack-stein/edge
+        - mimic/edge
+    stable/nautilus:
+      channels:
+        - openstack-train/edge
+        - nautilus/edge
+    stable/octopus:
+      channels:
+        - octopus/edge
+    stable/pacific:
+      channels:
+        - pacific/edge
+
+projects:
+  - name: Ceph Dashboard Charm
+    # Note: ceph-dashboard has not been promulgated
+    charmhub: openstack-charmers-next-ceph-dashboard
+    launchpad: charm-ceph-dashboard
+    repository: https://opendev.org/openstack/charm-ceph-dashboard.git
+
+  - name: Ceph FileSystem Charm
+    charmhub: ceph-fs
+    launchpad: charm-ceph-fs
+    repository: https://opendev.org/openstack/charm-ceph-fs.git
+
+  - name: Ceph Monitor Charm
+    charmhub: ceph-mon
+    launchpad: charm-ceph-mon
+    repository: https://opendev.org/openstack/charm-ceph-mon.git
+
+  - name: Ceph OSD Charm
+    charmhub: ceph-osd
+    launchpad: charm-ceph-osd
+    repository: http://opendev.org/openstack/charm-ceph-osd.git
+
+  - name: Ceph Proxy Charm
+    charmhub: ceph-proxy
+    launchpad: charm-ceph-proxy
+    repository: https://opendev.org/openstack/charm-ceph-proxy.git
+
+  - name: Ceph Rados Gateway Charm
+    charmhub: ceph-radosgw
+    launchpad: charm-ceph-radosgw
+    repository: https://opendev.org/openstack/charm-ceph-radosgw.git
+
+  - name: Ceph RBD Mirror Charm
+    charmhub: ceph-rbd-mirror
+    launchpad: charm-ceph-rbd-mirror
+    repository: https://opendev.org/openstack/charm-ceph-rbd-mirror.git
