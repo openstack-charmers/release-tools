@@ -215,7 +215,8 @@ def fetch_charm_source_on_instance(instance_name: str,
     execute_on_instance(instance_name, ['git', 'clone', source, charm],
                         user='ubuntu')
     if branch is not None:
-        execute_on_instance(instance_name, ['git', 'checkout', branch],
+        execute_on_instance(instance_name, ['cd', charm, ';',
+                                            'git', 'checkout', branch],
                             user='ubuntu')
     return charm
 
@@ -351,7 +352,14 @@ def get_build_modules(instance_name: str,
     numbers.
     """
     clean_pip_cache(instance_name)
-    cmd = f"cd {dir_}; tox -e add-build-lock-file"
+    build_target = 'build'
+    try:
+        execute_on_instance(instance_name,
+                            [f"cat {dir_}/src/build.lock"],
+                            user='ubuntu')
+    except subprocess.CalledProcessError:
+        build_target = 'add-build-lock-file'
+    cmd = f"cd {dir_}; tox -e {build_target}"
     execute_on_instance(instance_name, [cmd], user='ubuntu')
     lockfile = execute_on_instance(
         instance_name,
@@ -433,7 +441,8 @@ def main() -> None:
     ensure_pkgs_on_instance(instance_name, ['python3-pip'])
     clean_pip_cache(instance_name)
     ensure_user_modules(instance_name, ['"tox>=3.18"'], user='ubuntu')
-    dir_ = fetch_charm_source_on_instance(instance_name, args.charm)
+    dir_ = fetch_charm_source_on_instance(
+        instance_name, args.charm, args.branch)
     targets = find_tox_targets_on_instance(instance_name, dir_)
     if args.extract_wheelhouse:
         targets = filter_targets(targets, ['build'])
