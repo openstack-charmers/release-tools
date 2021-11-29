@@ -118,13 +118,20 @@ class CharmProject:
             'recipe-name': '{project}-{branch}'
         }
         for branch, branch_info in config.get('branches', {}).items():
-            ref = f'refs/head/{branch}'
+            ref = f'refs/heads/{branch}'
             self.branches[ref] = dict(default_branch_info)
             if type(branch_info) != dict:
                 raise ValueError('Expected a dict for key branches, '
                                  f' instead got {type(branch_info)}')
 
             self.branches[ref].update(branch_info)
+
+    def __repr__(self):
+        return (f"CharmProject(name={self.name}, team={self.team}, "
+                f"charmhub_name={self.charmhub_name}, "
+                f"launchpad_project={self.launchpad_project},"
+                f"repository={self.repository}, "
+                f"branches={self.branches})")
 
 
 class LaunchpadTools:
@@ -157,7 +164,8 @@ class LaunchpadTools:
         :type project: a launchpad project
         :return: the Launchpad git repository for the project
         """
-        logger.debug(f'Fetching git repositories for target={project.name}')
+        logger.debug(f'Fetching git repositories for target={project.name}'
+                     f', owner: {owner}')
         return next(
             filter(lambda r: r.owner == owner,
                    self.lp.git_repositories.getRepositories(target=project)),
@@ -185,8 +193,8 @@ class LaunchpadTools:
         )
         return code_import.git_repository
 
-    def configure_git_repository(self, charm: CharmProject) \
-            -> 'git_repository':
+    def configure_git_repository(self, charm: CharmProject
+                                 ) -> 'git_repository':
         """Configures launchpad project git repositories.
 
         Configures launchpad project repositories for the specified charm
@@ -199,7 +207,7 @@ class LaunchpadTools:
         :return: the configured git_repository for the project
         :rtype: launchpad git_repository object
         """
-        logger.debug(f'Configuring Launchpad git repositories for '
+        logger.debug(f'Checking Launchpad git repositories for '
                      f'{charm.name}')
         team = self.lp.people[charm.team]
         project = self.lp.projects[charm.launchpad_project]
@@ -244,8 +252,8 @@ class LaunchpadTools:
 
         return repo
 
-    def get_charm_recipes(self, owner: 'team', project: 'project') \
-            -> typing.List['charm_recipes']:
+    def get_charm_recipes(self, owner: 'team', project: 'project'
+                          ) -> typing.List['charm_recipes']:
         """Returns charm recipes for the specified owner in the specified
         project.
 
@@ -260,14 +268,16 @@ class LaunchpadTools:
         :return: list of the configured charm recipes
         :rtype: list
         """
-        logger.debug(f'Fetching git repositories for target={project.name}')
-        return list(
+        logger.debug(f'Fetching charm recipes for target={project.name}')
+        recipes = list(
             filter(lambda r: r.project == project,
                    self.lp.charm_recipes.findByOwner(owner=owner))
         )
+        logger.debug(" -- found recipes: %s", ", ".join(r.name for r in recipes))
+        return recipes
 
-    def update_charm_recipe(self, recipe: 'charm_recipe', branch_info: dict)\
-            -> bool:
+    def update_charm_recipe(self, recipe: 'charm_recipe', branch_info: dict
+                            ) -> bool:
         """Updates the charm_recipe to match the requested configuration in
         the track_info.
 
@@ -281,30 +291,48 @@ class LaunchpadTools:
         # each attribute we know about.
         logger.debug(f'Updating charm recipe {recipe.name} for '
                      f'{recipe.project.name}')
-        changed = False
-        if recipe.auto_build != branch_info.get('auto-build'):
-            recipe.auto_build = branch_info.get('auto-build')
-            changed = True
+        # changed = False
+        changed = []
 
-        if recipe.auto_build_channels != branch_info.get('build-channels'):
-            recipe.auto_build_channels = branch_info.get('build-channels')
-            changed = True
+        # (recipe, (params for branch_info.get()))
+        parts = (('auto_build', ('auto-build',)),
+                 ('auto_build_channels', ('build-channels',)),
+                 ('build_path', ('build_path', None)),
+                 ('store_channels', ('tracks', [])),
+                 ('store_upload', ('upload',)),
+                 )
 
-        if recipe.build_path != branch_info.get('build-path', None):
-            recipe.build_path = branch_info.get('build-path')
-            changed = True
+        for (rpart, bpart) in parts:
+            battr = branch_info.get(*bpart)
+            if getattr(recipe, rpart) != battr:
+                setattr(recipe, rpart, battr)
+                changed.append(f"recipe.{rpart} = {battr}")
 
-        if recipe.store_channels != branch_info.get('tracks', []):
-            recipe.store_channels = branch_info.get('tracks', [])
-            changed = True
+        # if recipe.auto_build != branch_info.get('auto-build'):
+            # recipe.auto_build = branch_info.get('auto-build')
+            # changed = True
 
-        if recipe.store_upload != branch_info.get('upload'):
-            recipe.store_upload = branch_info.get('upload')
-            changed = True
+        # if recipe.auto_build_channels != branch_info.get('build-channels'):
+            # recipe.auto_build_channels = branch_info.get('build-channels')
+            # changed = True
+
+        # if recipe.build_path != branch_info.get('build-path', None):
+            # recipe.build_path = branch_info.get('build-path')
+            # changed = True
+
+        # if recipe.store_channels != branch_info.get('tracks', []):
+            # recipe.store_channels = branch_info.get('tracks', [])
+            # changed = True
+
+        # if recipe.store_upload != branch_info.get('upload'):
+            # recipe.store_upload = branch_info.get('upload')
+            # changed = True
 
         if changed:
             logger.debug(f'Charm recipe {recipe.name} has changes. Saving.')
-            recipe.lp_save()
+            logger.debug("Changes: {}".format(", ".join(changed)))
+            # disable for testing
+            # recipe.lp_save()
         else:
             logger.debug(f'No changes needed for charm recipe {recipe.name}')
 
@@ -317,7 +345,8 @@ class LaunchpadTools:
         :param charm: the charm project to create charm recipes for.
         :return:
         """
-        logger.debug(f'Configuring charm recipes for charm {charm.name}')
+        logger.debug(f'Checking charm recipes for charm {charm.name}')
+        logger.debug(repr(charm))
         team = self.lp.people[charm.team]
         project = self.lp.projects[charm.launchpad_project]
 
@@ -368,8 +397,11 @@ class LaunchpadTools:
                     recipe_args.update({
                         'auto_build_channels': branch_info['build-channels']
                     })
-                recipe = self.lp.charm_recipes.new(**recipe_args)
-                logger.debug(f'Created charm recipe {recipe.name}')
+                # TODO: disabled whilst testing/learning this!
+                logger.debug("Would create recipe with the following args")
+                logger.debug("args: %s", recipe_args)
+                # recipe = self.lp.charm_recipes.new(**recipe_args)
+                # logger.debug(f'Created charm recipe {recipe.name}')
 
         # TODO (wolsen) Check to see if there are any remaining charm_recipes
         #  configured in Launchpad and remove them (?). Remaining charm_recipes
@@ -428,10 +460,10 @@ def main():
                 project.setdefault(key, value)
             logger.debug(f'Loaded project {project.get("name")}')
             charm_project = CharmProject(project)
-            #lp.configure_git_repository(charm_project)
+            lp.configure_git_repository(charm_project)
 
             # TODO(wolsen) Build the charm_recipes
-            # lp.configure_charm_recipes(charm_project)
+            lp.configure_charm_recipes(charm_project)
 
 if __name__ == '__main__':
     setup_logging()
