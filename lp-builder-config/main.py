@@ -16,6 +16,8 @@ from launchpadlib.launchpad import Launchpad
 
 logger = logging.getLogger(__name__)
 
+CWD = os.path.dirname(os.path.realpath(__file__))
+
 
 class CharmProject:
     """Represents a CharmProject.
@@ -131,8 +133,14 @@ class LaunchpadTools:
         self.lp = Launchpad.login_with(
             'openstack-charm-tools',
             service_root=lookup_service_root('production'),
-            version='devel'
+            version='devel',
+            credential_save_failed=self.no_credential,
         )
+
+    @staticmethod
+    def no_credential():
+        logging.error("Couldn't save/store the Launchpad credential")
+        sys.exit(1)
 
     def get_git_repository(self, owner: 'team', project: 'project'):
         """Returns the reference to the Launchpad git repository by owner and
@@ -383,7 +391,9 @@ def main():
     parser = argparse.ArgumentParser(
         description='Configure launchpad projects for charms'
     )
-    parser.add_argument('--config-dir', type=str, default='./config',
+    default_config_dir = os.path.abspath(os.path.join(CWD, './config'))
+    parser.add_argument('-c', '--config-dir',
+                        type=str, default=default_config_dir,
                         help='directory containing configuration files')
     parser.add_argument('project_groups', metavar='project_group',
                         type=str, nargs='*',
@@ -418,7 +428,7 @@ def main():
                 project.setdefault(key, value)
             logger.debug(f'Loaded project {project.get("name")}')
             charm_project = CharmProject(project)
-            lp.configure_git_repository(charm_project)
+            #lp.configure_git_repository(charm_project)
 
             # TODO(wolsen) Build the charm_recipes
             # lp.configure_charm_recipes(charm_project)
