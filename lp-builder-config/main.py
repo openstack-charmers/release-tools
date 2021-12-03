@@ -317,7 +317,6 @@ class LaunchpadTools:
         # Yes, we could iterate the keys of the track_info here, but not all
         # the keys have the same name. As such, we'll go old-school and do
         # each attribute we know about.
-        # changed = False
         logger.debug('Recipe exists; checking to see if "%s" for '
                      '%s needs updating.',
                      recipe.name, recipe.project.name)
@@ -333,35 +332,17 @@ class LaunchpadTools:
 
         for (rpart, bpart) in parts:
             battr = branch_info.get(*bpart)
-            if getattr(recipe, rpart) != battr:
+            rattr = getattr(recipe, rpart)
+            logger.debug("rpart: '%s', bpart: '%s', recipe.%s is %s, want %s",
+                         rpart, bpart, rpart, rattr, battr)
+            if rattr != battr:
                 setattr(recipe, rpart, battr)
                 changed.append(f"recipe.{rpart} = {battr}")
-
-        # if recipe.auto_build != branch_info.get('auto-build'):
-            # recipe.auto_build = branch_info.get('auto-build')
-            # changed = True
-
-        # if recipe.auto_build_channels != branch_info.get('build-channels'):
-            # recipe.auto_build_channels = branch_info.get('build-channels')
-            # changed = True
-
-        # if recipe.build_path != branch_info.get('build-path', None):
-            # recipe.build_path = branch_info.get('build-path')
-            # changed = True
-
-        # if recipe.store_channels != branch_info.get('tracks', []):
-            # recipe.store_channels = branch_info.get('tracks', [])
-            # changed = True
-
-        # if recipe.store_upload != branch_info.get('upload'):
-            # recipe.store_upload = branch_info.get('upload')
-            # changed = True
 
         if changed:
             logger.debug('Charm recipe %s has changes. Saving.', recipe.name)
             logger.debug("Changes: {}".format(", ".join(changed)))
-            # disable for testing
-            # recipe.lp_save()
+            recipe.lp_save()
         else:
             logger.debug('No changes needed for charm recipe %s', recipe.name)
 
