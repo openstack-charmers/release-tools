@@ -354,7 +354,7 @@ class LaunchpadTools:
         if changed:
             logger.info('Charm recipe %s has changes. Saving.', recipe.name)
             logger.debug("Changes: {}".format(", ".join(changed)))
-            # recipe.lp_save()
+            recipe.lp_save()
         else:
             logger.info('No changes needed for charm recipe %s', recipe.name)
 
@@ -399,7 +399,7 @@ class LaunchpadTools:
             pass
         logger.debug("Creating recipe with the following args: %s",
                      recipe_args)
-        # recipe = self.lp.charm_recipes.new(**recipe_args)
+        recipe = self.lp.charm_recipes.new(**recipe_args)
         logger.info('Created charm recipe %s', recipe.name)
 
     @staticmethod
