@@ -42,7 +42,7 @@ class CharmProject:
       * recipe-name (optional) - A string used to format the name of the
           recipe. The project name will be passed as 'project', the branch
           name will be passed as 'branch', and the track name will be passed
-          as 'track'. The default recipe-name is '{project}-{branch}-{track}'.
+          as 'track'. The default recipe-name is '{project}.{branch}.{track}'.
       * auto-build (optional) - a boolean indicating whether to automatically
           build the charm when the branch changes. Default value is True.
       * upload (optional) - a boolean indicating whether to upload to the store
@@ -115,7 +115,7 @@ class CharmProject:
         default_branch_info = {
             'auto-build': True,
             'upload': True,
-            'recipe-name': '{project}-{branch}'
+            'recipe-name': '{project}.{branch}.{track}'
         }
         for branch, branch_info in config.get('branches', {}).items():
             ref = f'refs/heads/{branch}'
