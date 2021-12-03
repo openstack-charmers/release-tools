@@ -7,7 +7,7 @@ import logging
 import os
 import pathlib
 import sys
-import typing
+from typing import (List, Tuple)
 import yaml
 
 from launchpadlib.uris import lookup_service_root
@@ -278,7 +278,7 @@ class LaunchpadTools:
         return repo
 
     def get_charm_recipes(self, owner: 'team', project: 'project'
-                          ) -> typing.List['charm_recipes']:
+                          ) -> List['charm_recipes']:
         """Returns charm recipes for the specified owner in the specified
         project.
 
