@@ -496,8 +496,6 @@ def main():
             logger.debug('Loaded project %s', project.get('name'))
             charm_project = CharmProject(project)
             lp.configure_git_repository(charm_project)
-
-            # TODO(wolsen) Build the charm_recipes
             lp.configure_charm_recipes(charm_project)
 
 if __name__ == '__main__':
