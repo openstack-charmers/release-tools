@@ -298,7 +298,8 @@ class LaunchpadTools:
             filter(lambda r: r.project == project,
                    self.lp.charm_recipes.findByOwner(owner=owner))
         )
-        logger.debug(" -- found recipes: %s", ", ".join(r.name for r in recipes))
+        logger.debug(" -- found recipes:\n%s",
+                     "\n".join(f"  - {r.name}" for r in recipes))
         return recipes
 
     def update_charm_recipe(self, recipe: 'charm_recipe', branch_info: dict
