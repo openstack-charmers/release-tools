@@ -133,6 +133,29 @@ class CharmProject:
                 f"repository={self.repository}, "
                 f"branches={self.branches})")
 
+    def __str__(self):
+        branches = []
+        width = 20
+        for branch, spec in self.branches.items():
+            if branch.startswith("refs/heads/"):
+                bname = branch[len("refs/heads/"):]
+            else:
+                bname = branch
+            channels = ", ".join(spec['channels'])
+            branches.append(f"{bname} -> {channels}")
+        if branches:
+            branches_str = f"{'branches':>{width}}: {branches[0]}"
+            for br in branches[1:]:
+                branches_str += f"\n{':':>{width+1}} {br}"
+
+        return (f"CharmProject:\n"
+                f"{'name':>{width}}: {self.name}\n"
+                f"{'team':>{width}}: {self.team}\n"
+                f"{'charmhub_name':>{width}}: {self.charmhub_name}\n"
+                f"{'launchpad_project':>{width}}: {self.launchpad_project}\n"
+                f"{'repository':>{width}}: {self.repository}\n"
+                + branches_str)
+
 
 class LaunchpadTools:
 
