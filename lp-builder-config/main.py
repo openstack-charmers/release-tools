@@ -348,7 +348,48 @@ class LaunchpadTools:
 
         return changed
 
-    def configure_charm_recipes(self, charm: CharmProject):
+    def create_charm_recipe(self,
+                            recipe_name: str,
+                            branch_info: dict,
+                            lp_branch: str,
+                            owner: str,
+                            project: str,
+                            store_name: str,
+                            channels: List[str],
+                            ) -> None:
+        """Create a new charm recipe using the branch_info and channels.
+
+        The channels are a grouping of same track, different risks.
+        e.g.
+        ['latest/edge', 'latest/stable']
+
+        :param recipe: the name of the recipe to create
+        :param branch_info: a dictionary of relevant parts to create the recipe
+        :param channels: a list of channels to target in the charmhub
+        """
+        logger.debug('Creating charm recipe for %s', recipe_name)
+        logger.debug(f'branch_info: %s', branch_info)
+        upload = branch_info.get('upload', True)
+        recipe_args = {
+            'auto_build': branch_info.get('auto-build', True),
+            'git_ref': lp_branch,
+            'name': recipe_name,
+            'owner': owner,
+            'project': project,
+            'store_name': store_name,
+            'store_upload': upload,
+        }
+        if upload and channels:
+            recipe_args['store_channels'] = channels
+        try:
+            recipe_args['auto_build_channels'] = branch_info['build-channels']
+        except KeyError:
+            pass
+        logger.debug("Creating recipe with the following args: %s",
+                     recipe_args)
+        recipe = self.lp.charm_recipes.new(**recipe_args)
+        logger.debug(f'Created charm recipe %s', recipe.name)
+
     @staticmethod
     def group_channels(channels: List[str]
                        ) -> List[Tuple[str, List[str]]]:
@@ -374,6 +415,8 @@ class LaunchpadTools:
             except KeyError:
                 groups[group] = [channel]
         return list(groups.items())
+
+    def configure_charm_recipes(self, charm: CharmProject) -> None:
         """Configures charm recipes in Launchpad per the CharmProject's
         configuration.
 
@@ -402,41 +445,35 @@ class LaunchpadTools:
                 continue
 
             # Strip off refs/head/. And no / allowed, so we'll replace with _
-            branch_name = lp_branch.path[11:].replace('/', '_')
+            branch_name = lp_branch.path[len('refs/heads/'):].replace('/', '-')
             recipe_format = branch_info.get('recipe-name')
-            recipe_name = recipe_format.format(
-                project=project.name, branch=branch_name
-            )
-
-            recipe = charm_recipes.pop(recipe_name, None)
-            if recipe:
-                logger.debug(f'Recipe already exists for {recipe_name}')
-                self.update_charm_recipe(recipe, branch_info)
+            upload = branch_info.get('upload', True)
+            # Get the channels; we have to do a separate recipe for each
+            # channel that doesn't share the same track.  Reminder: channels
+            # are <track>/<risk>
+            channels = branch_info.get('channels', None)
+            if upload and channels:
+                tracks = self.group_channels(channels)
             else:
-                logger.debug(f'Creating charm recipe for {recipe_name}')
-                upload = branch_info.get('upload', True)
-                recipe_args = {
-                    'auto_build': branch_info.get('auto-build', True),
-                    'git_ref': lp_branch,
-                    'name': recipe_name,
-                    'owner': team,
-                    'project': project,
-                    'store_name': charm.charmhub_name,
-                    'store_upload': upload,
-                }
-                if upload and branch_info.get('tracks', None):
-                    recipe_args.update({
-                        'store_channels': branch_info.get('tracks')
-                    })
-                if 'build_channels' in branch_info:
-                    recipe_args.update({
-                        'auto_build_channels': branch_info['build-channels']
-                    })
-                # TODO: disabled whilst testing/learning this!
-                logger.debug("Would create recipe with the following args")
-                logger.debug("args: %s", recipe_args)
-                # recipe = self.lp.charm_recipes.new(**recipe_args)
-                # logger.debug(f'Created charm recipe {recipe.name}')
+                tracks = (("latest", []),)
+            for track, track_channels in tracks:
+                recipe_name = recipe_format.format(
+                    project=project.name, branch=branch_name, track=track)
+
+                recipe = charm_recipes.pop(recipe_name, None)
+                if recipe:
+                    binfo = branch_info.copy()
+                    binfo['tracks'] = track_channels
+                    self.update_charm_recipe(recipe, binfo)
+                else:
+                    self.create_charm_recipe(
+                        recipe_name=recipe_name,
+                        branch_info=branch_info,
+                        lp_branch=lp_branch,
+                        owner=team,
+                        project=project,
+                        store_name=charm.charmhub_name,
+                        channels=track_channels)
 
         # TODO (wolsen) Check to see if there are any remaining charm_recipes
         #  configured in Launchpad and remove them (?). Remaining charm_recipes
