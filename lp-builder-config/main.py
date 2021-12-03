@@ -329,9 +329,6 @@ class LaunchpadTools:
                            for the recipe
         :return: True if updated, False otherwise
         """
-        # Yes, we could iterate the keys of the track_info here, but not all
-        # the keys have the same name. As such, we'll go old-school and do
-        # each attribute we know about.
         logger.info('Recipe exists; checking to see if "%s" for '
                     '%s needs updating.',
                      recipe.name, recipe.project.name)
