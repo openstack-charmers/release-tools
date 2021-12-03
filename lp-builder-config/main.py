@@ -9,7 +9,7 @@ import os
 import pathlib
 import pprint
 import sys
-from typing import (List, Tuple)
+from typing import (List, Tuple, Optional)
 import yaml
 
 from launchpadlib.uris import lookup_service_root
@@ -488,10 +488,14 @@ def setup_logging(loglevel: str) -> None:
     logger.setLevel(getattr(logging, loglevel, 'INFO'))
 
 
-def main():
-    """Main entry point.
+def parse_args(pargs: sys.argv) -> argparse.Namespace:
+    """Parse the arguments and return the parsed args.
 
-    :return:
+    Work out what command is being run and collect the arguments
+    associated with it.
+
+    :param pargs: the sys.argv set.
+    :returns: parsed arguments
     """
     parser = argparse.ArgumentParser(
         description='Configure launchpad projects for charms'
@@ -511,21 +515,67 @@ def main():
                              'project groups are specified, all project '
                              'groups found in the config-dir will be loaded '
                              'and processed.')
-    args = parser.parse_args()
+    args = parser.parse_args(pargs[1:])
+    return args
+
+
+def check_config_dir_exists(dir_: pathlib.Path) -> None:
+    """Validate that the config dir_ exists.
+
+    Raises FileNotFoundError if it doesn't.
+
+    :param dir_: the config path that needs to exist.
+    :raises: FileNotFoundError if the configuration directory doesn't exist.
+    """
+    if not dir_.exists():
+        raise FileNotFoundError(
+            f'Configuration directory "{dir_}" does not exist')
+    return dir_
+
+
+def get_group_config_filenames(config_dir: pathlib.Path,
+                               project_group_names: Optional[List[str]] = None,
+                               extension: str =".yaml",
+                               ) -> List[pathlib.Path]:
+    """Fetch the list of files for the group config.
+
+    Depending on whether :param:`project_group_names` is passed, get the list
+    of files that contain the projects that need configuring.
+
+    :param config_dir: the directory to look in
+    :param project_group_names: Optional list of names to filter on.
+    :param extension: the extension (default '.yaml') to use for the
+        project_group_names
+    :returns: the list of paths corresponding to the files.
+    :raises: FileNotFoundError if a name.extension in the config_dir doesn't
+        exist.
+    """
+    # Load the various project group configurations
+    if not project_group_names:
+        files = list(config_dir.glob('*.yaml'))
+    else:
+        files = [config_dir / f'{group}.yaml' for group in project_group_names]
+        # validate that the files actually exist
+        for file in files:
+            if not(file.exists()):
+                raise FileNotFoundError(
+                    f"The group config file '{file}' wasn't found")
+    return files
+
+
+def main():
+    """Main entry point."""
+    args = parse_args(sys.argv)
     setup_logging(args.loglevel)
 
     logging.info('Using config dir %s', args.config_dir)
 
-    config_dir = pathlib.Path(os.fspath(args.config_dir))
-    if not config_dir.exists():
-        logger.error('Configuration directory %s does not exist', config_dir)
-        sys.exit(1)
+    config_dir = check_config_dir_exists(
+        pathlib.Path(os.fspath(args.config_dir)))
 
-    # Load the various project group configurations
-    if not args.project_groups:
-        files = list(config_dir.glob('*.yaml'))
-    else:
-        files = [config_dir / f'{group}.yaml' for group in args.project_groups]
+    # # Load the various project group configurations
+    files = get_group_config_filenames(config_dir,
+                                       args.project_groups)
 
     lp = LaunchpadTools()
 
@@ -543,5 +593,12 @@ def main():
             lp.configure_git_repository(charm_project)
             lp.configure_charm_recipes(charm_project)
 
+
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except FileNotFoundError as e:
+        logging.error(str(e))
+        sys.exit(1)
+    except Exception as e:
+        raise
