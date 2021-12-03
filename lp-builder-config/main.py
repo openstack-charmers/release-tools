@@ -187,8 +187,8 @@ class LaunchpadTools:
         :type project: a launchpad project
         :return: the Launchpad git repository for the project
         """
-        logger.debug(f'Fetching git repositories for target={project.name}'
-                     f', owner: {owner}')
+        logger.debug('Fetching git repositories for target=%s, owner: %s',
+                     project.name, owner)
         return next(
             filter(lambda r: r.owner == owner,
                    self.lp.git_repositories.getRepositories(target=project)),
@@ -208,8 +208,9 @@ class LaunchpadTools:
         :type url: str
         :returns: the reference to the Launchpad git repository
         """
-        logger.debug(f'Importing git repository from {url} into project '
-                     f'{project.name} for user {owner.name}')
+        logger.debug('Importing git repository from %s into project '
+                     '%s for user %s',
+                     url, project.name, owner.name)
         code_import = project.newCodeImport(
             owner=owner, rcs_type='Git', target_rcs_type='Git',
             url=url, branch_name=project.name
@@ -230,33 +231,34 @@ class LaunchpadTools:
         :return: the configured git_repository for the project
         :rtype: launchpad git_repository object
         """
-        logger.debug(f'Checking Launchpad git repositories for '
-                     f'{charm.name}')
+        logger.debug('Checking Launchpad git repositories for %s.',
+                     charm.name)
         team = self.lp.people[charm.team]
         project = self.lp.projects[charm.launchpad_project]
 
         if project.owner != team:
-            logger.error(f'Project owner of project {charm.launchpad_project} '
-                         f'does not match owner specified {charm.team}')
+            logger.error('Project owner of project %s '
+                         'does not match owner specified %s',
+                         charm.launchpad_project, charm.team)
             raise ValueError('Unexpected project owner for '
                              f'{charm.launchpad_project}')
 
         repo = self.get_git_repository(team, project)
 
         if repo is None:
-            logger.debug(f'Git repository for project {project.name} and '
-                         f'{team.name} does not exist, importing now from '
-                         f'{charm.repository}')
+            logger.debug('Git repository for project %s and '
+                         '%s does not exist, importing now from %s',
+                         project.name, team.name, charm.repository)
             repo = self.import_repository(team, project, charm.repository)
         else:
-            logger.debug(f'Git repository for project {project.name} and '
-                         f'{team.name} already exists.')
+            logger.debug('Git repository for project %s and '
+                         '%s already exists.', project.name, team.name)
 
         # Check whether the repository is the default repository for the
         # project or not.
         if not repo.target_default:
-            logger.debug(f'Setting default repository for {project.name} to '
-                         f'{repo.git_https_url}')
+            logger.debug('Setting default repository for %s to %s',
+                         project.name, repo.git_https_url)
             try:
                 self.lp.git_repositories.setDefaultRepository(target=project,
                                                               repository=repo)
@@ -266,10 +268,10 @@ class LaunchpadTools:
                 # default repository. Typically means the team is not the
                 # owner of the project.
                 logger.error('Failed to set the default repository for '
-                             f'{project.name} to {repo.git_https_url}')
+                             '%s to %s', project.name, rep.git_https_url)
 
         if not project.vcs:
-            logger.debug(f'Setting project {project.name} vcs to Git')
+            logger.debug('Setting project %s vcs to Git', project.name)
             project.vcs = 'Git'
             project.lp_save()
 
@@ -291,7 +293,7 @@ class LaunchpadTools:
         :return: list of the configured charm recipes
         :rtype: list
         """
-        logger.debug(f'Fetching charm recipes for target={project.name}')
+        logger.debug('Fetching charm recipes for target=%s', project.name)
         recipes = list(
             filter(lambda r: r.project == project,
                    self.lp.charm_recipes.findByOwner(owner=owner))
@@ -312,9 +314,10 @@ class LaunchpadTools:
         # Yes, we could iterate the keys of the track_info here, but not all
         # the keys have the same name. As such, we'll go old-school and do
         # each attribute we know about.
-        logger.debug(f'Updating charm recipe {recipe.name} for '
-                     f'{recipe.project.name}')
         # changed = False
+        logger.debug('Recipe exists; checking to see if "%s" for '
+                     '%s needs updating.',
+                     recipe.name, recipe.project.name)
         changed = []
 
         # (recipe, (params for branch_info.get()))
@@ -352,12 +355,12 @@ class LaunchpadTools:
             # changed = True
 
         if changed:
-            logger.debug(f'Charm recipe {recipe.name} has changes. Saving.')
+            logger.debug('Charm recipe %s has changes. Saving.', recipe.name)
             logger.debug("Changes: {}".format(", ".join(changed)))
             # disable for testing
             # recipe.lp_save()
         else:
-            logger.debug(f'No changes needed for charm recipe {recipe.name}')
+            logger.debug('No changes needed for charm recipe %s', recipe.name)
 
         return changed
 
@@ -368,15 +371,15 @@ class LaunchpadTools:
         :param charm: the charm project to create charm recipes for.
         :return:
         """
-        logger.debug(f'Checking charm recipes for charm {charm.name}')
-        logger.debug(repr(charm))
+        logger.debug('Checking charm recipes for charm %s', charm.name)
+        logger.debug(str(charm))
         team = self.lp.people[charm.team]
         project = self.lp.projects[charm.launchpad_project]
 
         repository = self.get_git_repository(team, project)
         if not repository:
-            logger.error(f'Unable to find repository for team {team.name} and '
-                         f'project {project.name}')
+            logger.error('Unable to find repository for team %s and '
+                         'project %s', team.name, project.name)
             raise ValueError(f'Unable to find repository for team {team.name} '
                              f'and project {project.name}')
 
@@ -385,8 +388,8 @@ class LaunchpadTools:
         for lp_branch in repository.branches:
             branch_info = charm.branches.get(lp_branch.path, None)
             if not branch_info:
-                logger.debug('No tracks configured for branch '
-                             f'{lp_branch.path}')
+                logger.debug('No tracks configured for branch %s, continuing.',
+                             lp_branch.path)
                 continue
 
             # Strip off refs/head/. And no / allowed, so we'll replace with _
@@ -461,7 +464,7 @@ def main():
 
     config_dir = pathlib.Path(os.fspath(args.config_dir))
     if not config_dir.exists():
-        logger.error(f'Configuration directory {config_dir} does not exist')
+        logger.error('Configuration directory %s does not exist', config_dir)
         sys.exit(1)
 
     # Load the various project group configurations
@@ -481,7 +484,7 @@ def main():
         for project in group_config.get('projects', []):
             for key, value in project_defaults.items():
                 project.setdefault(key, value)
-            logger.debug(f'Loaded project {project.get("name")}')
+            logger.debug('Loaded project %s', project.get('name'))
             charm_project = CharmProject(project)
             lp.configure_git_repository(charm_project)
 
