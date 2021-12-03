@@ -349,6 +349,31 @@ class LaunchpadTools:
         return changed
 
     def configure_charm_recipes(self, charm: CharmProject):
+    @staticmethod
+    def group_channels(channels: List[str]
+                       ) -> List[Tuple[str, List[str]]]:
+        """Group channels into compatible lists.
+
+        The charmhub appears to only allow a recipe to target a single channel,
+        but with multiple levels of risk and/or 'branches'.  The specs for
+        channels are either 'latest' or 'latest/<risk>'.  In this case, the
+        grouping would be
+        [('latest', ['latest', 'latest/edge', 'latest/stable']),]
+
+        :param channels: a list of channels to target in the charmhub
+        :returns: the channels, grouped by track.
+        """
+        groups = collections.OrderedDict()
+        for channel in channels:
+            if '/' in channel:
+                group, _ = channel.split('/', 1)
+            else:
+                group = channel
+            try:
+                groups[group].append(channel)
+            except KeyError:
+                groups[group] = [channel]
+        return list(groups.items())
         """Configures charm recipes in Launchpad per the CharmProject's
         configuration.
 
