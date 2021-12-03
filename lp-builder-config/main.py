@@ -3,9 +3,11 @@
 #
 
 import argparse
+import collections
 import logging
 import os
 import pathlib
+import pprint
 import sys
 from typing import (List, Tuple)
 import yaml
@@ -480,7 +482,7 @@ def main():
         with open(file, 'r') as f:
             group_config = yaml.safe_load(f)
 
-        logger.debug(f'group_config is: {group_config}')
+        logger.debug('group_config is: \n%s', pprint.pformat(group_config))
         project_defaults = group_config.get('defaults', {})
         for project in group_config.get('projects', []):
             for key, value in project_defaults.items():
