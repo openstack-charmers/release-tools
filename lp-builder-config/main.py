@@ -9,7 +9,7 @@ import os
 import pathlib
 import pprint
 import sys
-from typing import (List, Tuple, Optional)
+from typing import (Any, Dict, Iterator, List, Tuple, Optional)
 import yaml
 
 from launchpadlib.uris import lookup_service_root
@@ -107,26 +107,41 @@ class CharmProject:
     """
 
     def __init__(self, config):
-        self.name = config.get('name')
-        self.team = config.get('team')
-        self.charmhub_name = config.get('charmhub')
-        self.launchpad_project = config.get('launchpad')
-        self.repository = config.get('repository')
+        self.name: str = config.get('name')
+        self.team: str = config.get('team')
+        self.charmhub_name: str = config.get('charmhub')
+        self.launchpad_project: str = config.get('launchpad')
+        self.repository: str = config.get('repository')
 
-        self.branches = {}
+        self.branches: Dict[str, str] = {}
+
+        self._add_branches(config.get('branches', {}))
+
+    def _add_branches(self, branches_spec: Dict[str, str]) -> None:
         default_branch_info = {
             'auto-build': True,
             'upload': True,
             'recipe-name': '{project}.{branch}.{track}'
         }
-        for branch, branch_info in config.get('branches', {}).items():
+        for branch, branch_info in branches_spec.items():
             ref = f'refs/heads/{branch}'
-            self.branches[ref] = dict(default_branch_info)
+            if ref not in self.branches:
+                self.branches[ref] = dict(default_branch_info)
             if type(branch_info) != dict:
                 raise ValueError('Expected a dict for key branches, '
                                  f' instead got {type(branch_info)}')
 
             self.branches[ref].update(branch_info)
+
+    def merge(self, config: Dict[str, Any]) -> None:
+        """Merge config, by overwriting."""
+        self.name = config.get('name', self.name)
+        self.team = config.get('team', self.team)
+        self.charmhub_name = config.get('charmhub', self.charmhub_name)
+        self.launchpad_project = config.get('launchpad',
+                                            self.launchpad_project)
+        self.repository = config.get('repository', self.repository)
+        self._add_branches(config.get('branches', {}))
 
     def __repr__(self):
         return (f"CharmProject(name={self.name}, team={self.team}, "
@@ -219,9 +234,9 @@ class LaunchpadTools:
         )
         return code_import.git_repository
 
-    def configure_git_repository(self, charm: CharmProject
-                                 ) -> 'git_repository':
-        """Configures launchpad project git repositories.
+    def ensure_git_repository(self, charm: CharmProject
+                              ) -> 'git_repository':
+        """Ensure that launchpad project git repositorie exists.
 
         Configures launchpad project repositories for the specified charm
         project. This function will validate that a git repository is
@@ -342,7 +357,7 @@ class LaunchpadTools:
         if changed:
             logger.info('Charm recipe %s has changes. Saving.', recipe.name)
             logger.debug("Changes: {}".format(", ".join(changed)))
-            recipe.lp_save()
+            # recipe.lp_save()
         else:
             logger.info('No changes needed for charm recipe %s', recipe.name)
 
@@ -387,7 +402,7 @@ class LaunchpadTools:
             pass
         logger.debug("Creating recipe with the following args: %s",
                      recipe_args)
-        recipe = self.lp.charm_recipes.new(**recipe_args)
+        # recipe = self.lp.charm_recipes.new(**recipe_args)
         logger.info('Created charm recipe %s', recipe.name)
 
     @staticmethod
@@ -416,12 +431,10 @@ class LaunchpadTools:
                 groups[group] = [channel]
         return list(groups.items())
 
-    def configure_charm_recipes(self, charm: CharmProject) -> None:
-        """Configures charm recipes in Launchpad per the CharmProject's
-        configuration.
+    def ensure_charm_recipes(self, charm: CharmProject) -> None:
+        """Ensure charm recipes in Launchpad matches CharmProject's conf.
 
         :param charm: the charm project to create charm recipes for.
-        :return:
         """
         logger.info('Checking charm recipes for charm %s', charm.name)
         logger.debug(str(charm))
@@ -563,6 +576,74 @@ def get_group_config_filenames(config_dir: pathlib.Path,
     return files
 
 
+class GroupConfig:
+    """Collect together all the config files and build CharmProject objects.
+
+    This collects together the files passed (which define a charm projects
+    config and creates CharmProject objects to ensure git repositories and
+    ensure that the charm builder recipes in launchpad exist with the correct
+    settings.
+    """
+
+    def __init__(self, files: List[pathlib.Path] = None) -> None:
+        """Configure the GroupConfig object.
+
+        :param files: the list of files to load config from.
+        """
+        self.charm_projects: Dict[str, 'CharmProject'] = (
+            collections.OrderedDict())
+        if files is not None:
+            self.load_files(files)
+
+    def load_files(self, files: List[pathlib.Path] = None) -> None:
+        """Load the files into the object.
+
+        This loads the files, and configures the projects and then creates
+        CharmProject objects.
+
+        :param files: the list of files to load config from.
+        """
+        assert not(isinstance(files, str)), "param files must not be str"
+        assert isinstance(files, collections.abc.Sequence), \
+            "Must pass a list or tuple."
+        for file in files:
+            with open(file, 'r') as f:
+                group_config = yaml.safe_load(f)
+            logger.debug('group_config is: \n%s', pprint.pformat(group_config))
+            project_defaults = group_config.get('defaults', {})
+            for project in group_config.get('projects', []):
+                for key, value in project_defaults.items():
+                    project.setdefault(key, value)
+                logger.debug('Loaded project %s', project.get('name'))
+                self.add_charm_project(project)
+
+    def add_charm_project(self,
+                          project_config: Dict[str, Any],
+                          merge: bool = False,
+                          ) -> None:
+        """Add a CharmProject object from the project specification dict.
+
+        :param project: the project to add.
+        :param merge: if merge is True, merge/overwrite the existing object.
+        :raises: ValueError if merge is false and the charm project already
+            exists.
+        """
+        name = project_config.get('name')
+        if name in self.charm_projects:
+            if merge:
+                self.charm_projects[name].merge(project_config)
+            else:
+                raise ValueError(
+                    f"Project config for '{name}' already exists.")
+        else:
+            self.charm_projects[name] = CharmProject(project_config)
+
+    def projects(self) -> Iterator[CharmProject]:
+        """Generator returns a list of projects."""
+        for project in self.charm_projects.values():
+            yield project
+
+
 def main():
     """Main entry point."""
     args = parse_args(sys.argv)
@@ -579,19 +660,12 @@ def main():
 
     lp = LaunchpadTools()
 
-    for file in files:
-        with open(file, 'r') as f:
-            group_config = yaml.safe_load(f)
+    gc = GroupConfig()
+    gc.load_files(files)
 
-        logger.debug('group_config is: \n%s', pprint.pformat(group_config))
-        project_defaults = group_config.get('defaults', {})
-        for project in group_config.get('projects', []):
-            for key, value in project_defaults.items():
-                project.setdefault(key, value)
-            logger.debug('Loaded project %s', project.get('name'))
-            charm_project = CharmProject(project)
-            lp.configure_git_repository(charm_project)
-            lp.configure_charm_recipes(charm_project)
+    for charm_project in gc.projects():
+        lp.ensure_git_repository(charm_project)
+        lp.ensure_charm_recipes(charm_project)
 
 
 if __name__ == '__main__':
