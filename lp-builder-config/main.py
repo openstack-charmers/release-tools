@@ -210,9 +210,9 @@ class LaunchpadTools:
         :type url: str
         :returns: the reference to the Launchpad git repository
         """
-        logger.debug('Importing git repository from %s into project '
-                     '%s for user %s',
-                     url, project.name, owner.name)
+        logger.info('Importing git repository from %s into project '
+                    '%s for user %s',
+                    url, project.name, owner.name)
         code_import = project.newCodeImport(
             owner=owner, rcs_type='Git', target_rcs_type='Git',
             url=url, branch_name=project.name
@@ -233,8 +233,8 @@ class LaunchpadTools:
         :return: the configured git_repository for the project
         :rtype: launchpad git_repository object
         """
-        logger.debug('Checking Launchpad git repositories for %s.',
-                     charm.name)
+        logger.info('Checking Launchpad git repositories for %s.',
+                    charm.name)
         team = self.lp.people[charm.team]
         project = self.lp.projects[charm.launchpad_project]
 
@@ -248,9 +248,9 @@ class LaunchpadTools:
         repo = self.get_git_repository(team, project)
 
         if repo is None:
-            logger.debug('Git repository for project %s and '
-                         '%s does not exist, importing now from %s',
-                         project.name, team.name, charm.repository)
+            logger.info('Git repository for project %s and '
+                        '%s does not exist, importing now from %s',
+                        project.name, team.name, charm.repository)
             repo = self.import_repository(team, project, charm.repository)
         else:
             logger.debug('Git repository for project %s and '
@@ -259,8 +259,8 @@ class LaunchpadTools:
         # Check whether the repository is the default repository for the
         # project or not.
         if not repo.target_default:
-            logger.debug('Setting default repository for %s to %s',
-                         project.name, repo.git_https_url)
+            logger.info('Setting default repository for %s to %s',
+                        project.name, repo.git_https_url)
             try:
                 self.lp.git_repositories.setDefaultRepository(target=project,
                                                               repository=repo)
@@ -273,7 +273,7 @@ class LaunchpadTools:
                              '%s to %s', project.name, rep.git_https_url)
 
         if not project.vcs:
-            logger.debug('Setting project %s vcs to Git', project.name)
+            logger.info('Setting project %s vcs to Git', project.name)
             project.vcs = 'Git'
             project.lp_save()
 
@@ -295,7 +295,7 @@ class LaunchpadTools:
         :return: list of the configured charm recipes
         :rtype: list
         """
-        logger.debug('Fetching charm recipes for target=%s', project.name)
+        logger.info('Fetching charm recipes for target=%s', project.name)
         recipes = list(
             filter(lambda r: r.project == project,
                    self.lp.charm_recipes.findByOwner(owner=owner))
@@ -317,8 +317,8 @@ class LaunchpadTools:
         # Yes, we could iterate the keys of the track_info here, but not all
         # the keys have the same name. As such, we'll go old-school and do
         # each attribute we know about.
-        logger.debug('Recipe exists; checking to see if "%s" for '
-                     '%s needs updating.',
+        logger.info('Recipe exists; checking to see if "%s" for '
+                    '%s needs updating.',
                      recipe.name, recipe.project.name)
         changed = []
 
@@ -340,11 +340,11 @@ class LaunchpadTools:
                 changed.append(f"recipe.{rpart} = {battr}")
 
         if changed:
-            logger.debug('Charm recipe %s has changes. Saving.', recipe.name)
+            logger.info('Charm recipe %s has changes. Saving.', recipe.name)
             logger.debug("Changes: {}".format(", ".join(changed)))
             recipe.lp_save()
         else:
-            logger.debug('No changes needed for charm recipe %s', recipe.name)
+            logger.info('No changes needed for charm recipe %s', recipe.name)
 
         return changed
 
@@ -367,7 +367,7 @@ class LaunchpadTools:
         :param branch_info: a dictionary of relevant parts to create the recipe
         :param channels: a list of channels to target in the charmhub
         """
-        logger.debug('Creating charm recipe for %s', recipe_name)
+        logger.info('Creating charm recipe for %s', recipe_name)
         logger.debug(f'branch_info: %s', branch_info)
         upload = branch_info.get('upload', True)
         recipe_args = {
@@ -388,7 +388,7 @@ class LaunchpadTools:
         logger.debug("Creating recipe with the following args: %s",
                      recipe_args)
         recipe = self.lp.charm_recipes.new(**recipe_args)
-        logger.debug(f'Created charm recipe %s', recipe.name)
+        logger.info('Created charm recipe %s', recipe.name)
 
     @staticmethod
     def group_channels(channels: List[str]
@@ -423,7 +423,7 @@ class LaunchpadTools:
         :param charm: the charm project to create charm recipes for.
         :return:
         """
-        logger.debug('Checking charm recipes for charm %s', charm.name)
+        logger.info('Checking charm recipes for charm %s', charm.name)
         logger.debug(str(charm))
         team = self.lp.people[charm.team]
         project = self.lp.projects[charm.launchpad_project]
@@ -440,8 +440,8 @@ class LaunchpadTools:
         for lp_branch in repository.branches:
             branch_info = charm.branches.get(lp_branch.path, None)
             if not branch_info:
-                logger.debug('No tracks configured for branch %s, continuing.',
-                             lp_branch.path)
+                logger.info('No tracks configured for branch %s, continuing.',
+                            lp_branch.path)
                 continue
 
             # Strip off refs/head/. And no / allowed, so we'll replace with _
@@ -482,9 +482,10 @@ class LaunchpadTools:
         #  (yet).
 
 
-def setup_logging():
+def setup_logging(loglevel: str) -> None:
     """Sets up some basic logging."""
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig()
+    logger.setLevel(getattr(logging, loglevel, 'INFO'))
 
 
 def main():
@@ -499,6 +500,11 @@ def main():
     parser.add_argument('-c', '--config-dir',
                         type=str, default=default_config_dir,
                         help='directory containing configuration files')
+    parser.add_argument('--log', dest='loglevel',
+                        type=str.upper,
+                        default='INFO',
+                        choices=('DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
+                        help='Loglevel')
     parser.add_argument('project_groups', metavar='project_group',
                         type=str, nargs='*',
                         help='Project group configurations to process. If no '
@@ -506,7 +512,9 @@ def main():
                              'groups found in the config-dir will be loaded '
                              'and processed.')
     args = parser.parse_args()
-    logging.debug(f'Using config dir {args.config_dir}')
+    setup_logging(args.loglevel)
+
+    logging.info('Using config dir %s', args.config_dir)
 
     config_dir = pathlib.Path(os.fspath(args.config_dir))
     if not config_dir.exists():
@@ -536,5 +544,4 @@ def main():
             lp.configure_charm_recipes(charm_project)
 
 if __name__ == '__main__':
-    setup_logging()
     main()
