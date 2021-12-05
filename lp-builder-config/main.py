@@ -209,8 +209,7 @@ class LaunchpadTools:
         return next(
             filter(lambda r: r.owner == owner,
                    self.lp.git_repositories.getRepositories(target=project)),
-            None
-        )
+            None)
 
     def import_repository(self, owner: 'team', project: 'project',
                           url: str) -> 'repository':
@@ -257,8 +256,8 @@ class LaunchpadTools:
             logger.error('Project owner of project %s '
                          'does not match owner specified %s',
                          charm.launchpad_project, charm.team)
-            raise ValueError('Unexpected project owner for '
-                             f'{charm.launchpad_project}')
+            raise ValueError(
+                f'Unexpected project owner for {charm.launchpad_project}')
 
         repo = self.get_git_repository(team, project)
 
@@ -280,12 +279,12 @@ class LaunchpadTools:
                 self.lp.git_repositories.setDefaultRepository(target=project,
                                                               repository=repo)
                 repo.lp_refresh()
-            except:  # no-qa
+            except Exception:  # no-qa
                 # Log the error, but don't fail if we couldn't set the
                 # default repository. Typically means the team is not the
                 # owner of the project.
                 logger.error('Failed to set the default repository for '
-                             '%s to %s', project.name, rep.git_https_url)
+                             '%s to %s', project.name, repo.git_https_url)
 
         if not project.vcs:
             logger.info('Setting project %s vcs to Git', project.name)
@@ -313,8 +312,7 @@ class LaunchpadTools:
         logger.info('Fetching charm recipes for target=%s', project.name)
         recipes = list(
             filter(lambda r: r.project == project,
-                   self.lp.charm_recipes.findByOwner(owner=owner))
-        )
+                   self.lp.charm_recipes.findByOwner(owner=owner)))
         logger.debug(" -- found recipes:\n%s",
                      "\n".join(f"  - {r.name}" for r in recipes))
         return recipes
@@ -331,7 +329,7 @@ class LaunchpadTools:
         """
         logger.info('Recipe exists; checking to see if "%s" for '
                     '%s needs updating.',
-                     recipe.name, recipe.project.name)
+                    recipe.name, recipe.project.name)
         changed = []
 
         # (recipe, (params for branch_info.get()))
@@ -339,8 +337,7 @@ class LaunchpadTools:
                  ('auto_build_channels', ('build-channels',)),
                  ('build_path', ('build_path', None)),
                  ('store_channels', ('tracks', [])),
-                 ('store_upload', ('upload',)),
-                 )
+                 ('store_upload', ('upload',)),)
 
         for (rpart, bpart) in parts:
             battr = branch_info.get(*bpart)
@@ -545,7 +542,7 @@ def check_config_dir_exists(dir_: pathlib.Path) -> None:
 
 def get_group_config_filenames(config_dir: pathlib.Path,
                                project_group_names: Optional[List[str]] = None,
-                               extension: str =".yaml",
+                               extension: str = ".yaml",
                                ) -> List[pathlib.Path]:
     """Fetch the list of files for the group config.
 
@@ -671,5 +668,3 @@ if __name__ == '__main__':
     except FileNotFoundError as e:
         logging.error(str(e))
         sys.exit(1)
-    except Exception as e:
-        raise
