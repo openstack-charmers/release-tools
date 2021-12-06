@@ -525,43 +525,6 @@ class LaunchpadTools:
         logger.info('Created charm recipe %s', recipe.name)
 
 
-def setup_logging(loglevel: str) -> None:
-    """Sets up some basic logging."""
-    logging.basicConfig()
-    logger.setLevel(getattr(logging, loglevel, 'INFO'))
-
-
-def parse_args(pargs: sys.argv) -> argparse.Namespace:
-    """Parse the arguments and return the parsed args.
-
-    Work out what command is being run and collect the arguments
-    associated with it.
-
-    :param pargs: the sys.argv set.
-    :returns: parsed arguments
-    """
-    parser = argparse.ArgumentParser(
-        description='Configure launchpad projects for charms'
-    )
-    default_config_dir = os.path.abspath(os.path.join(CWD, './config'))
-    parser.add_argument('-c', '--config-dir',
-                        type=str, default=default_config_dir,
-                        help='directory containing configuration files')
-    parser.add_argument('--log', dest='loglevel',
-                        type=str.upper,
-                        default='INFO',
-                        choices=('DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
-                        help='Loglevel')
-    parser.add_argument('project_groups', metavar='project_group',
-                        type=str, nargs='*',
-                        help='Project group configurations to process. If no '
-                             'project groups are specified, all project '
-                             'groups found in the config-dir will be loaded '
-                             'and processed.')
-    args = parser.parse_args(pargs[1:])
-    return args
-
-
 def check_config_dir_exists(dir_: pathlib.Path) -> None:
     """Validate that the config dir_ exists.
 
@@ -672,6 +635,43 @@ class GroupConfig:
         """Generator returns a list of projects."""
         for project in self.charm_projects.values():
             yield project
+
+
+def parse_args(pargs: sys.argv) -> argparse.Namespace:
+    """Parse the arguments and return the parsed args.
+
+    Work out what command is being run and collect the arguments
+    associated with it.
+
+    :param pargs: the sys.argv set.
+    :returns: parsed arguments
+    """
+    parser = argparse.ArgumentParser(
+        description='Configure launchpad projects for charms'
+    )
+    default_config_dir = os.path.abspath(os.path.join(CWD, './config'))
+    parser.add_argument('-c', '--config-dir',
+                        type=str, default=default_config_dir,
+                        help='directory containing configuration files')
+    parser.add_argument('--log', dest='loglevel',
+                        type=str.upper,
+                        default='INFO',
+                        choices=('DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
+                        help='Loglevel')
+    parser.add_argument('project_groups', metavar='project_group',
+                        type=str, nargs='*',
+                        help='Project group configurations to process. If no '
+                             'project groups are specified, all project '
+                             'groups found in the config-dir will be loaded '
+                             'and processed.')
+    args = parser.parse_args(pargs[1:])
+    return args
+
+
+def setup_logging(loglevel: str) -> None:
+    """Sets up some basic logging."""
+    logging.basicConfig()
+    logger.setLevel(getattr(logging, loglevel, 'INFO'))
 
 
 def main():
