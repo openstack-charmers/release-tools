@@ -2,6 +2,26 @@
 # Copyright 2021, Canonical
 #
 
+"""Tools to configure and manage repositories and launchpad builders.
+
+This file contains a command that provides the ability to configure and manage
+the launchpad builders, repositories and branches in repositories.
+
+The commands are:
+   show -> display the current config.
+   list -> show a list of the charms configured in the supplied config.
+   diff -> show the current config and a diff to what is asked for.
+   config -> show the asked for config
+   sync -> sync the asked for config to the charm in the form of recipes.
+
+Note that 'update' requires the --i-really-mean-this flag as it is potentially
+destructive.  'update' also has other flags.
+
+As always, use the -h|--help on the command to discover what the options are
+and how to manage it.
+
+"""
+
 import argparse
 import collections
 import logging
@@ -637,7 +657,7 @@ class GroupConfig:
             yield project
 
 
-def parse_args(pargs: sys.argv) -> argparse.Namespace:
+def parse_args() -> argparse.Namespace:
     """Parse the arguments and return the parsed args.
 
     Work out what command is being run and collect the arguments
@@ -658,14 +678,86 @@ def parse_args(pargs: sys.argv) -> argparse.Namespace:
                         default='INFO',
                         choices=('DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
                         help='Loglevel')
-    parser.add_argument('project_groups', metavar='project_group',
+    parser.add_argument('-p', '--group',
+                        dest='project_groups',
+                        metavar='project_group',
                         type=str, nargs='*',
                         help='Project group configurations to process. If no '
                              'project groups are specified, all project '
                              'groups found in the config-dir will be loaded '
                              'and processed.')
-    args = parser.parse_args(pargs[1:])
+    parser.add_argument('--charm', dest='charm_name',
+                        type=str,
+                        help=('Choose a specific charm name from the '
+                              'configured set.'))
+
+    subparser = parser.add_subparsers(required=True, dest='cmd')
+    show_command = subparser.add_parser(
+        'show',
+        help=('The "show" commands shows the current configuration for the '
+              'charm recipes as defined in launchpad.'))
+    show_command.set_defaults(func=show_main)
+    list_command = subparser.add_parser(
+        'list',
+        help='List the charms defined in the configuration passed.')
+    list_command.set_defaults(func=list_main)
+    diff_command = subparser.add_parser(
+        'diff',
+        help=('Diff the declared config with the actual config in launchpad. '
+              'This shows the config and high-lights missing or extra '
+              'configuration that is in launchpad. Note that git repositories '
+              'can have extra branches and these are not seen in the diff. '
+              'Missing branches that are in the config are highlighted.'))
+    diff_command.set_defaults(func=diff_main)
+    config_command = subparser.add_parser(
+        'config',
+        help=("Show the config that would be applied."))
+    config_command.set_defaults(func=config_main)
+    sync_command = subparser.add_parser(
+        'sync',
+        help=('Sync the config to launchpad. Effectively, this takes the diff '
+              'and applies it to the projects, creating or updating recipes '
+              'as required.'))
+    sync_command.add_argument(
+        '--i-really-mean-it',
+        dest='confirmed',
+        action='store_true',
+        default=False,
+        help=('This flag must be supplied to indicate that the sync/apply '
+              'command really should be used.'))
+    sync_command.set_defaults(func=sync_main)
+
+    args = parser.parse_args()
     return args
+
+
+def show_main(args):
+    raise NotImplementedError()
+
+
+def list_main(args):
+    raise NotImplementedError()
+
+
+def diff_main(args):
+    raise NotImplementedError()
+
+
+def config_main(args):
+    raise NotImplementedError()
+
+
+def sync_main(args: argparse.Namespace,
+              lpt: LaunchpadTools,
+              gc: GroupConfig,
+              ) -> None:
+    if not args.confirmed:
+        raise AssertionError(
+            "'sync' command issues, but --i-really-mean-it flag not used. "
+            "Abandoning.")
+    for charm_project in gc.projects():
+        charm_project.ensure_git_repository(lpt)
+        charm_project.ensure_charm_recipes(lpt)
 
 
 def setup_logging(loglevel: str) -> None:
@@ -676,7 +768,7 @@ def setup_logging(loglevel: str) -> None:
 
 def main():
     """Main entry point."""
-    args = parse_args(sys.argv)
+    args = parse_args()
     setup_logging(args.loglevel)
 
     logging.info('Using config dir %s', args.config_dir)
@@ -688,19 +780,21 @@ def main():
     files = get_group_config_filenames(config_dir,
                                        args.project_groups)
 
-    lp = LaunchpadTools()
+    lpt = LaunchpadTools()
 
     gc = GroupConfig()
     gc.load_files(files)
 
-    for charm_project in gc.projects():
-        charm_project.ensure_git_repository(lp)
-        charm_project.ensure_charm_recipes(lp)
+    # Call the function associated with the sub-command.
+    args.func(args, lpt, gc)
 
 
 if __name__ == '__main__':
     try:
         main()
     except FileNotFoundError as e:
-        logging.error(str(e))
+        logger.error(str(e))
+        sys.exit(1)
+    except AssertionError as e:
+        logger.error(str(e))
         sys.exit(1)
