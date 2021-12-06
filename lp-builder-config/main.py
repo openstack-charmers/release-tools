@@ -248,9 +248,13 @@ class CharmProject:
 
                 lp_recipe = charm_lp_recipe_map.pop(recipe_name, None)
                 if lp_recipe:
-                    binfo = branch_info.copy()
-                    binfo['tracks'] = track_channels
-                    lpt.update_charm_recipe(lp_recipe, binfo)
+                    lpt.update_charm_recipe(
+                        lp_recipe,
+                        auto_build=branch_info.get('auto-build'),
+                        auto_build_channels=branch_info.get('build-channels'),
+                        build_path=branch_info.get('build-path', None),
+                        store_channels=track_channels,
+                        store_upload=branch_info.get('upload'))
                 else:
                     lpt.create_charm_recipe(
                         recipe_name=recipe_name,
@@ -433,12 +437,19 @@ class LaunchpadTools:
                      "\n".join(f"  - {r.name}" for r in recipes))
         return recipes
 
-    def update_charm_recipe(self, recipe: 'charm_recipe', branch_info: dict
+    def update_charm_recipe(self,
+                            recipe: 'charm_recipe',
+                            auto_build: bool = False,
+                            auto_build_channels: bool = False,
+                            build_path: Optional[str] = None,
+                            store_channels: Optional[List[str]] = None,
+                            store_upload: bool = False,
                             ) -> bool:
         """Updates the charm_recipe to match the requested configuration in
         the track_info.
 
         :param recipe: the charm recipe to update
+
         :param branch_info: the branch_info dictionary containing information
                            for the recipe
         :return: True if updated, False otherwise
@@ -448,18 +459,16 @@ class LaunchpadTools:
                     recipe.name, recipe.project.name)
         changed = []
 
-        # (recipe, (params for branch_info.get()))
-        parts = (('auto_build', ('auto-build',)),
-                 ('auto_build_channels', ('build-channels',)),
-                 ('build_path', ('build_path', None)),
-                 ('store_channels', ('tracks', [])),
-                 ('store_upload', ('upload',)),)
+        parts = (('auto_build', auto_build),
+                 ('auto_build_channels', auto_build_channels),
+                 ('build_path', build_path),
+                 ('store_channels', store_channels),
+                 ('store_upload', store_upload),)
 
-        for (rpart, bpart) in parts:
-            battr = branch_info.get(*bpart)
+        for (rpart, battr) in parts:
             rattr = getattr(recipe, rpart)
-            logger.debug("rpart: '%s', bpart: '%s', recipe.%s is %s, want %s",
-                         rpart, bpart, rpart, rattr, battr)
+            logger.debug("rpart: '%s', recipe.%s is %s, want %s",
+                         rpart, rpart, rattr, battr)
             if rattr != battr:
                 setattr(recipe, rpart, battr)
                 changed.append(f"recipe.{rpart} = {battr}")
