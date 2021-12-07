@@ -225,6 +225,28 @@ class CharmProject:
 
         return lp_repo
 
+    @staticmethod
+    def _get_git_repository(lpt: 'LaunchpadTools',
+                            lp_team: TypeLPObject,
+                            lp_project: TypeLPObject,
+                            ) -> TypeLPObject:
+        """Ensure charm recipes in Launchpad matches CharmProject's conf.
+
+        :param lpt: the launchpad tools object to do things in launchpad.
+        :param lp_team: the lp team object
+        :param lp_project: the lp project object
+        :returns: the lp repoistory object
+        :raises ValueError: if the repository can't be found.
+        """
+        lp_repo = lpt.get_git_repository(lp_team, lp_project)
+        if not lp_repo:
+            logger.error('Unable to find repository for team %s and '
+                         'project %s', lp_team.name, lp_project.name)
+            raise ValueError(
+                f'Unable to find repository for team {lp_team.name} '
+                f'and project {lp_project.name}')
+        return lp_repo
+
     def ensure_charm_recipes(self, lpt: 'LaunchpadTools') -> None:
         """Ensure charm recipes in Launchpad matches CharmProject's conf.
 
@@ -234,14 +256,7 @@ class CharmProject:
         logger.debug(str(self))
         lp_team = lpt.get_lp_team_for(self.team)
         lp_project = lpt.get_lp_project_for(self.launchpad_project)
-
-        lp_repo = lpt.get_git_repository(lp_team, lp_project)
-        if not lp_repo:
-            logger.error('Unable to find repository for team %s and '
-                         'project %s', lp_team.name, lp_project.name)
-            raise ValueError(
-                f'Unable to find repository for team {lp_team.name} '
-                f'and project {lp_project.name}')
+        lp_repo = self._get_git_repository(lpt, lp_team, lp_project)
 
         lp_recipes = lpt.get_charm_recipes(lp_team, lp_project)
         charm_lp_recipe_map = {recipe.name: recipe for recipe in lp_recipes}
