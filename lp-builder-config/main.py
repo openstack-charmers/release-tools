@@ -24,6 +24,7 @@ and how to manage it.
 
 import argparse
 import collections
+import lazr
 import logging
 import os
 import pathlib
@@ -35,6 +36,8 @@ import yaml
 from launchpadlib.uris import lookup_service_root
 from launchpadlib.launchpad import Launchpad
 
+# All objects returned by launchpadlib are lazr.restfulclient.resource.Entry
+TypeLPObject = lazr.restfulclient.resource.Entry
 
 logger = logging.getLogger(__name__)
 
@@ -363,14 +366,14 @@ class LaunchpadTools:
         logging.error("Couldn't save/store the Launchpad credential")
         sys.exit(1)
 
-    def get_lp_team_for(self, team_str: str) -> 'team':
+    def get_lp_team_for(self, team_str: str) -> TypeLPObject:
         """Return the team object for a team str.
 
         :param team_str: the team to return the team object for.
         """
         return self.lp.people[team_str]
 
-    def get_lp_project_for(self, charm_name: str) -> 'project':
+    def get_lp_project_for(self, charm_name: str) -> TypeLPObject:
         """Return the project object for a project name.
 
         :param charm_name: the project name to return the project object for.
@@ -378,8 +381,8 @@ class LaunchpadTools:
         return self.lp.projects[charm_name]
 
     def set_default_repository(self,
-                               lp_project: 'project',
-                               lp_repo: 'repository',
+                               lp_project: TypeLPObject,
+                               lp_repo: TypeLPObject,
                                ) -> None:
         """Set the default repository for a launchpad project.
 
@@ -389,7 +392,7 @@ class LaunchpadTools:
         self.lp.git_repositories.setDefaultRepository(
             target=project, repository=repo)
 
-    def get_git_repository(self, owner: 'team', project: 'project'):
+    def get_git_repository(self, owner: TypeLPObject, project: TypeLPObject):
         """Returns the reference to the Launchpad git repository by owner and
         project.
 
@@ -411,8 +414,11 @@ class LaunchpadTools:
                    self.lp.git_repositories.getRepositories(target=project)),
             None)
 
-    def import_repository(self, owner: 'team', project: 'project',
-                          url: str) -> 'repository':
+    def import_repository(self,
+                          owner: TypeLPObject,
+                          project: TypeLPObject,
+                          url: str
+                          ) -> TypeLPObject:
         """Creates a repository in Launchpad imported from the specified url
         belonging to the specified owner and project.
 
@@ -433,8 +439,10 @@ class LaunchpadTools:
         )
         return code_import.git_repository
 
-    def get_charm_recipes(self, owner: 'team', project: 'project'
-                          ) -> List['charm_recipes']:
+    def get_charm_recipes(self,
+                          owner: TypeLPObject,
+                          project: TypeLPObject
+                          ) -> List[TypeLPObject]:
         """Returns charm recipes for the specified owner in the specified
         project.
 
@@ -458,7 +466,7 @@ class LaunchpadTools:
         return recipes
 
     def update_charm_recipe(self,
-                            recipe: 'charm_recipe',
+                            recipe: TypeLPObject,
                             auto_build: bool = False,
                             auto_build_channels: bool = False,
                             build_path: Optional[str] = None,
@@ -506,8 +514,8 @@ class LaunchpadTools:
                             recipe_name: str,
                             branch_info: dict,
                             lp_branch: str,
-                            owner: 'team',
-                            project: 'project',
+                            owner: TypeLPObject,
+                            project: TypeLPObject,
                             store_name: str,
                             channels: List[str],
                             ) -> None:
