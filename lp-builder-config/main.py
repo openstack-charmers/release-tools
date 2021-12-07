@@ -735,15 +735,42 @@ def show_main(args):
     raise NotImplementedError()
 
 
-def list_main(args):
+def list_main(args: argparse.Namespace,
+              lpt: LaunchpadTools,
+              gc: GroupConfig,
+              ) -> None:
+    """List the charm projects (and repos) that are in the configuration.
+
+    This simply lists the charm projects in the GlobalConfig.
+
+    :param args: the arguments parsed from the command line.
+    :param lpt: A logged in LaunchpadTools object.
+    :para gc: The GroupConfig; i.e. all the charms and their config.
+    """
+    def _heading():
+        print(f"{'-'*20} {'-'*30} {'-'*40} {'-'*len('Repository')}")
+        print(f"{'Team':20} {'Charmhub name':30} {'LP Project Name':40} "
+              f"{'Repository'}")
+        print(f"{'-'*20} {'-'*30} {'-'*40} {'-'*len('Repository')}")
+
+    for i, cp in enumerate(gc.projects()):
+        if i % 30 == 0:
+            _heading()
+        print(f"{cp.team:20} {cp.charmhub_name[:30]:30} "
+              f"{cp.launchpad_project[:40]:40} {cp.repository}")
+
+
+def diff_main(args: argparse.Namespace,
+              lpt: LaunchpadTools,
+              gc: GroupConfig,
+              ) -> None:
     raise NotImplementedError()
 
 
-def diff_main(args):
-    raise NotImplementedError()
-
-
-def config_main(args):
+def config_main(args: argparse.Namespace,
+              lpt: LaunchpadTools,
+              gc: GroupConfig,
+              ) -> None:
     raise NotImplementedError()
 
 
@@ -751,6 +778,16 @@ def sync_main(args: argparse.Namespace,
               lpt: LaunchpadTools,
               gc: GroupConfig,
               ) -> None:
+    """Do the sync from the config to the projects defined in config.
+
+    This takes the GroupConfig and then ensures that the git repository is set
+    up in launchpad for each project, and then ensures that the required charm
+    recipes are sdet up for that project in launchpad.
+
+    :param args: the arguments parsed from the command line.
+    :param lpt: A logged in LaunchpadTools object.
+    :para gc: The GroupConfig; i.e. all the charms and their config.
+    """
     if not args.confirmed:
         raise AssertionError(
             "'sync' command issues, but --i-really-mean-it flag not used. "
