@@ -27,6 +27,7 @@ import collections
 import lazr
 import logging
 import os
+import io
 import pathlib
 import pprint
 import sys
@@ -166,7 +167,6 @@ class CharmProject:
         self.repository = config.get('repository', self.repository)
         self._add_branches(config.get('branches', {}))
 
-
     def ensure_git_repository(self, lpt: 'LaunchpadTools') -> None:
         """Ensure that launchpad project git repository exists.
 
@@ -240,8 +240,6 @@ class CharmProject:
         """
         lp_repo = lpt.get_git_repository(lp_team, lp_project)
         if not lp_repo:
-            logger.error('Unable to find repository for team %s and '
-                         'project %s', lp_team.name, lp_project.name)
             raise ValueError(
                 f'Unable to find repository for team {lp_team.name} '
                 f'and project {lp_project.name}')
@@ -255,17 +253,102 @@ class CharmProject:
         logger.info('Checking charm recipes for charm %s', self.name)
         logger.debug(str(self))
         lp_team = lpt.get_lp_team_for(self.team)
+        try:
+            lp_project = lpt.get_lp_project_for(self.launchpad_project)
+        except KeyError:
+            logger.error(
+                "Can't continue; no project in Launchpad called '%s'",
+                self.launchpad_project)
+        try:
+            lp_repo = self._get_git_repository(lpt, lp_team, lp_project)
+        except ValueError:
+            logger.error(
+                "Can't continue; no repository defined for %s",
+                self.launchpad_project)
+            return
+
+        current = self._calc_recipes_for_repo(lpt, lp_repo)
+        if current['missing_branches_in_repo']:
+            # This means that there are required channels, but no branches in
+            # the repo; need to log this fact.
+            logger.info(
+                "The following branches are missing from the repository "
+                "but are configured as branches for recipes.")
+            for branch in current['missing_branches_in_repo']:
+                logger.info(" - %s", branch)
+        any_changes = (all(not(r['exists']) or r['changed']
+                           for r in current['in_config_recipes'].values()))
+        if not(any_changes):
+            logger.info("No changes needed.")
+            return
+
+        # Create recipes that are missing and/o update recipes that have
+        # changes.
+        for recipe_name, state in current['in_config_recipes']:
+            if state['exists'] and state['changed']:
+                # it's an update
+                lp_recipe = state['current_recipe']
+                logger.info('Charm recipe %s has changes. Saving.',
+                            lp_recipe.name)
+                logger.debug("Changes: {}".format(", ".join(state['changes'])))
+                for rpart, battr in state['updated_parts']:
+                    setattr(lp_recipe, rpart, battr)
+                lp_recipe.lp_save()
+            elif not(state['exists']):
+                logger.info('Creating charm recipe for %s', recipe_name)
+                build_from = state['build_from']
+                lpt.create_charm_recipe(
+                    recipe_name=recipe_name,
+                    # branch_info=branch_info,
+                    branch_info=build_from['branch_info'],
+                    lp_branch=build_from['lp_branch'],
+                    owner=lp_team,
+                    project=lp_project,
+                    store_name=self.charmhub_name,
+                    channels=build_from['channels'])
+                logger.info('Created charm recipe %s', lp_recipe.name)
+
+            else:
+                logger.info('No changes needed for charm recipe %s',
+                            recipe_name)
+
+        # TODO (wolsen) Check to see if there are any remaining charm recipes
+        #  configured in Launchpad and remove them (?). Remaining charm recipes
+        #  will be those left in the charm_lp_recipe_map dict. Not doing this
+        #  currently as its not clear that we want to remove them automatically
+        #  (yet).
+
+    def _calc_recipes_for_repo(
+        self,
+        lpt: 'LaunchpadTools',
+        lp_repo: TypeLPObject,
+    ) -> Dict:
+        """Calculate the set of recipes for a repo based on the config.
+
+        Return a calculated set of repo branches, channels, recipe names and
+        their configuration.
+
+        The repo_branches is an OrderedDict of repo branch -> List[recipe_name]
+        The channels ...
+        """
+        lp_team = lpt.get_lp_team_for(self.team)
         lp_project = lpt.get_lp_project_for(self.launchpad_project)
-        lp_repo = self._get_git_repository(lpt, lp_team, lp_project)
 
         lp_recipes = lpt.get_charm_recipes(lp_team, lp_project)
         charm_lp_recipe_map = {recipe.name: recipe for recipe in lp_recipes}
 
+        # a recipe_name: {info for recipe}  dictionary
+        all_recipes: Dict[str, Dict] = collections.OrderedDict()
+        no_recipe_branches: List[str] = []
+        mentioned_branches: List[str] = []
+
         for lp_branch in lp_repo.branches:
+            mentioned_branches.append(lp_branch.path)
             branch_info = self.branches.get(lp_branch.path, None)
             if not branch_info:
                 logger.info('No tracks configured for branch %s, continuing.',
                             lp_branch.path)
+                no_recipe_branches.append(lp_branch.path)
                 continue
 
             # Strip off refs/head/. And no / allowed, so we'll replace with _
@@ -286,32 +369,111 @@ class CharmProject:
 
                 lp_recipe = charm_lp_recipe_map.pop(recipe_name, None)
                 if lp_recipe:
-                    lpt.update_charm_recipe(
-                        lp_recipe,
+                    # calculate diff
+                    changed, updated_dict, changes = lpt.diff_charm_recipe(
+                        recipe=lp_recipe,
                         auto_build=branch_info.get('auto-build'),
                         auto_build_channels=branch_info.get('build-channels'),
                         build_path=branch_info.get('build-path', None),
                         store_channels=track_channels,
                         store_upload=branch_info.get('upload'))
-                else:
-                    lpt.create_charm_recipe(
-                        recipe_name=recipe_name,
-                        branch_info=branch_info,
-                        lp_branch=lp_branch,
-                        owner=lp_team,
-                        project=lp_project,
-                        store_name=charm.charmhub_name,
-                        channels=track_channels)
 
-        # TODO (wolsen) Check to see if there are any remaining charm recipes
-        #  configured in Launchpad and remove them (?). Remaining charm recipes
-        #  will be those left in the charm_lp_recipe_map dict. Not doing this
-        #  currently as its not clear that we want to remove them automatically
-        #  (yet).
+                    all_recipes[recipe_name] = {
+                        'exists': True,
+                        'changed': changed,
+                        'current_recipe': lp_recipe,
+                        'updated_parts': updated_dict,
+                        'changes': changes,
+                    }
+                else:
+                    all_recipes[recipe_name] = {
+                        'exists': False,
+                        'changed': False,
+                        'current_recipe': None,
+                        'updated_recipe': None,
+                        'changes': [],
+                    }
+                all_recipes[recipe_name].update({
+                    'build_from': {
+                        'recipe_name': recipe_name,
+                        'branch_info': branch_info,
+                        'lp_branch': lp_branch,
+                        'lp_team': lp_team,
+                        'lp_project': lp_project,
+                        'store_name': self.charmhub_name,
+                        'channels': track_channels
+                    }
+                })
+        return {
+            'lp_recipes': lp_recipes,
+            'non_config_recipes': charm_lp_recipe_map,
+            'in_config_recipes': all_recipes,
+            'no_recipe_branches': no_recipe_branches,
+            'missing_branches_in_repo': list(
+                sorted(set(self.branches.keys() - set(mentioned_branches)))),
+        }
+
+    def print_diff(self,
+                   lpt: 'LaunchpadTools',
+                   detail: bool = False,
+                   file: io.TextIOWrapper = sys.stdout) -> None:
+        """Print a diff between desired config and actual config.
+
+        :param detail: print detailed output if True
+        :param lpt: the launchpad tools object to do things in launchpad.
+        :param file: where to send the output.
+        """
+        logger.info(f'Printing diff for: {self.name}')
+        lp_team = lpt.get_lp_team_for(self.team)
+        try:
+            lp_project = lpt.get_lp_project_for(self.launchpad_project)
+        except KeyError:
+            print(f"{self.name[:35]:35} -- Project doesn't exist!!: "
+                  f"{self.launchpad_project}", file=file)
+            return
+        try:
+            lp_repo = self._get_git_repository(lpt, lp_team, lp_project)
+        except ValueError:
+            print(f"{self.name[:35]:35} -- No repo configured!", file=file)
+            return
+        info = self._calc_recipes_for_repo(lpt, lp_repo)
+        any_changes = (all(not(r['exists']) or r['changed']
+                           for r in info['in_config_recipes'].values()))
+        change_text = ("Changes required"
+                       if any_changes or info['missing_branches_in_repo']
+                       else "No changes needed")
+        extra_recipes_text = (
+            f" - {len(info['non_config_recipes'].keys())} extra config recipes"
+            if info['non_config_recipes'] else "")
+        print(
+            f"{self.name[:35]:35} {change_text:20}{extra_recipes_text}",
+            file=file)
+        if detail:
+            # Print detail from info.
+            if info['non_config_recipes']:
+                print(" * Recipes that have no corresponding config:",
+                      file=file)
+                for recipe_name in info['non_config_recipes'].keys():
+                    print(f"   - {recipe_name}", file=file)
+            if any_changes:
+                print(" * recipes that require changes:", file=file)
+                for recipe_name, detail in info['in_config_recipes'].items():
+                    if not(detail['exists']):
+                        print(f"    - {recipe_name:35} : Needs creating.",
+                              file=file)
+                    elif detail['changed']:
+                        print(f"    - {recipe_name:35} : "
+                              f"{','.join(detail['changes'])}", file=file)
+            if info['missing_branches_in_repo']:
+                print(" * missing branches in config but not in repo:",
+                      file=file)
+                for branch in info['missing_branches_in_repo']:
+                    print(f'    - {branch[len("refs/heads/"):]}', file=file)
+        # pprint.pprint(info)
 
     @staticmethod
-    def _group_channels(channels: List[str]
-                       ) -> List[Tuple[str, List[str]]]:
+    def _group_channels(channels: List[str],
+                        ) -> List[Tuple[str, List[str]]]:
         """Group channels into compatible lists.
 
         The charmhub appears to only allow a recipe to target a single channel,
@@ -392,6 +554,7 @@ class LaunchpadTools:
         """Return the project object for a project name.
 
         :param charm_name: the project name to return the project object for.
+        :raises KeyError: if the project doesn't exist.
         """
         return self.lp.projects[charm_name]
 
@@ -405,7 +568,7 @@ class LaunchpadTools:
         :param lp_repo: the LP repository object to use as a default.
         """
         self.lp.git_repositories.setDefaultRepository(
-            target=project, repository=repo)
+            target=lp_project, repository=lp_repo)
 
     def get_git_repository(self, owner: TypeLPObject, project: TypeLPObject):
         """Returns the reference to the Launchpad git repository by owner and
@@ -492,14 +655,44 @@ class LaunchpadTools:
         the track_info.
 
         :param recipe: the charm recipe to update
-
         :param branch_info: the branch_info dictionary containing information
                            for the recipe
         :return: True if updated, False otherwise
         """
-        logger.info('Recipe exists; checking to see if "%s" for '
-                    '%s needs updating.',
-                    recipe.name, recipe.project.name)
+        changed, updated_dict, changes = self.diff_charm_recipe(
+            recipe=recipe,
+            auto_build=auto_build,
+            auto_build_channels=auto_build_channels,
+            build_path=build_path,
+            store_channels=store_channels,
+            store_upload=store_upload)
+
+        if changed:
+            logger.info('Charm recipe %s has changes. Saving.', recipe.name)
+            logger.debug("Changes: {}".format(", ".join(changes)))
+            for rpart, battr in updated_dict.items():
+                setattr(recipe, rpart, battr)
+            recipe.lp_save()
+        else:
+            logger.info('No changes needed for charm recipe %s', recipe.name)
+
+        return changed
+
+    def diff_charm_recipe(self,
+                          recipe: TypeLPObject,
+                          auto_build: bool = False,
+                          auto_build_channels: bool = False,
+                          build_path: Optional[str] = None,
+                          store_channels: Optional[List[str]] = None,
+                          store_upload: bool = False,
+                          ) -> (bool, Dict[str, Any], List[str]):
+        """Returns Updates the charm_recipe to match the required config.
+
+        :param recipe: the charm recipe to update
+        :param branch_info: the branch_info dictionary containing information
+                           for the recipe
+        :return: Tuple of (changed_flag, parts-changed, List of changes)
+        """
         changed = []
 
         parts = (('auto_build', auto_build),
@@ -508,22 +701,17 @@ class LaunchpadTools:
                  ('store_channels', store_channels),
                  ('store_upload', store_upload),)
 
+        changes = {}
+
         for (rpart, battr) in parts:
             rattr = getattr(recipe, rpart)
             logger.debug("rpart: '%s', recipe.%s is %s, want %s",
                          rpart, rpart, rattr, battr)
             if rattr != battr:
-                setattr(recipe, rpart, battr)
+                changes[rpart] = battr
                 changed.append(f"recipe.{rpart} = {battr}")
 
-        if changed:
-            logger.info('Charm recipe %s has changes. Saving.', recipe.name)
-            logger.debug("Changes: {}".format(", ".join(changed)))
-            recipe.lp_save()
-        else:
-            logger.info('No changes needed for charm recipe %s', recipe.name)
-
-        return changed
+        return (bool(changed), changes, changed)
 
     def create_charm_recipe(self,
                             recipe_name: str,
@@ -533,7 +721,7 @@ class LaunchpadTools:
                             project: TypeLPObject,
                             store_name: str,
                             channels: List[str],
-                            ) -> None:
+                            ) -> TypeLPObject:
         """Create a new charm recipe using the branch_info and channels.
 
         The channels are a grouping of same track, different risks.
@@ -544,7 +732,6 @@ class LaunchpadTools:
         :param branch_info: a dictionary of relevant parts to create the recipe
         :param channels: a list of channels to target in the charmhub
         """
-        logger.info('Creating charm recipe for %s', recipe_name)
         logger.debug(f'branch_info: %s', branch_info)
         upload = branch_info.get('upload', True)
         recipe_args = {
@@ -564,8 +751,7 @@ class LaunchpadTools:
             pass
         logger.debug("Creating recipe with the following args: %s",
                      recipe_args)
-        recipe = self.lp.charm_recipes.new(**recipe_args)
-        logger.info('Created charm recipe %s', recipe.name)
+        self.lp.charm_recipes.new(**recipe_args)
 
 
 def check_config_dir_exists(dir_: pathlib.Path) -> None:
@@ -698,13 +884,15 @@ def parse_args() -> argparse.Namespace:
                         help='directory containing configuration files')
     parser.add_argument('--log', dest='loglevel',
                         type=str.upper,
-                        default='INFO',
+                        default='ERROR',
                         choices=('DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
                         help='Loglevel')
     parser.add_argument('-p', '--group',
                         dest='project_groups',
+                        action='append',
                         metavar='project_group',
-                        type=str, nargs='*',
+                        # type=str, nargs='*',
+                        type=str,
                         help='Project group configurations to process. If no '
                              'project groups are specified, all project '
                              'groups found in the config-dir will be loaded '
@@ -732,6 +920,10 @@ def parse_args() -> argparse.Namespace:
               'can have extra branches and these are not seen in the diff. '
               'Missing branches that are in the config are highlighted.'))
     diff_command.set_defaults(func=diff_main)
+    diff_command.add_argument('--detail',
+                              action='store_true',
+                              default=False,
+                              help="Add detail to the output.")
     config_command = subparser.add_parser(
         'config',
         help=("Show the config that would be applied."))
@@ -787,13 +979,20 @@ def diff_main(args: argparse.Namespace,
               lpt: LaunchpadTools,
               gc: GroupConfig,
               ) -> None:
-    raise NotImplementedError()
+    """Show a diff between the requested LP config and current config.
+
+    :param args: the arguments parsed from the command line.
+    :param lpt: A logged in LaunchpadTools object.
+    :para gc: The GroupConfig; i.e. all the charms and their config.
+    """
+    for cp in gc.projects():
+        cp.print_diff(lpt, args.detail)
 
 
 def config_main(args: argparse.Namespace,
-              lpt: LaunchpadTools,
-              gc: GroupConfig,
-              ) -> None:
+                lpt: LaunchpadTools,
+                gc: GroupConfig,
+                ) -> None:
     raise NotImplementedError()
 
 
@@ -823,7 +1022,7 @@ def sync_main(args: argparse.Namespace,
 def setup_logging(loglevel: str) -> None:
     """Sets up some basic logging."""
     logging.basicConfig()
-    logger.setLevel(getattr(logging, loglevel, 'INFO'))
+    logger.setLevel(getattr(logging, loglevel, 'ERROR'))
 
 
 def main():
