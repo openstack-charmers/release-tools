@@ -860,10 +860,13 @@ class GroupConfig:
         else:
             self.charm_projects[name] = CharmProject(project_config)
 
-    def projects(self) -> Iterator[CharmProject]:
+    def projects(self, select: Optional[List[str]]) -> Iterator[CharmProject]:
         """Generator returns a list of projects."""
+        if not(select):
+            select = None
         for project in self.charm_projects.values():
-            yield project
+            if select is None or project.name in select:
+                yield project
 
 
 def parse_args() -> argparse.Namespace:
@@ -879,7 +882,7 @@ def parse_args() -> argparse.Namespace:
         description='Configure launchpad projects for charms'
     )
     default_config_dir = os.path.abspath(os.path.join(CWD, './config'))
-    parser.add_argument('-c', '--config-dir',
+    parser.add_argument('--config-dir',
                         type=str, default=default_config_dir,
                         help='directory containing configuration files')
     parser.add_argument('--log', dest='loglevel',
@@ -890,17 +893,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('-p', '--group',
                         dest='project_groups',
                         action='append',
-                        metavar='project_group',
+                        metavar='PROJECT-GROUP',
                         # type=str, nargs='*',
                         type=str,
                         help='Project group configurations to process. If no '
                              'project groups are specified, all project '
                              'groups found in the config-dir will be loaded '
                              'and processed.')
-    parser.add_argument('--charm', dest='charm_name',
+    parser.add_argument('-c', '--charm',
+                        dest='charms',
+                        action='append',
+                        metavar='CHARM',
                         type=str,
                         help=('Choose a specific charm name from the '
-                              'configured set.'))
+                              'configured set. May be repeated for multiple '
+                              'charms.'))
 
     subparser = parser.add_subparsers(required=True, dest='cmd')
     show_command = subparser.add_parser(
@@ -968,7 +975,7 @@ def list_main(args: argparse.Namespace,
               f"{'Repository'}")
         print(f"{'-'*20} {'-'*30} {'-'*40} {'-'*len('Repository')}")
 
-    for i, cp in enumerate(gc.projects()):
+    for i, cp in enumerate(gc.projects(select=args.charms)):
         if i % 30 == 0:
             _heading()
         print(f"{cp.team:20} {cp.charmhub_name[:30]:30} "
@@ -985,7 +992,7 @@ def diff_main(args: argparse.Namespace,
     :param lpt: A logged in LaunchpadTools object.
     :para gc: The GroupConfig; i.e. all the charms and their config.
     """
-    for cp in gc.projects():
+    for cp in gc.projects(select=args.charms):
         cp.print_diff(lpt, args.detail)
 
 
@@ -1014,7 +1021,7 @@ def sync_main(args: argparse.Namespace,
         raise AssertionError(
             "'sync' command issues, but --i-really-mean-it flag not used. "
             "Abandoning.")
-    for charm_project in gc.projects():
+    for charm_project in gc.projects(select=args.charms):
         charm_project.ensure_git_repository(lpt)
         charm_project.ensure_charm_recipes(lpt)
 
