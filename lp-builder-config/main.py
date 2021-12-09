@@ -33,7 +33,11 @@ import sys
 from typing import (Any, Dict, Iterator, List, Tuple, Optional)
 import yaml
 
-from launchpadtools import LaunchpadTools, TypeLPObject
+from launchpadtools import (
+    LaunchpadTools,
+    TypeLPObject,
+    setup_logging as lpt_setup_logging,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -840,6 +844,7 @@ def setup_logging(loglevel: str) -> None:
     """Sets up some basic logging."""
     logging.basicConfig()
     logger.setLevel(getattr(logging, loglevel, 'ERROR'))
+    lpt_setup_logging(loglevel)
 
 
 def main():

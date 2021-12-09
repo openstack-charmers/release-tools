@@ -16,6 +16,11 @@ TypeLPObject = lazr.restfulclient.resource.Entry
 logger = logging.getLogger(__name__)
 
 
+def setup_logging(loglevel: str) -> None:
+    """Sets up some basic logging."""
+    logger.setLevel(getattr(logging, loglevel, 'ERROR'))
+
+
 class LaunchpadTools:
     """LaunchpadTools - a helper class to work with launchpadlib."""
 
