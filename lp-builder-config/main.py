@@ -130,12 +130,16 @@ class CharmProject:
           - xena/edge
     """
 
-    def __init__(self, config):
+    def __init__(self, config, lpt: 'LaunchpadTools'):
+        self.lpt = lpt
         self.name: str = config.get('name')
         self.team: str = config.get('team')
+        self._lp_team = None
         self.charmhub_name: str = config.get('charmhub')
         self.launchpad_project: str = config.get('launchpad')
+        self._lp_project = None
         self.repository: str = config.get('repository')
+        self._lp_repo = None
 
         self.branches: Dict[str, str] = {}
 
@@ -167,7 +171,29 @@ class CharmProject:
         self.repository = config.get('repository', self.repository)
         self._add_branches(config.get('branches', {}))
 
-    def ensure_git_repository(self, lpt: 'LaunchpadTools') -> None:
+    @property
+    def lp_team(self):
+        if self._lp_team:
+            return self._lp_team
+        self._lp_team = self.lpt.get_lp_team_for(self.team)
+        return self._lp_team
+
+    @property
+    def lp_project(self):
+        if self._lp_project:
+            return self._lp_project
+        self._lp_project = self.lpt.get_lp_project_for(self.launchpad_project)
+        return self._lp_project
+
+    @property
+    def lp_repo(self):
+        if self._lp_repo:
+            return self._lp_repo
+        self._lp_repo = self.lpt.get_git_repository(
+            self.lp_team, self.lp_project)
+        return self._lp_repo
+
+    def ensure_git_repository(self) -> None:
         """Ensure that launchpad project git repository exists.
 
         Configures launchpad project repositories for self (the charm)
@@ -175,55 +201,51 @@ class CharmProject:
         configured in launchpad to import the git tree from the upstream
         project repository and that the git repository is set as the default
         code repository for the launchpad project.
-
-        :param lpt: the launchpad tools object to do things in launchpad.
         """
         logger.info('Checking Launchpad git repositories for %s.',
                     self.name)
-        lp_team = lpt.get_lp_team_for(self.team)
-        lp_project = lpt.get_lp_project_for(self.launchpad_project)
 
-        if lp_project.owner != lp_team:
+        if self.lp_project.owner != self.lp_team:
             logger.error('Project owner of project %s '
                          'does not match owner specified %s',
                          self.launchpad_project, self.team)
             raise ValueError(
                 f'Unexpected project owner for {self.launchpad_project}')
 
-        lp_repo = lpt.get_git_repository(lp_team, lp_project)
-
-        if lp_repo is None:
+        if self.lp_repo is None:
             logger.info('Git repository for project %s and '
                         '%s does not exist, importing now from %s',
-                        lp_project.name, lp_team.name, self.repository)
-            lp_repo = lpt.import_repository(
-                lp_team, lp_project, self.repository)
+                        self.lp_project.name, self.lp_team.name,
+                        self.repository)
+            self._lp_repo = self.lpt.import_repository(
+                self.lp_team, self.lp_project, self.repository)
         else:
             logger.debug('Git repository for project %s and '
-                         '%s already exists.', lp_project.name, lp_team.name)
+                         '%s already exists.',
+                         self.lp_project.name, self.lp_team.name)
 
         # Check whether the repository is the default repository for the
         # project or not.
-        if not lp_repo.target_default:
+        if not self.lp_repo.target_default:
             logger.info('Setting default repository for %s to %s',
-                        lp_project.name, lp_repo.git_https_url)
+                        self.lp_project.name, self.lp_repo.git_https_url)
             try:
-                lpt.set_default_repository(lp_project, lp_repo)
-                lp_repo.lp_refresh()
+                self.lpt.set_default_repository(self.lp_project, self.lp_repo)
+                self.lp_repo.lp_refresh()
             except Exception:  # no-qa
                 # Log the error, but don't fail if we couldn't set the
                 # default repository. Typically means the team is not the
                 # owner of the project.
                 logger.error(
                     'Failed to set the default repository for %s to %s',
-                    lp_project.name, lp_repo.git_https_url)
+                    self.lp_project.name, self.lp_repo.git_https_url)
 
-        if not lp_project.vcs:
-            logger.info('Setting project %s vcs to Git', lp_project.name)
-            lp_project.vcs = 'Git'
-            lp_project.lp_save()
+        if not self.lp_project.vcs:
+            logger.info('Setting project %s vcs to Git', self.lp_project.name)
+            self.lp_project.vcs = 'Git'
+            self.lp_project.lp_save()
 
-        return lp_repo
+        return self.lp_repo
 
     @staticmethod
     def _get_git_repository(lpt: 'LaunchpadTools',
@@ -245,29 +267,26 @@ class CharmProject:
                 f'and project {lp_project.name}')
         return lp_repo
 
-    def ensure_charm_recipes(self, lpt: 'LaunchpadTools') -> None:
+    def ensure_charm_recipes(self) -> None:
         """Ensure charm recipes in Launchpad matches CharmProject's conf.
-
-        :param lpt: the launchpad tools object to do things in launchpad.
         """
         logger.info('Checking charm recipes for charm %s', self.name)
         logger.debug(str(self))
-        lp_team = lpt.get_lp_team_for(self.team)
         try:
-            lp_project = lpt.get_lp_project_for(self.launchpad_project)
+            self.lp_project
         except KeyError:
             logger.error(
                 "Can't continue; no project in Launchpad called '%s'",
                 self.launchpad_project)
         try:
-            lp_repo = self._get_git_repository(lpt, lp_team, lp_project)
+            self.lp_repo
         except ValueError:
             logger.error(
                 "Can't continue; no repository defined for %s",
                 self.launchpad_project)
             return
 
-        current = self._calc_recipes_for_repo(lpt, lp_repo)
+        current = self._calc_recipes_for_repo()
         if current['missing_branches_in_repo']:
             # This means that there are required channels, but no branches in
             # the repo; need to log this fact.
@@ -297,13 +316,13 @@ class CharmProject:
             elif not(state['exists']):
                 logger.info('Creating charm recipe for %s', recipe_name)
                 build_from = state['build_from']
-                lpt.create_charm_recipe(
+                self.lpt.create_charm_recipe(
                     recipe_name=recipe_name,
                     # branch_info=branch_info,
                     branch_info=build_from['branch_info'],
                     lp_branch=build_from['lp_branch'],
-                    owner=lp_team,
-                    project=lp_project,
+                    owner=self.lp_team,
+                    project=self.lp_project,
                     store_name=self.charmhub_name,
                     channels=build_from['channels'])
                 logger.info('Created charm recipe %s', lp_recipe.name)
@@ -318,11 +337,7 @@ class CharmProject:
         #  currently as its not clear that we want to remove them automatically
         #  (yet).
 
-    def _calc_recipes_for_repo(
-        self,
-        lpt: 'LaunchpadTools',
-        lp_repo: TypeLPObject,
-    ) -> Dict:
+    def _calc_recipes_for_repo(self) -> Dict:
         """Calculate the set of recipes for a repo based on the config.
 
         Return a calculated set of repo branches, channels, recipe names and
@@ -331,10 +346,7 @@ class CharmProject:
         The repo_branches is an OrderedDict of repo branch -> List[recipe_name]
         The channels ...
         """
-        lp_team = lpt.get_lp_team_for(self.team)
-        lp_project = lpt.get_lp_project_for(self.launchpad_project)
-
-        lp_recipes = lpt.get_charm_recipes(lp_team, lp_project)
+        lp_recipes = self.lpt.get_charm_recipes(self.lp_team, self.lp_project)
         charm_lp_recipe_map = {recipe.name: recipe for recipe in lp_recipes}
 
         # a recipe_name: {info for recipe}  dictionary
@@ -342,7 +354,7 @@ class CharmProject:
         no_recipe_branches: List[str] = []
         mentioned_branches: List[str] = []
 
-        for lp_branch in lp_repo.branches:
+        for lp_branch in self.lp_repo.branches:
             mentioned_branches.append(lp_branch.path)
             branch_info = self.branches.get(lp_branch.path, None)
             if not branch_info:
@@ -365,18 +377,22 @@ class CharmProject:
                 tracks = (("latest", []),)
             for track, track_channels in tracks:
                 recipe_name = recipe_format.format(
-                    project=lp_project.name, branch=branch_name, track=track)
+                    project=self.lp_project.name,
+                    branch=branch_name,
+                    track=track)
 
                 lp_recipe = charm_lp_recipe_map.pop(recipe_name, None)
                 if lp_recipe:
                     # calculate diff
-                    changed, updated_dict, changes = lpt.diff_charm_recipe(
-                        recipe=lp_recipe,
-                        auto_build=branch_info.get('auto-build'),
-                        auto_build_channels=branch_info.get('build-channels'),
-                        build_path=branch_info.get('build-path', None),
-                        store_channels=track_channels,
-                        store_upload=branch_info.get('upload'))
+                    changed, updated_dict, changes = (
+                        self.lpt.diff_charm_recipe(
+                            recipe=lp_recipe,
+                            auto_build=branch_info.get('auto-build'),
+                            auto_build_channels=branch_info.get(
+                                'build-channels'),
+                            build_path=branch_info.get('build-path', None),
+                            store_channels=track_channels,
+                            store_upload=branch_info.get('upload')))
 
                     all_recipes[recipe_name] = {
                         'exists': True,
@@ -398,8 +414,8 @@ class CharmProject:
                         'recipe_name': recipe_name,
                         'branch_info': branch_info,
                         'lp_branch': lp_branch,
-                        'lp_team': lp_team,
-                        'lp_project': lp_project,
+                        'lp_team': self.lp_team,
+                        'lp_project': self.lp_project,
                         'store_name': self.charmhub_name,
                         'channels': track_channels
                     }
@@ -414,29 +430,26 @@ class CharmProject:
         }
 
     def print_diff(self,
-                   lpt: 'LaunchpadTools',
                    detail: bool = False,
                    file: io.TextIOWrapper = sys.stdout) -> None:
         """Print a diff between desired config and actual config.
 
         :param detail: print detailed output if True
-        :param lpt: the launchpad tools object to do things in launchpad.
         :param file: where to send the output.
         """
         logger.info(f'Printing diff for: {self.name}')
-        lp_team = lpt.get_lp_team_for(self.team)
         try:
-            lp_project = lpt.get_lp_project_for(self.launchpad_project)
+            self.lp_project
         except KeyError:
             print(f"{self.name[:35]:35} -- Project doesn't exist!!: "
                   f"{self.launchpad_project}", file=file)
             return
         try:
-            lp_repo = self._get_git_repository(lpt, lp_team, lp_project)
+            self.lp_repo
         except ValueError:
             print(f"{self.name[:35]:35} -- No repo configured!", file=file)
             return
-        info = self._calc_recipes_for_repo(lpt, lp_repo)
+        info = self._calc_recipes_for_repo()
         any_changes = (all(not(r['exists']) or r['changed']
                            for r in info['in_config_recipes'].values()))
         change_text = ("Changes required"
@@ -807,11 +820,14 @@ class GroupConfig:
     settings.
     """
 
-    def __init__(self, files: List[pathlib.Path] = None) -> None:
+    def __init__(self,
+                 lpt: 'LaunchpadTools',
+                 files: List[pathlib.Path] = None) -> None:
         """Configure the GroupConfig object.
 
         :param files: the list of files to load config from.
         """
+        self.lpt = lpt
         self.charm_projects: Dict[str, 'CharmProject'] = (
             collections.OrderedDict())
         if files is not None:
@@ -858,7 +874,7 @@ class GroupConfig:
                 raise ValueError(
                     f"Project config for '{name}' already exists.")
         else:
-            self.charm_projects[name] = CharmProject(project_config)
+            self.charm_projects[name] = CharmProject(project_config, self.lpt)
 
     def projects(self, select: Optional[List[str]]) -> Iterator[CharmProject]:
         """Generator returns a list of projects."""
@@ -958,7 +974,6 @@ def show_main(args):
 
 
 def list_main(args: argparse.Namespace,
-              lpt: LaunchpadTools,
               gc: GroupConfig,
               ) -> None:
     """List the charm projects (and repos) that are in the configuration.
@@ -966,7 +981,6 @@ def list_main(args: argparse.Namespace,
     This simply lists the charm projects in the GlobalConfig.
 
     :param args: the arguments parsed from the command line.
-    :param lpt: A logged in LaunchpadTools object.
     :para gc: The GroupConfig; i.e. all the charms and their config.
     """
     def _heading():
@@ -983,17 +997,14 @@ def list_main(args: argparse.Namespace,
 
 
 def diff_main(args: argparse.Namespace,
-              lpt: LaunchpadTools,
               gc: GroupConfig,
               ) -> None:
     """Show a diff between the requested LP config and current config.
 
     :param args: the arguments parsed from the command line.
-    :param lpt: A logged in LaunchpadTools object.
     :para gc: The GroupConfig; i.e. all the charms and their config.
     """
     for cp in gc.projects(select=args.charms):
-        cp.print_diff(lpt, args.detail)
 
 
 def config_main(args: argparse.Namespace,
@@ -1001,10 +1012,10 @@ def config_main(args: argparse.Namespace,
                 gc: GroupConfig,
                 ) -> None:
     raise NotImplementedError()
+        cp.print_diff(args.detail)
 
 
 def sync_main(args: argparse.Namespace,
-              lpt: LaunchpadTools,
               gc: GroupConfig,
               ) -> None:
     """Do the sync from the config to the projects defined in config.
@@ -1014,7 +1025,6 @@ def sync_main(args: argparse.Namespace,
     recipes are sdet up for that project in launchpad.
 
     :param args: the arguments parsed from the command line.
-    :param lpt: A logged in LaunchpadTools object.
     :para gc: The GroupConfig; i.e. all the charms and their config.
     """
     if not args.confirmed:
@@ -1022,8 +1032,8 @@ def sync_main(args: argparse.Namespace,
             "'sync' command issues, but --i-really-mean-it flag not used. "
             "Abandoning.")
     for charm_project in gc.projects(select=args.charms):
-        charm_project.ensure_git_repository(lpt)
-        charm_project.ensure_charm_recipes(lpt)
+        charm_project.ensure_git_repository()
+        charm_project.ensure_charm_recipes()
 
 
 def setup_logging(loglevel: str) -> None:
@@ -1048,11 +1058,11 @@ def main():
 
     lpt = LaunchpadTools()
 
-    gc = GroupConfig()
+    gc = GroupConfig(lpt)
     gc.load_files(files)
 
     # Call the function associated with the sub-command.
-    args.func(args, lpt, gc)
+    args.func(args, gc)
 
 
 if __name__ == '__main__':
