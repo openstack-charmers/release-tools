@@ -14,7 +14,6 @@ from launchpadtools import LaunchpadTools, TypeLPObject
 logger = logging.getLogger(__name__)
 
 
-
 def setup_logging(loglevel: str) -> None:
     """Sets up some basic logging."""
     logger.setLevel(getattr(logging, loglevel, 'ERROR'))
@@ -147,21 +146,28 @@ class CharmProject:
         self._add_branches(config.get('branches', {}))
 
     @property
-    def lp_team(self):
+    def lp_team(self) -> TypeLPObject:
+        """Return the launchpadlib object for the team.
+
+        This is cached as it's used several times and is quite expensive to
+        produce.
+        """
         if self._lp_team:
             return self._lp_team
         self._lp_team = self.lpt.get_lp_team_for(self.team)
         return self._lp_team
 
     @property
-    def lp_project(self):
+    def lp_project(self) -> TypeLPObject:
+        """Return the launchpadlib object for the project."""
         if self._lp_project:
             return self._lp_project
         self._lp_project = self.lpt.get_lp_project_for(self.launchpad_project)
         return self._lp_project
 
     @property
-    def lp_repo(self):
+    def lp_repo(self) -> TypeLPObject:
+        """Return the launchpadlib object for the repository, if configured."""
         if self._lp_repo:
             return self._lp_repo
         self._lp_repo = self.lpt.get_git_repository(
