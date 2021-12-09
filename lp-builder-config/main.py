@@ -484,6 +484,39 @@ class CharmProject:
                     print(f'    - {branch[len("refs/heads/"):]}', file=file)
         # pprint.pprint(info)
 
+    def show_lauchpad_config(self,
+                             file: io.TextIOWrapper = sys.stdout
+                             ) -> None:
+        """Print out the launchpad config for the charms, if any.
+        """
+        logger.info(f'Printing launchpad info for: {self.name}')
+        try:
+            self.lp_project
+        except KeyError:
+            print(f"{self.name[:35]:35} -- Project doesn't exist!!: "
+                  f"{self.launchpad_project}", file=file)
+            return
+        print(f"{self.name}:", file=file)
+        print(f" * launchpad project: {self.launchpad_project}", file=file)
+        try:
+            self.lp_repo
+        except ValueError:
+            print(f"{self.name[:35]:35} -- No repo configured!", file=file)
+            return
+        print(f" * repo: {self.repository}")
+        info = self._calc_recipes_for_repo()
+        if info['in_config_recipes']:
+            print(" * Recipes configured in launchpad matching channels:",
+                  file=file)
+            for name, detail in info['in_config_recipes'].items():
+                branch = (
+                    detail['current_recipe'].git_ref.path[len('refs/heads/'):])
+                channels = ', '.join(detail['current_recipe'].store_channels)
+                print(f"   - {name[:40]:40} - "
+                      f"git branch: {branch[:20]:20} "
+                      f"channels: {channels}",
+                      file=file)
+
     @staticmethod
     def _group_channels(channels: List[str],
                         ) -> List[Tuple[str, List[str]]]:
@@ -928,7 +961,7 @@ def parse_args() -> argparse.Namespace:
     subparser = parser.add_subparsers(required=True, dest='cmd')
     show_command = subparser.add_parser(
         'show',
-        help=('The "show" commands shows the current configuration for the '
+        help=('The "show" command shows the current configuration for the '
               'charm recipes as defined in launchpad.'))
     show_command.set_defaults(func=show_main)
     list_command = subparser.add_parser(
@@ -969,8 +1002,16 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
-def show_main(args):
-    raise NotImplementedError()
+def show_main(args: argparse.Namespace,
+              gc: GroupConfig,
+              ) -> None:
+    """Show a the charm config in launchpad, if any for the group config.
+
+    :param args: the arguments parsed from the command line.
+    :para gc: The GroupConfig; i.e. all the charms and their config.
+    """
+    for cp in gc.projects(select=args.charms):
+        cp.show_lauchpad_config()
 
 
 def list_main(args: argparse.Namespace,
