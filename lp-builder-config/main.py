@@ -980,10 +980,6 @@ def parse_args() -> argparse.Namespace:
                               action='store_true',
                               default=False,
                               help="Add detail to the output.")
-    config_command = subparser.add_parser(
-        'config',
-        help=("Show the config that would be applied."))
-    config_command.set_defaults(func=config_main)
     sync_command = subparser.add_parser(
         'sync',
         help=('Sync the config to launchpad. Effectively, this takes the diff '
@@ -1046,13 +1042,6 @@ def diff_main(args: argparse.Namespace,
     :para gc: The GroupConfig; i.e. all the charms and their config.
     """
     for cp in gc.projects(select=args.charms):
-
-
-def config_main(args: argparse.Namespace,
-                lpt: LaunchpadTools,
-                gc: GroupConfig,
-                ) -> None:
-    raise NotImplementedError()
         cp.print_diff(args.detail)
 
 
