@@ -5,4 +5,5 @@
 ceph-dashboard
 ceph-iscsi
 manila-netapp
+nova-compute-nvidia-vgpu
 openstack-loadbalancer
