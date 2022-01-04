@@ -251,7 +251,6 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args(sys.argv[1:])
-    logger.setLevel(logging.INFO)
     logger.setLevel(getattr(logging, args.loglevel, 'INFO'))
 
     if args.channel:
