@@ -2,10 +2,11 @@
 # Copyright 2021, Canonical
 #
 import logging
-from typing import (Any, Dict, Iterator, List, Tuple, Optional)
+from typing import (Any, Dict, List, Optional, Tuple)
 import sys
 
 import lazr
+import lazr.restfulclient.resource
 
 from launchpadlib.uris import lookup_service_root
 from launchpadlib.launchpad import Launchpad
@@ -43,7 +44,7 @@ class LaunchpadTools:
 
         :param team_str: the team to return the team object for.
         """
-        return self.lp.people[team_str]
+        return self.lp.people[team_str]  # type: ignore
 
     def get_lp_project_for(self, charm_name: str) -> TypeLPObject:
         """Return the project object for a project name.
@@ -51,7 +52,7 @@ class LaunchpadTools:
         :param charm_name: the project name to return the project object for.
         :raises KeyError: if the project doesn't exist.
         """
-        return self.lp.projects[charm_name]
+        return self.lp.projects[charm_name]  # type: ignore
 
     def set_default_repository(self,
                                lp_project: TypeLPObject,
@@ -62,10 +63,13 @@ class LaunchpadTools:
         :param lp_project: the LP project object to configure.
         :param lp_repo: the LP repository object to use as a default.
         """
-        self.lp.git_repositories.setDefaultRepository(
+        self.lp.git_repositories.setDefaultRepository(  # type: ignore
             target=lp_project, repository=lp_repo)
 
-    def get_git_repository(self, owner: TypeLPObject, project: TypeLPObject):
+    def get_git_repository(self,
+                           owner: TypeLPObject,
+                           project: TypeLPObject
+        ) -> TypeLPObject:
         """Returns the reference to the Launchpad git repository by owner and
         project.
 
@@ -84,7 +88,7 @@ class LaunchpadTools:
                      project.name, owner)
         return next(
             filter(lambda r: r.owner == owner,
-                   self.lp.git_repositories.getRepositories(target=project)),
+                   self.lp.git_repositories.getRepositories(target=project)), # type: ignore
             None)
 
     def import_repository(self,
@@ -180,7 +184,7 @@ class LaunchpadTools:
                           build_path: Optional[str] = None,
                           store_channels: Optional[List[str]] = None,
                           store_upload: bool = False,
-                          ) -> (bool, Dict[str, Any], List[str]):
+                          ) -> Tuple[bool, Dict[str, Any], List[str]]:
         """Returns Updates the charm_recipe to match the required config.
 
         :param recipe: the charm recipe to update
@@ -246,4 +250,4 @@ class LaunchpadTools:
             pass
         logger.debug("Creating recipe with the following args: %s",
                      recipe_args)
-        self.lp.charm_recipes.new(**recipe_args)
+        return self.lp.charm_recipes.new(**recipe_args)

@@ -3,9 +3,8 @@
 #
 
 import collections
-import io
 import logging
-from typing import (Any, Dict, Iterator, List, Tuple, Optional)
+from typing import (Any, Dict, List, Tuple, IO)
 import sys
 
 from launchpadtools import LaunchpadTools, TypeLPObject
@@ -104,22 +103,22 @@ class CharmProject:
           - xena/edge
     """
 
-    def __init__(self, config, lpt: 'LaunchpadTools'):
+    def __init__(self, config: Dict[str, Any], lpt: 'LaunchpadTools'):
         self.lpt = lpt
-        self.name: str = config.get('name')
-        self.team: str = config.get('team')
+        self.name: str = config.get('name')  # type: ignore
+        self.team: str = config.get('team')  # type: ignore
         self._lp_team = None
-        self.charmhub_name: str = config.get('charmhub')
-        self.launchpad_project: str = config.get('launchpad')
+        self.charmhub_name: str = config.get('charmhub')  # type: ignore
+        self.launchpad_project: str = config.get('launchpad')  # type: ignore
         self._lp_project = None
-        self.repository: str = config.get('repository')
+        self.repository: str = config.get('repository')  # type: ignore
         self._lp_repo = None
 
-        self.branches: Dict[str, str] = {}
+        self.branches: Dict[str, Dict[str, Any]] = {}
 
         self._add_branches(config.get('branches', {}))
 
-    def _add_branches(self, branches_spec: Dict[str, str]) -> None:
+    def _add_branches(self, branches_spec: Dict[str, Dict]) -> None:
         default_branch_info = {
             'auto-build': True,
             'upload': True,
@@ -174,7 +173,7 @@ class CharmProject:
             self.lp_team, self.lp_project)
         return self._lp_repo
 
-    def ensure_git_repository(self) -> None:
+    def ensure_git_repository(self) -> TypeLPObject:
         """Ensure that launchpad project git repository exists.
 
         Configures launchpad project repositories for self (the charm)
@@ -297,7 +296,7 @@ class CharmProject:
             elif not(state['exists']):
                 logger.info('Creating charm recipe for %s', recipe_name)
                 build_from = state['build_from']
-                self.lpt.create_charm_recipe(
+                lp_recipe = self.lpt.create_charm_recipe(
                     recipe_name=recipe_name,
                     # branch_info=branch_info,
                     branch_info=build_from['branch_info'],
@@ -346,7 +345,7 @@ class CharmProject:
 
             # Strip off refs/head/. And no / allowed, so we'll replace with _
             branch_name = lp_branch.path[len('refs/heads/'):].replace('/', '-')
-            recipe_format = branch_info.get('recipe-name')
+            recipe_format = branch_info['recipe-name']
             upload = branch_info.get('upload', True)
             # Get the channels; we have to do a separate recipe for each
             # channel that doesn't share the same track.  Reminder: channels
@@ -368,12 +367,13 @@ class CharmProject:
                     changed, updated_dict, changes = (
                         self.lpt.diff_charm_recipe(
                             recipe=lp_recipe,
-                            auto_build=branch_info.get('auto-build'),
+                            # auto_build=branch_info.get('auto-build'),
+                            auto_build=branch_info['auto-build'],
                             auto_build_channels=branch_info.get(
-                                'build-channels'),
+                                'build-channels', False),
                             build_path=branch_info.get('build-path', None),
                             store_channels=track_channels,
-                            store_upload=branch_info.get('upload')))
+                            store_upload=branch_info['upload']))
 
                     all_recipes[recipe_name] = {
                         'exists': True,
@@ -412,7 +412,7 @@ class CharmProject:
 
     def print_diff(self,
                    detail: bool = False,
-                   file: io.TextIOWrapper = sys.stdout) -> None:
+                   file: IO = sys.stdout) -> None:
         """Print a diff between desired config and actual config.
 
         :param detail: print detailed output if True
@@ -451,13 +451,13 @@ class CharmProject:
                     print(f"   - {recipe_name}", file=file)
             if any_changes:
                 print(" * recipes that require changes:", file=file)
-                for recipe_name, detail in info['in_config_recipes'].items():
-                    if not(detail['exists']):
+                for recipe_name, detail_ in info['in_config_recipes'].items():
+                    if not(detail_['exists']):
                         print(f"    - {recipe_name:35} : Needs creating.",
                               file=file)
-                    elif detail['changed']:
+                    elif detail_['changed']:
                         print(f"    - {recipe_name:35} : "
-                              f"{','.join(detail['changes'])}", file=file)
+                              f"{','.join(detail_['changes'])}", file=file)
             if info['missing_branches_in_repo']:
                 print(" * missing branches in config but not in repo:",
                       file=file)
@@ -466,7 +466,7 @@ class CharmProject:
         # pprint.pprint(info)
 
     def show_lauchpad_config(self,
-                             file: io.TextIOWrapper = sys.stdout
+                             file: IO = sys.stdout
                              ) -> None:
         """Print out the launchpad config for the charms, if any.
         """
@@ -541,6 +541,7 @@ class CharmProject:
                 bname = branch
             channels = ", ".join(spec['channels'])
             branches.append(f"{bname} -> {channels}")
+        branches_str = ''
         if branches:
             branches_str = f"{'branches':>{width}}: {branches[0]}"
             for br in branches[1:]:

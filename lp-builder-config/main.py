@@ -24,18 +24,17 @@ and how to manage it.
 
 import argparse
 import collections
+import collections.abc
 import logging
 import os
-import io
 import pathlib
 import pprint
 import sys
-from typing import (Any, Dict, Iterator, List, Tuple, Optional)
+from typing import (Any, Dict, Iterator, List, Optional)
 import yaml
 
 from launchpadtools import (
     LaunchpadTools,
-    TypeLPObject,
     setup_logging as lpt_setup_logging,
 )
 from charm_project import (
@@ -49,7 +48,7 @@ logger = logging.getLogger(__name__)
 CWD = os.path.dirname(os.path.realpath(__file__))
 
 
-def check_config_dir_exists(dir_: pathlib.Path) -> None:
+def check_config_dir_exists(dir_: pathlib.Path) -> pathlib.Path:
     """Validate that the config dir_ exists.
 
     Raises FileNotFoundError if it doesn't.
@@ -82,9 +81,9 @@ def get_group_config_filenames(config_dir: pathlib.Path,
     """
     # Load the various project group configurations
     if not project_group_names:
-        files = list(config_dir.glob('*.yaml'))
+        files = list(config_dir.glob(f'*{extension}'))
     else:
-        files = [config_dir / f'{group}.yaml' for group in project_group_names]
+        files = [config_dir / f'{group}{extension}' for group in project_group_names]
         # validate that the files actually exist
         for file in files:
             if not(file.exists()):
@@ -148,7 +147,7 @@ class GroupConfig:
         :raises: ValueError if merge is false and the charm project already
             exists.
         """
-        name = project_config.get('name')
+        name: str = project_config.get('name')  # type: ignore
         if name in self.charm_projects:
             if merge:
                 self.charm_projects[name].merge(project_config)
