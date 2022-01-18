@@ -90,7 +90,7 @@ projects:
   - name: OpenStack Glance Simplestreams Sync Charm
     charmhub: glance-simplestreams-sync
     launchpad: charm-glance-simplestreams-sync
-    repository: https://opendev.org/openstack/charm-glance-simplstreams-sync.git
+    repository: https://opendev.org/openstack/charm-glance-simplestreams-sync.git
 
   - name: Gnocchi Charm
     charmhub: gnocchi
@@ -110,17 +110,17 @@ projects:
   - name: OpenStack Keystone LDAP Charm
     charmhub: keystone-ldap
     launchpad: charm-keystone-ldap
-    repository: https://opendev.org/openstack/charm-keystone-designate.git
+    repository: https://opendev.org/openstack/charm-keystone-ldap.git
 
   - name: OpenStack Manila Charm
     charmhub: manila
     launchpad: charm-manila
     repository: https://opendev.org/openstack/charm-manila.git
 
-  - name: OpenStack Manila Generic Charm
-    charmhub: manila-generic
-    launchpad: charm-manila-generic
-    repository: https://opendev.org/openstack/charm-manila-generic.git
+  # - name: OpenStack Manila Generic Charm
+  #  charmhub: manila-generic
+  #  launchpad: charm-manila-generic
+  #  repository: https://opendev.org/openstack/charm-manila-generic.git
 
   - name: OpenStack Manila Ganesha Charm
     charmhub: manila-ganesha
@@ -311,10 +311,10 @@ projects:
     launchpad: charm-neutron-api-plugin-ovn
     repository: https://opendev.org/openstack/charm-neutron-api-plugin-ovn.git
 
-  - name: OpenStack Neutron Dynamic Routing Charm
-    charmhub: neutron-dynamic-routing
-    launchpad: charm-neutron-dynamic-routing
-    repository: https://opendev.org/openstack/charm-neutron-dynamic-routing.git
+  # - name: OpenStack Neutron Dynamic Routing Charm
+  #  charmhub: neutron-dynamic-routing
+  #  launchpad: charm-neutron-dynamic-routing
+  #  repository: https://opendev.org/openstack/charm-neutron-dynamic-routing.git
 
   - name: OpenStack Octavia Dashboard Charm
     charmhub: octavia-dashboard
