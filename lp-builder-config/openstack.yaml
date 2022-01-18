@@ -1,0 +1,333 @@
+# OpenStack Charms
+defaults:
+  team: openstack-charmers
+  branches:
+    master:
+      channels:
+        - latest/edge
+        - yoga/edge
+    stable/queens:
+      channels:
+        - queens/edge
+    stable/rocky:
+      channels:
+        - rocky/edge
+    stable/stein:
+      channels:
+        - stein/edge
+    stable/train:
+      channels:
+        - train/edge
+    stable/ussuri:
+      channels:
+        - ussuri/edge
+    stable/victoria:
+      channels:
+        - victoria/edge
+    stable/wallaby:
+      channels:
+        - wallaby/edge
+    stable/xena:
+      channels:
+        - xena/edge
+
+projects:
+  - name: OpenStack Aodh Charm
+    charmhub: aodh
+    launchpad: charm-aodh
+    repository: https://opendev.org/openstack/charm-aodh.git
+
+  - name: OpenStack Barbican Charm
+    charmhub: barbican
+    launchpad: charm-barbican
+    repository: https://opendev.org/openstack/charm-barbican.git
+
+  - name: OpenStack Barbican SoftHSM Charm
+    charmhub: barbican-softhsm
+    launchpad: charm-barbican-softhsm
+    repository: https://opendev.org/openstack/charm-barbican-softhsm.git
+
+  - name: OpenStack Ceilometer Charm
+    charmhub: ceilometer
+    launchpad: charm-ceilometer
+    repository: https://opendev.org/openstack/charm-ceilometer.git
+
+  - name: OpenStack Cinder Charm
+    charmhub: cinder
+    launchpad: charm-cinder
+    repository: https://opendev.org/openstack/charm-cinder.git
+
+  - name: OpenStack Cinder Backup Charm
+    charmhub: cinder-backup
+    launchpad: charm-cinder-backup
+    repository: https://opendev.org/openstack/charm-cinder-backup.git
+
+  - name: OpenStack Cinder Ceph Charm
+    charmhub: cinder-ceph
+    launchpad: charm-cinder-ceph
+    repository: https://opendev.org/openstack/charm-cinder-ceph.git
+
+  - name: OpenStack Dashboard Charm
+    charmhub: openstack-dashboard
+    launchpad: charm-openstack-dashboard
+    repository: https://opendev.org/openstack/charm-openstack-dashboard.git
+
+  - name: OpenStack Designate Charm
+    charmhub: designate
+    launchpad: charm-desginate
+    repository: https://opendev.org/openstack/charm-designate.git
+
+  - name: OpenStack Designate Bind Charm
+    charmhub: designate-bind
+    launchpad: charm-designate-bind
+    repository: https://opendev.org/openstack/charm-designate-bind.git
+
+  - name: OpenStack Glance Charm
+    charmhub: glance
+    launchpad: charm-glance
+    repository: https://opendev.org/openstack/charm-glance.git
+
+  - name: OpenStack Glance Simplestreams Sync Charm
+    charmhub: glance-simplestreams-sync
+    launchpad: charm-glance-simplestreams-sync
+    repository: https://opendev.org/openstack/charm-glance-simplstreams-sync.git
+
+  - name: Gnocchi Charm
+    charmhub: gnocchi
+    launchpad: charm-gnocchi
+    repository: https://opendev.org/openstack/charm-gnocchi.git
+
+  - name: OpenStack Heat Charm
+    charmhub: heat
+    launchpad: charm-heat
+    repository: https://opendev.org/openstack/charm-heat.git
+
+  - name: OpenStack Keystone Charm
+    charmhub: keystone
+    launchpad: charm-keystone
+    repository: https://opendev.org/openstack/charm-keystone.git
+
+  - name: OpenStack Keystone LDAP Charm
+    charmhub: keystone-ldap
+    launchpad: charm-keystone-ldap
+    repository: https://opendev.org/openstack/charm-keystone-designate.git
+
+  - name: OpenStack Manila Charm
+    charmhub: manila
+    launchpad: charm-manila
+    repository: https://opendev.org/openstack/charm-manila.git
+
+  - name: OpenStack Manila Generic Charm
+    charmhub: manila-generic
+    launchpad: charm-manila-generic
+    repository: https://opendev.org/openstack/charm-manila-generic.git
+
+  - name: OpenStack Manila Ganesha Charm
+    charmhub: manila-ganesha
+    launchpad: charm-manila-ganesha
+    repository: https://opendev.org/openstack/charm-manila-ganesha.git
+
+  - name: OpenStack Masakari Charm
+    charmhub: masakari
+    launchpad: charm-masakari
+    repository: https://opendev.org/openstack/charm-masakari.git
+
+  - name: OpenStack Masakari Monitors Charm
+    charmhub: masakari-monitors
+    launchpad: charm-masakari-monitors
+    repository: https://opendev.org/openstack/charm-masakari-monitors.git
+
+#  - name: OpenStack Mistral Charm
+#    charmhub: mistral
+#    launchpad: charm-mistral
+#    repository: https://opendev.org/openstack/charm-mistral.git
+#
+#  - name: OpenStack Murano Charm
+#    charmhub: murano
+#    launchpad: charm-murano
+#    repository: https://opendev.org/openstack/charm-murano.git
+
+  - name: OpenStack Neutron API Charm
+    charmhub: neutron-api
+    launchpad: charm-neutron-api
+    repository: https://opendev.org/openstack/charm-neutron-api.git
+
+  - name: OpenStack Neutron API Open Daylight Charm
+    charmhub: neutron-api-odl
+    launchpad: charm-neutron-api-odl
+    repository: https://opendev.org/openstack/charm-neutron-api-odl.git
+
+  - name: OpenStack Neutron Gateway Charm
+    charmhub: neutron-gateway
+    launchpad: charm-neutron-gateway
+    repository: https://opendev.org/openstack/charm-neutron-gateway.git
+
+  - name: OpenStack Neutron Open vSwitch Charm
+    charmhub: neutron-openvswitch
+    launchpad: charm-neutron-openvswitch
+    repository: https://opendev.org/openstack/charm-neutron-openvswitch.git
+
+  - name: OpenStack Nova Cloud Controller Charm
+    charmhub: nova-cloud-controller
+    launchpad: charm-nova-cloud-controller
+    repository: https://opendev.org/openstack/charm-nova-cloud-controller.git
+
+  - name: OpenStack Nova Compute Charm
+    charmhub: nova-compute
+    launchpad: charm-nova-compute
+    repository: https://opendev.org/openstack/charm-nova-compute.git
+
+  - name: OpenStack Nova Cell Controller Charm
+    charmhub: nova-cell-controller
+    launchpad: charm-nova-cell-controller
+    repository: https://opendev.org/openstack/charm-nova-cell-controller.git
+
+#  - name: OpenStack Nova Compute Proxy Charm
+#    charmhub: nova-compute-proxy
+#    launchpad: charm-nova-compute-proxy
+#    repository: https://opendev.org/openstack/charm-nova-compute-proxy.git
+
+  - name: OpenStack Octavia Charm
+    charmhub: octavia
+    launchpad: charm-octavia
+    repository: https://opendev.org/openstack/charm-octavia.git
+
+  - name: OpenStack Placement charm
+    charmhub: placement
+    launchpad: charm-placement
+    repository: https://opendev.org/openstack/charm-placement.git
+
+#  - name: OpenStack Tempest Charm
+#    charmhub: tempest
+#    launchpad: charm-tempest
+#    repository: https://opendev.org/openstack/charm-tempest.git
+#
+#  - name: OpenStack Trove Charm
+#    charmhub: trove
+#    launchpad: charm-trove
+#    repository: https://opendev.org/openstack/charm-trove.git
+
+#  - name: OpenStack Panko Charm
+#    charmhub: panko
+#    launchpad: charm-panko
+#    repository: https://opendev.org/openstack/charm-panko.git
+
+  - name: OpenStack Swift Proxy Charm
+    charmhub: swift-proxy
+    launchpad: charm-swift-proxy
+    repository: https://opendev.org/openstack/charm-swift-proxy.git
+
+  - name: OpenStack Swift Storage Charm
+    charmhub: swift-storage
+    launchpad: charm-swift-storage
+    repository: https://opendev.org/openstack/charm-swift-storage.git
+
+  - name: OpenStack Watcher Charm
+    # Note: watcher is not promulgated
+    charmhub: openstack-charmers-next-watcher
+    launchpad: charm-watcher
+    repository: https://opendev.org/openstack/charm-watcher.git
+
+  - name: OpenStack Watcher Dashboard Charm
+    # Note: watcher-dashboard is not promulgated
+    charmhub: openstack-charmers-next-watcher-dashboard
+    launchpad: charm-watcher-dashboard
+    repository: https://opendev.org/openstack/charm-watcher-dashboard.git
+
+  - name: OpenStack Cinder Backup Swift Proxy Charm
+    charmhub: cinder-backup-swift-proxy
+    launchpad: charm-cinder-backup-swift-proxy
+    repository: https://opendev.org/openstack/charm-cinder-backup-swift-proxy.git
+
+  - name: OpenStack Cinder LVM Charm
+    charmhub: cinder-lvm
+    launchpad: charm-cinder-lvm
+    repository: https://opendev.org/openstack/charm-cinder-lvm.git
+
+  - name: OpenStack Cinder NetApp Charm
+    charmhub: cinder-netapp
+    launchpad: charm-cinder-netapp
+    repository: https://opendev.org/openstack/charm-cinder-netapp.git
+
+  - name: OpenStack Ironic API Charm
+    # Note: Ironic API is not promulgated
+    charmhub: openstack-charmers-next-ironic-api
+    launchpad: charm-ironic-api
+    repository: https://opendev.org/openstack/charm-ironic-api.git
+
+  - name: OpenStack Ironic Conductor Charm
+    # Note: Ironic Conductor is not promulgated
+    charmhub: openstack-charmers-next-ironic-conductor
+    launchpad: charm-ironic-conductor
+    repository: https://opendev.org/openstack/charm-ironic-conductor.git
+
+  - name: OpenStack Keystone Kerberos Charm
+    charmhub: keystone-kerberos
+    launchpad: charm-keystone-kerberos
+    repository: https://opendev.org/openstack/charm-keystone-kerberos.git
+
+  - name: OpenStack Keystone SAML Mellon Charm
+    charmhub: keystone-saml-mellon
+    launchpad: charm-keystone-saml-mellon
+    repository: https://opendev.org/openstack/charm-keystone-saml-mellon.git
+
+  - name: OpenStack Magnum Charm
+    # Note: Magnum is not promulgated
+    charmhub: openstack-charmers-next-magnum
+    launchpad: charm-magnum
+    repository: https://opendev.org/openstack/charm-magnum.git
+
+  - name: OpenStack Magnum Dashboard Charm
+    # Note: Magnum Dashboard is not promulgated
+    charmhub: openstack-charmers-next-magnum-dashboard
+    launchpad: charm-magnum-dashboard
+    repository: https://opendev.org/openstack/charm-magnum-dashboard.git
+
+  - name: OpenStack Manila Dashboard Charm
+    charmhub: manila-dashboard
+    launchpad: charm-manila-dashboard
+    repository: https://opendev.org/openstack/charm-manila-dashboard.git
+
+  - name: OpenStack Manila NetApp Charm
+    # Note: Manila NetApp is not promulgated
+    charmhub: openstack-charmers-next-manila-netapp
+    launchpad: charm-manila-netapp
+    repository: https://opendev.org/openstack/charm-manila-netapp.git
+
+  - name: OpenStack Neutron API Arista Plugin charm
+    # Note: Arista plugin charm is not promulgated
+    charmhub: openstack-charmers-next-neutron-api-plugin-arista
+    launchpad: charm-neutron-api-plugin-arista
+    repository: https://opendev.org/openstack/charm-neutron-api-plugin-arista.git
+
+  - name: OpenStack Neutron API Ironic Plugin Charm
+    # Note: Ironic charms are not promulgated
+    charmhub: openstack-charmers-next-neutron-api-plugin-ironic
+    launchpad: charm-neutron-api-plugin-ironic
+    repository: https://opendev.org/openstack/charm-neutron-api-plugin-ironic.git
+
+  - name: OpenStack Neutron API OVN Plugin Charm
+    charmhub: neutron-api-plugin-ovn
+    launchpad: charm-neutron-api-plugin-ovn
+    repository: https://opendev.org/openstack/charm-neutron-api-plugin-ovn.git
+
+  - name: OpenStack Neutron Dynamic Routing Charm
+    charmhub: neutron-dynamic-routing
+    launchpad: charm-neutron-dynamic-routing
+    repository: https://opendev.org/openstack/charm-neutron-dynamic-routing.git
+
+  - name: OpenStack Octavia Dashboard Charm
+    charmhub: octavia-dashboard
+    launchpad: charm-octavia-dashboard
+    repository: https://opendev.org/openstack/charm-octavia-dashboard.git
+
+  - name: OpenStack Octavia Disk-Image Retrofit Charm
+    charmhub: octavia-diskimage-retrofit
+    launchpad: charm-octavia-diskimage-retrofit
+    repository: https://opendev.org/openstack/charm-octavia-diskimage-retrofit.git
+
+  - name: OpenStack Loadbalancer Charm
+    # Note: loadbalancer charm is not promulgated
+    charmhub: openstack-charmers-next-openstack-loadbalancer
+    launchpad: charm-openstack-loadbalancer
+    repository: https://opendev.org/openstack/charm-openstack-loadbalancer.git

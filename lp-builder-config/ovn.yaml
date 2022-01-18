@@ -1,0 +1,36 @@
+# OVN Charms
+defaults:
+  team: openstack-charmers
+  branches:
+    master:
+      channels:
+        - latest/edge
+    stable/20.03:
+      channels:
+        - openstack-ussuri/edge
+        - openstack-victoria/edge
+        - 20.03/edge
+    stable/20.12:
+      channels:
+        - openstack-wallaby/edge
+        - 20.12/edge
+    stable/21.09:
+      channels:
+        - openstack-xena/edge
+        - 21.09/edge
+
+projects:
+  - name: OVN Central
+    charmhub: ovn-central
+    launchpad: charm-ovn-central
+    repository: https://opendev.org/x/charm-ovn-central.git
+
+  - name: OVN Dedicated Chassis
+    charmhub: ovn-dedicated-chassis
+    launchpad: charm-ovn-dedicated-chassis
+    repository: https://opendev.org/x/charm-ovn-dedicated-chassis.git
+
+  - name: OVN Chassis
+    charmhub: ovn-chassis
+    launchpad: charm-ovn-chassis
+    repository: https://opendev.org/x/charm-ovn-chassis.git
