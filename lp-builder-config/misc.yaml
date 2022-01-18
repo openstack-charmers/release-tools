@@ -100,7 +100,7 @@ projects:
     charmhub: vault
     launchpad: vault-charm
     team: vault-charmers
-    repo: https://opendev.org/openstack/charm-vault.git
+    repository: https://opendev.org/openstack/charm-vault.git
     branches:
       master:
         channels:
