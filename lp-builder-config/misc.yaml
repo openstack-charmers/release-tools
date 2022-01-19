@@ -19,8 +19,7 @@ projects:
           - 1.1.18/edge
 
   - name: Magpie Charm
-    # Note: Magpie charm is not promulgated
-    charmhub: openstack-charmers-next-magpie
+    charmhub: magpie
     launchpad: charm-magpie
     repository: https://opendev.org/openstack/charm-magpie.git
     branches:

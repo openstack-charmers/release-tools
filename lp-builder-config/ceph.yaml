@@ -28,8 +28,7 @@ defaults:
 
 projects:
   - name: Ceph Dashboard Charm
-    # Note: ceph-dashboard has not been promulgated
-    charmhub: openstack-charmers-next-ceph-dashboard
+    charmhub: ceph-dashboard
     launchpad: charm-ceph-dashboard
     repository: https://opendev.org/openstack/charm-ceph-dashboard.git
 

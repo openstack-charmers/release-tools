@@ -42,10 +42,11 @@ projects:
     launchpad: charm-barbican
     repository: https://opendev.org/openstack/charm-barbican.git
 
-  - name: OpenStack Barbican SoftHSM Charm
-    charmhub: barbican-softhsm
-    launchpad: charm-barbican-softhsm
-    repository: https://opendev.org/openstack/charm-barbican-softhsm.git
+  # disabled as no longer supported
+  # - name: OpenStack Barbican SoftHSM Charm
+  #  charmhub: barbican-softhsm
+  #  launchpad: charm-barbican-softhsm
+  #  repository: https://opendev.org/openstack/charm-barbican-softhsm.git
 
   - name: OpenStack Ceilometer Charm
     charmhub: ceilometer
@@ -152,10 +153,11 @@ projects:
     launchpad: charm-neutron-api
     repository: https://opendev.org/openstack/charm-neutron-api.git
 
-  - name: OpenStack Neutron API Open Daylight Charm
-    charmhub: neutron-api-odl
-    launchpad: charm-neutron-api-odl
-    repository: https://opendev.org/openstack/charm-neutron-api-odl.git
+  # disabled as no longer supported.
+  # - name: OpenStack Neutron API Open Daylight Charm
+  #  charmhub: neutron-api-odl
+  #  launchpad: charm-neutron-api-odl
+  #  repository: https://opendev.org/openstack/charm-neutron-api-odl.git
 
   - name: OpenStack Neutron Gateway Charm
     charmhub: neutron-gateway
@@ -196,6 +198,26 @@ projects:
     charmhub: placement
     launchpad: charm-placement
     repository: https://opendev.org/openstack/charm-placement.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/train:
+        channels:
+          - train/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
 
 #  - name: OpenStack Tempest Charm
 #    charmhub: tempest
@@ -222,17 +244,19 @@ projects:
     launchpad: charm-swift-storage
     repository: https://opendev.org/openstack/charm-swift-storage.git
 
-  - name: OpenStack Watcher Charm
-    # Note: watcher is not promulgated
-    charmhub: openstack-charmers-next-watcher
-    launchpad: charm-watcher
-    repository: https://opendev.org/openstack/charm-watcher.git
+  # Temporarily disabled as don't know the plans for this charm?
+  # - name: OpenStack Watcher Charm
+  # Note: watcher is not promulgated
+  #  charmhub: openstack-charmers-next-watcher
+  #  launchpad: charm-watcher
+  #  repository: https://opendev.org/openstack/charm-watcher.git
 
-  - name: OpenStack Watcher Dashboard Charm
-    # Note: watcher-dashboard is not promulgated
-    charmhub: openstack-charmers-next-watcher-dashboard
-    launchpad: charm-watcher-dashboard
-    repository: https://opendev.org/openstack/charm-watcher-dashboard.git
+  # Temporarily disabled as don't know the plans for this charm?
+  #- name: OpenStack Watcher Dashboard Charm
+  # Note: watcher-dashboard is not promulgated
+  #  charmhub: openstack-charmers-next-watcher-dashboard
+  #  launchpad: charm-watcher-dashboard
+  #  repository: https://opendev.org/openstack/charm-watcher-dashboard.git
 
   - name: OpenStack Cinder Backup Swift Proxy Charm
     charmhub: cinder-backup-swift-proxy
@@ -250,14 +274,12 @@ projects:
     repository: https://opendev.org/openstack/charm-cinder-netapp.git
 
   - name: OpenStack Ironic API Charm
-    # Note: Ironic API is not promulgated
-    charmhub: openstack-charmers-next-ironic-api
+    charmhub: ironic-api
     launchpad: charm-ironic-api
     repository: https://opendev.org/openstack/charm-ironic-api.git
 
   - name: OpenStack Ironic Conductor Charm
-    # Note: Ironic Conductor is not promulgated
-    charmhub: openstack-charmers-next-ironic-conductor
+    charmhub: ironic-conductor
     launchpad: charm-ironic-conductor
     repository: https://opendev.org/openstack/charm-ironic-conductor.git
 
@@ -272,14 +294,12 @@ projects:
     repository: https://opendev.org/openstack/charm-keystone-saml-mellon.git
 
   - name: OpenStack Magnum Charm
-    # Note: Magnum is not promulgated
-    charmhub: openstack-charmers-next-magnum
+    charmhub: magnum
     launchpad: charm-magnum
     repository: https://opendev.org/openstack/charm-magnum.git
 
   - name: OpenStack Magnum Dashboard Charm
-    # Note: Magnum Dashboard is not promulgated
-    charmhub: openstack-charmers-next-magnum-dashboard
+    charmhub: magnum-dashboard
     launchpad: charm-magnum-dashboard
     repository: https://opendev.org/openstack/charm-magnum-dashboard.git
 
@@ -289,20 +309,17 @@ projects:
     repository: https://opendev.org/openstack/charm-manila-dashboard.git
 
   - name: OpenStack Manila NetApp Charm
-    # Note: Manila NetApp is not promulgated
-    charmhub: openstack-charmers-next-manila-netapp
+    charmhub: manila-netapp
     launchpad: charm-manila-netapp
     repository: https://opendev.org/openstack/charm-manila-netapp.git
 
   - name: OpenStack Neutron API Arista Plugin charm
-    # Note: Arista plugin charm is not promulgated
-    charmhub: openstack-charmers-next-neutron-api-plugin-arista
+    charmhub: neutron-api-plugin-arista
     launchpad: charm-neutron-api-plugin-arista
     repository: https://opendev.org/openstack/charm-neutron-api-plugin-arista.git
 
   - name: OpenStack Neutron API Ironic Plugin Charm
-    # Note: Ironic charms are not promulgated
-    charmhub: openstack-charmers-next-neutron-api-plugin-ironic
+    charmhub: neutron-api-plugin-ironic
     launchpad: charm-neutron-api-plugin-ironic
     repository: https://opendev.org/openstack/charm-neutron-api-plugin-ironic.git
 
@@ -310,6 +327,23 @@ projects:
     charmhub: neutron-api-plugin-ovn
     launchpad: charm-neutron-api-plugin-ovn
     repository: https://opendev.org/openstack/charm-neutron-api-plugin-ovn.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
 
   # - name: OpenStack Neutron Dynamic Routing Charm
   #  charmhub: neutron-dynamic-routing
@@ -327,7 +361,23 @@ projects:
     repository: https://opendev.org/openstack/charm-octavia-diskimage-retrofit.git
 
   - name: OpenStack Loadbalancer Charm
-    # Note: loadbalancer charm is not promulgated
-    charmhub: openstack-charmers-next-openstack-loadbalancer
+    charmhub: openstack-loadbalancer
     launchpad: charm-openstack-loadbalancer
     repository: https://opendev.org/openstack/charm-openstack-loadbalancer.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
