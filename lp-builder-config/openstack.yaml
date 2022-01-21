@@ -179,6 +179,11 @@ projects:
     launchpad: charm-nova-compute
     repository: https://opendev.org/openstack/charm-nova-compute.git
 
+  - name: OpenStack Nova Compute NVIDIA vGPU plugin charm
+    charmhub: nova-compute-nvidia-vgpu
+    launchpad: charm-nova-compute-nvidia-vgpu
+    repository: https://opendev.org/openstack/charm-nova-compute-nvidia-vgpu.git
+
   - name: OpenStack Nova Cell Controller Charm
     charmhub: nova-cell-controller
     launchpad: charm-nova-cell-controller
