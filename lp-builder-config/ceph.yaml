@@ -37,6 +37,11 @@ projects:
     launchpad: charm-ceph-fs
     repository: https://opendev.org/openstack/charm-ceph-fs.git
 
+  - name: Ceph iSCSI Charm
+    charmhub: ceph-iscsi
+    launchpad: charm-ceph-iscsi
+    repository: https://opendev.org/openstack/charm-ceph-iscsi.git
+
   - name: Ceph Monitor Charm
     charmhub: ceph-mon
     launchpad: charm-ceph-mon
