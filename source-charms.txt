@@ -6,9 +6,7 @@ ceph-rbd-mirror
 cinder-backup-swift-proxy
 cinder-lvm
 cinder-netapp
-cinder-nimblestorage
 cinder-purestorage
-cinder-solidfire
 designate
 designate-bind
 gnocchi

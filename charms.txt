@@ -15,9 +15,7 @@ cinder-backup-swift-proxy
 cinder-ceph
 cinder-lvm
 cinder-netapp
-cinder-nimblestorage
 cinder-purestorage
-cinder-solidfire
 designate
 designate-bind
 glance
