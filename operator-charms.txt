@@ -4,6 +4,8 @@
 
 ceph-dashboard
 ceph-iscsi
+cinder-nimblestorage
+cinder-solidfire
 manila-netapp
 nova-compute-nvidia-vgpu
 openstack-loadbalancer
