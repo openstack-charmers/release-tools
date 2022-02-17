@@ -175,6 +175,8 @@ def modify_channel(charms: List[str],
         for branch in branches:
             try:
                 for track in lp_config[_charm][branch]:
+                    if not ignore_tracks:
+                        return track
                     for ignore in ignore_tracks:
                         if track.startswith(ignore):
                             # ignore this track
