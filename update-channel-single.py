@@ -104,6 +104,7 @@ def modify_channel(charms: List[str],
                    channel: Optional[str],
                    branches: List[str],
                    ensure_charmhub_prefix: bool,
+                   ignore_tracks: List[str],
                    ) -> None:
     """Modify the candidate channel to the bundle as needed.
 
@@ -124,6 +125,10 @@ def modify_channel(charms: List[str],
     from the charm spec (as long as it matches one of the charms in
     :param:`charms`).
 
+    The :param:`ignore_tracks` argument is a list of tracks (with optional
+    /channel part) that will not be used. e.g. if latest is never to be used,
+    then it is ignored.
+
     :param charms: the list of charms that this will apply to.
     :param lp_config: The lp config as derived from lp-builder-config/*.yaml
     :param bundle_filename: the filename of the bundle to update.
@@ -131,6 +136,9 @@ def modify_channel(charms: List[str],
     :param branches: the branch(es) to test if branches are specified.
     :param ensure_charmhub_prefix: if set to True, switches a cs:.../ prefix to
         "ch:"
+    :param ignore_tracks: Tracks or prefixes to ignore.  Note that the test is
+        "starts with" so that 'latest' can match against any channel, for
+        example.
     """
     logger.debug("Looking at file: %s", bundle_filename)
     new_file_name = bundle_filename.with_suffix(
@@ -153,6 +161,9 @@ def modify_channel(charms: List[str],
         based on any of the branches supplied.  If none are found then don't
         update this charm (returns None).
 
+        If the track/channel found matches an ignore_tracks (from the parent
+        closure) then None is returned.
+
         Otherwise just return the current channel in the `channel` var.
 
         :param _charm: the charm to check against.
@@ -163,8 +174,14 @@ def modify_channel(charms: List[str],
             return channel
         for branch in branches:
             try:
-                # Only return the first channel specified.
-                return lp_config[_charm][branch][0]
+                for track in lp_config[_charm][branch]:
+                    for ignore in ignore_tracks:
+                        if track.startswith(ignore):
+                            # ignore this track
+                            break
+                    else:
+                        # return lp_config[_charm][branch][0]
+                        return track
             except (KeyError, IndexError):
                 pass
         # The charm/branch didn't match so return None
@@ -345,11 +362,13 @@ def update_bundles(charms: List[str],
                    bundle_paths: List[Path],
                    channel: Optional[str],
                    branches: List[str],
-                   ensure_charmhub_prefix: bool) -> None:
+                   ensure_charmhub_prefix: bool,
+                   ignore_tracks: List[str]) -> None:
     for path in bundle_paths:
         logger.debug("Doing path: %s", path)
         modify_channel(
-            charms, lp_config, path, channel, branches, ensure_charmhub_prefix)
+            charms, lp_config, path, channel, branches, ensure_charmhub_prefix,
+            ignore_tracks)
 
 
 def check_charm_dir_exists(charm_dir: Path) -> None:
@@ -392,12 +411,25 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
                        action='append',
                        metavar='BRANCH',
                        type=str.lower,
-                       help=('If present, adds a channel spec to known charms'
-                             'in the lp-builder-config/*.yaml files using the'
-                             'branch to map to the charmhub spec. If the branch'
-                             'is not found, then the charm is ignored. May be'
-                             'repeated for multiple branches to test against.'
-                             ))
+                       help=('If present, adds a channel spec to known charms '
+                             'in the lp-builder-config/*.yaml files using the '
+                             'branch to map to the charmhub spec. If the '
+                             'branch is not found, then the charm is ignored. '
+                             'May be repeated for multiple branches to test '
+                             'against.'))
+    parser.add_argument('--ignore-track', '-i',
+                        dest='ignore_tracks',
+                        action='append',
+                        metavar="IGNORE",
+                        type=str.lower,
+                        help=('Ignore this track.  e.g. if '
+                              '"--ignore-track lastest" is used, then any '
+                              'track/<channel> will be ignored if the track '
+                              'is "latest".  This is only useful when used '
+                              'with the "--branch" argument. Note that the '
+                              'match is done via "starts_with" so that, for '
+                              'example, any "latest" track can be matched '
+                              'against.'))
     parser.add_argument('--ensure-charmhub',
                         dest='ensure_charmhub',
                         action='store_true',
@@ -453,7 +485,8 @@ def main() -> None:
     config = get_lp_builder_config()
     print(dirs, bundles, charms)
     update_bundles(
-        charms, config, bundles, channel, args.branches, args.ensure_charmhub)
+        charms, config, bundles, channel, args.branches, args.ensure_charmhub,
+        args.ignore_tracks)
     logging.info("done.")
 
 

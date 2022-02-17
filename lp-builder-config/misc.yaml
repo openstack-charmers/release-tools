@@ -77,7 +77,7 @@ projects:
       master:
         channels:
           - latest/edge
-          - 3.9/edge
+          #- 3.9/edge
       stable/focal:
         channels:
           - 3.8/edge
