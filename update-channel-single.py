@@ -486,7 +486,7 @@ def main() -> None:
     print(dirs, bundles, charms)
     update_bundles(
         charms, config, bundles, channel, args.branches, args.ensure_charmhub,
-        args.ignore_tracks)
+        args.ignore_tracks or [])
     logging.info("done.")
 
 
