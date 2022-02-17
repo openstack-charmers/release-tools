@@ -239,6 +239,8 @@ def modify_channel(charms: List[str],
                             if _channel is not None:
                                 new_lines.append(
                                     "{}channel: {}\n".format(indent, _channel))
+                            else:
+                                new_lines.append(line)
                         indent = None
                         current_charm =None
                         continue
@@ -486,7 +488,7 @@ def main() -> None:
     print(dirs, bundles, charms)
     update_bundles(
         charms, config, bundles, channel, args.branches, args.ensure_charmhub,
-        args.ignore_tracks)
+        args.ignore_tracks or [])
     logging.info("done.")
 
 
