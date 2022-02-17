@@ -239,6 +239,8 @@ def modify_channel(charms: List[str],
                             if _channel is not None:
                                 new_lines.append(
                                     "{}channel: {}\n".format(indent, _channel))
+                            else:
+                                new_lines.append(line)
                         indent = None
                         current_charm =None
                         continue
