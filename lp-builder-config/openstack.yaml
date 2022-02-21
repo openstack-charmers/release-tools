@@ -48,6 +48,28 @@ projects:
   #  launchpad: charm-barbican-softhsm
   #  repository: https://opendev.org/openstack/charm-barbican-softhsm.git
 
+  - name: OpenStack Barbican Vault Charm
+    charmhub: barbican-vault
+    launchpad: charm-barbican-vault
+    repository: https://opendev.org/openstack/charm-barbican-vault.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
+
   - name: OpenStack Ceilometer Charm
     charmhub: ceilometer
     launchpad: charm-ceilometer
@@ -75,7 +97,7 @@ projects:
 
   - name: OpenStack Designate Charm
     charmhub: designate
-    launchpad: charm-desginate
+    launchpad: charm-designate
     repository: https://opendev.org/openstack/charm-designate.git
 
   - name: OpenStack Designate Bind Charm
@@ -118,10 +140,10 @@ projects:
     launchpad: charm-manila
     repository: https://opendev.org/openstack/charm-manila.git
 
-  # - name: OpenStack Manila Generic Charm
-  #  charmhub: manila-generic
-  #  launchpad: charm-manila-generic
-  #  repository: https://opendev.org/openstack/charm-manila-generic.git
+  - name: OpenStack Manila Generic Charm
+    charmhub: manila-generic
+    launchpad: charm-manila-generic
+    repository: https://opendev.org/openstack/charm-manila-generic.git
 
   - name: OpenStack Manila Ganesha Charm
     charmhub: manila-ganesha
