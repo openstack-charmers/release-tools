@@ -38,9 +38,6 @@ projects:
       stable/focal:
         channels:
           - 8.0.19/edge
-      stable/bionic:
-        channels:
-          - 5.7/edge
 
   - name: MySQL Router
     charmhub: mysql-router
@@ -53,9 +50,6 @@ projects:
       stable/focal:
         channels:
           - 8.0.19/edge
-      stable/5.7:
-        channels:
-          - 5.7/edge
 
   - name: Percona Cluster Charm
     charmhub: percona-cluster
