@@ -1,0 +1,38 @@
+#!/bin/bash -ue
+#
+# Check the known charms are correctly registered in the Charmhub Store, this
+# is achieve by checking `charmhub status <charm>` returns successfully.
+#
+OK="\e[0mOK"
+FAIL="\e[31m**FAIL"
+
+WHOAMI="$(env LANG=C charmcraft whoami)"
+if [[ "$WHOAMI" == "You are not logged in to Charmhub."* ]]; then
+  echo "Please login to the Charmhub Store first with: charmcraft login" >&2
+  exit 2
+fi
+
+FAILED_CHARMS=()
+for CHARM in $(cat charms.txt operator-charms.txt | grep -v '^\s*$\|^\s*\#'| sort); do
+  if charmcraft status $CHARM > /dev/null &> /dev/null; then
+      echo -e "${OK}  $CHARM"
+  else
+    FAILED_CHARMS+=( $CHARM )
+  fi
+done
+
+if [ ${#FAILED_CHARMS[@]} > 0 ]; then
+  # make a second pass of checks in case charmhub was giving errors.
+  DISPOSITION=0
+  for CHARM in "${FAILED_CHARMS[@]}"; do
+    if charmcraft status $CHARM > /dev/null &> /dev/null; then
+      echo -e "${OK}  $CHARM"
+    else
+      echo -e "${FAIL}  $CHARM"
+      DISPOSITION=1
+  fi
+  done
+  exit $DISPOSITION
+else
+  exit 0
+fi
