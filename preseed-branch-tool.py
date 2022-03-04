@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import logging
-from pathlib import Path
+from pathlib import (Path)
 import requests
+import subprocess
 import sys
 from typing import List, Optional, Dict
 import yaml
@@ -28,7 +29,7 @@ LpConfig = Dict[str, Dict[str, List[str]]]
 logger = logging.getLogger(__name__)
 
 
-def get_lp_builder_config() -> LpConfig:
+def get_lp_builder_config(file: Optional[Path] = None) -> LpConfig:
     """Fetch the lp builder configs for branch <-> channel maps.
 
     The lp-build-config/*.yaml files provide a mapping between a git branch and
@@ -37,11 +38,15 @@ def get_lp_builder_config() -> LpConfig:
 
     {<charm-name>: {<branch-name>: [track/channel, ...]}}
 
+    :param file: an optional file to only load specific charms
     :returns: The charm <-> branch <-> track/channel mapping.
     """
     lp_config = {}
-    for config_file in LP_DIR.glob('*.yaml'):
-        lp_config.update(parse_lp_builder_config_file(config_file))
+    if file is None:
+        for config_file in LP_DIR.glob('*.yaml'):
+            lp_config.update(parse_lp_builder_config_file(config_file))
+    else:
+        lp_config.update(parse_lp_builder_config_file(file))
     return lp_config
 
 
@@ -87,11 +92,14 @@ def decode_channel_map(charm: str,
                        channel: str,
                        version: Optional[str],
                        ) -> Optional[int]:
-    """Decode the channel."""
+    """Decode the channel.
+
+    """
     track = channel
     risk = 'stable'
     if '/' in channel:
         track, risk = channel.split('/', 2)
+    # print(f"dump of result:\n{result.json()}")
     for i, channel_def in enumerate(result.json()['channel-map']):
         base_arch = channel_def['channel']['base']['architecture']
         base_channel = channel_def['channel']['base']['channel']
@@ -114,16 +122,62 @@ def decode_channel_map(charm: str,
 
 
 def main() -> None:
+    """Do the stuff.
+
+    Note that this ignores resources; they'll need to be manually patched up.
+    """
+    # config = get_lp_builder_config(LP_DIR / 'misc.yaml')
     config = get_lp_builder_config()
     print("charms", config.keys())
     print(f"Number of charms: {len(config.keys())}")
-    for charm in config.keys():
+    failures = []
+    for charm, charm_config in config.items():
+        print(f"{charm} - {charm_config}")
         cr = INFO_URL.format(charm=charm)
         r = requests.get(cr)
         latest_stable = decode_channel_map(charm, r, 'latest/stable', '21.10')
         print(f"{charm} latest/stable revision: {latest_stable}")
-        xena_edge = decode_channel_map(charm, r, 'xena/edge', None)
-        print(f"{charm} xena/edge     revision: {xena_edge}")
+        if latest_stable is None:
+            print(f"For '{charm}' there is not latest stable, skipping.")
+            continue
+        for branch, tracks in charm_config.items():
+            if branch == 'master':
+                print("Skipping master branch")
+                continue
+            for track in tracks:
+                # latest_stable = decode_channel_map(charm, r, 'latest/stable', '21.10')
+                # print(f"{charm} latest/stable revision: {latest_stable}")
+                # xena_edge = decode_channel_map(charm, r, 'xena/edge', None)
+                # print(f"{charm} xena/edge     revision: {xena_edge}")
+                revision = decode_channel_map(charm, r, track, None)
+                print(f"{charm}  {track}    current revision: {revision}")
+                if revision != latest_stable:
+                    print(f" -- Needs changing from {revision} -> "
+                          f"{latest_stable}")
+                    print(f"  -- Running: "
+                          f" charmcraft release {charm} "
+                          f"--revision={latest_stable} "
+                          f"--channel={track}")
+                    cmd = (f"charmcraft release {charm} "
+                           f"--revision={latest_stable} "
+                           f"--channel={track}")
+                    try:
+                        subprocess.check_call(cmd.split(' '))
+                    except Exception as e:
+                        print(f"Couldn't update {charm}, {track} to revision: "
+                              f"{latest_stable}")
+                        failures.append({'charm': charm,
+                                         'track': track,
+                                         'current_revision': revision,
+                                         'target_revision': latest_stable})
+                else:
+                    print(" -- doesn't need changing.:")
+
+    if failures:
+        print("The following failed")
+        for failure in failures:
+            print(f"{failure['charm']} - {failure['track']}")
+
 
 if __name__ == '__main__':
     logging.basicConfig()
