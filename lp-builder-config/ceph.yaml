@@ -31,6 +31,17 @@ projects:
     charmhub: ceph-dashboard
     launchpad: charm-ceph-dashboard
     repository: https://opendev.org/openstack/charm-ceph-dashboard.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - quincy/edge
+      stable/octopus:
+        channels:
+          - octopus/edge
+      stable/pacific:
+        channels:
+          - pacific/edge
 
   - name: Ceph FileSystem Charm
     charmhub: ceph-fs
