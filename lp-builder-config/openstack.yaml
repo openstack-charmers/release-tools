@@ -364,11 +364,45 @@ projects:
     charmhub: magnum
     launchpad: charm-magnum
     repository: https://opendev.org/openstack/charm-magnum.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
 
   - name: OpenStack Magnum Dashboard Charm
     charmhub: magnum-dashboard
     launchpad: charm-magnum-dashboard
     repository: https://opendev.org/openstack/charm-magnum-dashboard.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
 
   - name: OpenStack Manila Dashboard Charm
     charmhub: manila-dashboard
