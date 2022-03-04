@@ -304,11 +304,51 @@ projects:
     charmhub: ironic-api
     launchpad: charm-ironic-api
     repository: https://opendev.org/openstack/charm-ironic-api.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/train:
+        channels:
+          - train/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
 
   - name: OpenStack Ironic Conductor Charm
     charmhub: ironic-conductor
     launchpad: charm-ironic-conductor
     repository: https://opendev.org/openstack/charm-ironic-conductor.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/train:
+        channels:
+          - train/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
 
   - name: OpenStack Keystone Kerberos Charm
     charmhub: keystone-kerberos
