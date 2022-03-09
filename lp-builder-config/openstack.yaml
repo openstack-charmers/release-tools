@@ -295,6 +295,50 @@ projects:
     launchpad: charm-cinder-lvm
     repository: https://opendev.org/openstack/charm-cinder-lvm.git
 
+  - name: OpenStack Cinder Nimblestorage Charm
+    charmhub: cinder-nimblestorage
+    launchpad: charm-cinder-nimblestorage
+    repository: https://opendev.org/openstack/charm-cinder-nimblestorage.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
+
+  - name: OpenStack Cinder Solidfire Charm
+    charmhub: cinder-solidfire
+    launchpad: charm-cinder-solidfire
+    repository: https://opendev.org/openstack/charm-cinder-solidfire.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
+
   - name: OpenStack Cinder NetApp Charm
     charmhub: cinder-netapp
     launchpad: charm-cinder-netapp
