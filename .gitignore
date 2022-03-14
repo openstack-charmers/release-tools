@@ -7,3 +7,6 @@
 resource.zip
 bc-tools
 commit-message-tests-yaml.txt
+tools/graphs
+__pycache__
+*.pyc
