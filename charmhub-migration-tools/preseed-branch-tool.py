@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import logging
 from pathlib import (Path)
 import requests
@@ -14,11 +15,7 @@ INFO_URL = CHARMHUB_BASE + "/info/{charm}?fields=channel-map"
 
 
 CUR_DIR = Path(__file__).parent.resolve()
-CHARMS_FILE = CUR_DIR / 'charms.txt'
-assert CHARMS_FILE.is_file(), f"{CHARMS_FILE} doesn't exist?"
-OPERATOR_CHARMS_FILE = CUR_DIR / 'operator-charms.txt'
-assert OPERATOR_CHARMS_FILE.is_file(), f"{OPERATOR_CHARMS_FILE} doesn't exist?"
-LP_DIR = CUR_DIR / 'lp-builder-config'
+LP_DIR = CUR_DIR.parent / 'lp-builder-config'
 assert LP_DIR.is_dir(), f"{LP_DIR} doesn't seem to exist?"
 
 
@@ -121,17 +118,52 @@ def decode_channel_map(charm: str,
     return None
 
 
+def parse_args(argv: List[str]) -> argparse.Namespace:
+    """Parse command line arguments.
+
+    :param argv: List of configure functions functions
+    :returns: Parsed arguments
+    """
+    parser = argparse.ArgumentParser(
+        description=('Preseed a charm or charms.  Note that it takes the '
+                     'latest version on 21.01 and preseeds to the tracks '
+                     'specified for the charm is the revision is missing or '
+                     'less than the preseed revision.'))
+    parser.add_argument('--log', dest='loglevel',
+                        type=str.upper,
+                        default='INFO',
+                        choices=('DEBUG', 'INFO', 'WARN', 'ERROR', 'CRITICAL'),
+                        help='Loglevel')
+    parser.add_argument('--charm', '-c',
+                       dest='charms',
+                       action='append',
+                       metavar='CHARM',
+                       type=str.lower,
+                       help=('If present, adds a specific charm to fetch.  If '
+                             'not present, then the section is used. If '
+                             'neither the section nor charm(s) are available '
+                             'then all the charms are fetched'))
+
+    return parser.parse_args(argv)
+
+
 def main() -> None:
     """Do the stuff.
 
     Note that this ignores resources; they'll need to be manually patched up.
     """
+    args = parse_args(sys.argv[1:])
+    logger.setLevel(getattr(logging, args.loglevel, 'INFO'))
+    print(args)
     # config = get_lp_builder_config(LP_DIR / 'misc.yaml')
     config = get_lp_builder_config()
-    print("charms", config.keys())
-    print(f"Number of charms: {len(config.keys())}")
+    charms = args.charms or []
+    print("charms", charms)
+    print(f"Number of charms: {len(charms)}")
     failures = []
     for charm, charm_config in config.items():
+        if charm not in charms:
+            continue
         print(f"{charm} - {charm_config}")
         cr = INFO_URL.format(charm=charm)
         r = requests.get(cr)
