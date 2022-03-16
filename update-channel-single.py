@@ -284,6 +284,13 @@ def modify_channel(charms: List[str],
         if _channel is not None:
             new_lines.append("{}channel: {}\n".format(indent, _channel))
 
+    # finally, see if we should ensure that the bundle has the local overlay
+    # disabled, but only for overlays
+    if (disable_local_overlay and
+            bundle_filename.suffix == '.yaml' and
+            bundle_filename.parent.name != 'overlays'):
+        new_lines = ensure_local_overlay_disabled(new_lines)
+
     with open(new_file_name, "wt") as f:
         f.writelines(new_lines)
     # now overwrite the file
