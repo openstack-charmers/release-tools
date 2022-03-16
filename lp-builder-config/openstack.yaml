@@ -467,6 +467,26 @@ projects:
     charmhub: neutron-api-plugin-ironic
     launchpad: charm-neutron-api-plugin-ironic
     repository: https://opendev.org/openstack/charm-neutron-api-plugin-ironic.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - yoga/edge
+      stable/train:
+        channels:
+          - train/edge
+      stable/ussuri:
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        channels:
+          - wallaby/edge
+      stable/xena:
+        channels:
+          - xena/edge
 
   - name: OpenStack Neutron API OVN Plugin Charm
     charmhub: neutron-api-plugin-ovn
