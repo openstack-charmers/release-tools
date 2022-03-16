@@ -1,0 +1,123 @@
+#!/bin/bash
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+repo_dir="$script_dir/.."
+
+# update charmcraft
+function charmcraft_classic {
+    cp $repo_dir/global/classic-zaza/charmcraft.yaml .
+}
+function charmcraft_source {
+    cp $repo_dir/global/source-zaza/charmcraft.yaml .
+}
+
+# update metadata // called in context of directory with metadata
+# param 1 is the file to update
+function update_metadata {
+    local metafile=$1
+    sed -i '/- xenial/d' $metafile
+    sed -i '/- bionic/d' $metafile
+    sed -i '/- groovy/d' $metafile
+    sed -i '/- hirsute/d' $metafile
+}
+
+function update_osci {
+    local oscifile=$1
+    sed -i 's/- charm-yoga-unit-jobs/- charm-unit-jobs-py38/1' $oscifile
+    sed -i '/- charm-yoga.*jobs/d' $oscifile
+    sed -i '/- charm-victoria.*jobs/d' $oscifile
+    sed -i '/- charm-ussuri.*jobs/d' $oscifile
+    sed -i '/- charm-stein.*jobs/d' $oscifile
+    sed -i '/- charm-queens.*jobs/d' $oscifile
+}
+
+function update_tests_yaml {
+    local yamlfile=$1
+    sed -i '/- .*queens/d' $yamlfile
+    sed -i '/- .*rocky/d' $yamlfile
+    sed -i '/- .*stein/d' $yamlfile
+    sed -i '/- .*train/d' $yamlfile
+    sed -i '/- .*ussuri/d' $yamlfile
+    sed -i '/- .*victoria/d' $yamlfile
+    sed -i '/- .*hirsute/d' $yamlfile
+    sed -i '/- .*yoga/d' $yamlfile
+    sed -i '/- .*xenial/d' $yamlfile
+    sed -i '/- .*bionic/d' $yamlfile
+}
+
+function remove_bundles {
+    local bundles_dir=$1
+    (
+        cd $bundles_dir
+        rm *queens*.yaml
+        rm *rocky*.yaml
+        rm *stein*.yaml
+        rm *train*.yaml
+        rm *ussuri*.yaml
+        rm *victoria*.yaml
+        rm *hirsute*.yaml
+        rm *yoga*.yaml
+        rm *xenial*.yaml
+        rm *bionic*.yaml
+        rm *trusty*.yaml
+    )
+}
+
+function update_bundles {
+    local charm_dir=$1
+    (
+        cd $charm_dir
+        $repo_dir/update-channel-single.py --log DEBUG --remove-channel
+        $repo_dir/update-channel-single.py --log DEBUG --branch master --ensure-charmhub
+        $repo_dir/update-channel-single.py --log DEBUG \
+            --branch stable/xena \
+            --branch stable/21.09 \
+            --branch stable/focal \
+            --branch stable/1.7 \
+            --branch stable/pacific
+    )
+}
+
+
+function make_git_branch {
+    branch=$(git branch --show-current | tr -d '\n')
+    if [[ "$branch" != "charmhub-migration-xena" ]];
+    then
+        git checkout -b charmhub-migration-xena
+    fi
+}
+
+charms=$(cd "$repo_dir/charms" && ls -d1 *)
+
+for charm in $charms; do
+    charm_type="$($repo_dir/what-is $rep_dir/charms/$charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        cd $repo_dir/charms/$charm
+
+        case $charm_type in
+            source-zaza)
+                charmcraft_source
+                ln -s src/metadata.yaml
+                update_metadata src/metadata.yaml
+                update_osci osci.yaml
+                update_tests_yaml src/tests/tests.yaml
+                remove_bundles src/tests/bundles
+                update_bundles .
+                make_git_branch
+                ;;
+            classic-zaza)
+                charmcraft_classic
+                update_metadata metadata.yaml
+                update_osci osci.yaml
+                update_tests_yaml tests/tests.yaml
+                remove_bundles tests/bundles
+                update_bundles .
+                make_git_branch
+                ;;
+            *)
+                echo "UNKNOWN TYPE - ignoring"
+                ;;
+        esac
+    )
+done
