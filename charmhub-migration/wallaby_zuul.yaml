@@ -1,0 +1,4 @@
+- project:
+    templates:
+      - openstack-python3-wallaby-jobs
+      - openstack-cover-jobs
