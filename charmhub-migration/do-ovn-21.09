@@ -9,9 +9,10 @@ repo_dir="$script_dir/.."
 worktree_branch="master"
 ceph_release="pacific"
 openstack_release="xena"
+ovn_release="21.09"
 
 # bring in the common functions
-source utils.sh
+source $script_dir/utils.sh
 
 
 # update metadata // called in context of directory with metadata
@@ -148,7 +149,7 @@ charm_type="$($repo_dir/what-is .)"
 echo "===== $charm_type ====="
 case $charm_type in
     source-zaza)
-        ensure_git_branch $openstack_release
+        ensure_git_branch $ovn_release
         ensure_gitignore_charm
         charmcraft_source $worktree_branch
         $script_dir/update-charmcraft.py charmcraft.yaml
@@ -162,7 +163,7 @@ case $charm_type in
         add_rename $worktree_branch
         add_build_requirements $worktree_branch
         ensure_tox_source $worktree_branch
-        ensure_git_review $openstack_release
+        ensure_git_review $ovn_release
         ensure_libs_source $openstack_release $ceph_release
         ensure_src_tr_tox
         ensure_zuul_conf
@@ -206,3 +207,4 @@ case $charm_type in
         ensure_pyparsing_pin
         ;;
 esac
+

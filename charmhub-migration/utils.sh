@@ -182,3 +182,11 @@ function ensure_libs_ops {
         fi
     done
 }
+
+
+# ensure that the src/tests-requirements has the 'tox' as a requirement in it.
+function ensure_src_tr_tox {
+    grep -q tox src/test-requirements.txt || {
+        echo -e "\n# Need tox to be available from tox... inception yes, but its a workaround for now\ntox\n" >> src/test-requirements.txt
+    }
+}
