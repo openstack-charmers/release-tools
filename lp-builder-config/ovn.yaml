@@ -5,6 +5,7 @@ defaults:
     master:
       channels:
         - latest/edge
+        - 22.03/edge
     stable/20.03:
       channels:
         - openstack-ussuri/edge
