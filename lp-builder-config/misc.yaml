@@ -107,3 +107,16 @@ projects:
       stable/1.5:
         channels:
           - 1.5/edge
+
+  - name: OpenStack Loadbalancer Charm
+    charmhub: openstack-loadbalancer
+    launchpad: charm-openstack-loadbalancer
+    repository: https://opendev.org/openstack/charm-openstack-loadbalancer.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+          - jammy/edge
+      stable/focal:
+        channels:
+          - focal/edge
