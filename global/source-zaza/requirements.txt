@@ -10,6 +10,14 @@ setuptools<50.0.0  # https://github.com/pypa/setuptools/commit/04e3df22df840c6bb
 
 # Build requirements
 cffi==1.14.6; python_version < '3.6'  # cffi 1.15.0 drops support for py35.
+
+# NOTE: newer versions of cryptography require a Rust compiler to build,
+# see
+# * https://github.com/openstack-charmers/zaza/issues/421
+# * https://mail.python.org/pipermail/cryptography-dev/2021-January/001003.html
+#
+cryptography<3.4
+
 charm-tools==2.8.3
 
 simplejson
