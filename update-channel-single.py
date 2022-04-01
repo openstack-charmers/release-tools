@@ -14,7 +14,11 @@ from pathlib import Path
 from typing import List, Optional, Dict
 import re
 import sys
-import yaml
+
+SCRIPT_DIR = Path(__file__).parent.resolve()
+sys.path.append(str(SCRIPT_DIR.parent))
+
+from lib.lp_builder import get_lp_builder_config
 
 
 logger = logging.getLogger(__name__)
@@ -105,6 +109,8 @@ def modify_channel(charms: List[str],
                    branches: List[str],
                    ensure_charmhub_prefix: bool,
                    ignore_tracks: List[str],
+                   set_local_charm: Optional[str],
+                   disable_local_overlay: bool,
                    ) -> None:
     """Modify the candidate channel to the bundle as needed.
 
@@ -222,6 +228,11 @@ def modify_channel(charms: List[str],
     #
     ###
 
+    print(f"set_local_charm is {set_local_charm}")
+    if set_local_charm:
+        LOCAL_CHARM_MATCH = re.compile(
+            r'^(\s*)charm:\s+[./]*' + set_local_charm + r'\s*(?:|#.*)$')
+        print(f"set local regex for {set_local_charm}")
     indent = None
     current_charm: Optional[str] = None
     for line in file_lines:
@@ -275,6 +286,17 @@ def modify_channel(charms: List[str],
             logger.debug("Matched charm %s on line\n%s\n - rewriting for ch:",
                          any_charm_match[3], line)
             line = line.replace(any_charm_match[2], 'ch:')
+        elif set_local_charm is not None:
+            local_match = LOCAL_CHARM_MATCH.match(line)  # type: ignore
+            if local_match:
+                print("matched!")
+                prefix = \
+                    '../../../' \
+                    if bundle_filename.parent.parent.parent.stem == 'src' \
+                    else '../../'
+                line = (f"{local_match[1]}charm: "
+                        f"{prefix}{set_local_charm}.charm\n")
+
         new_lines.append(line)
     # if indent is still set, the charm block was at the end of the file then
     # add the channel at the indent for the charm block if the specified
@@ -297,6 +319,18 @@ def modify_channel(charms: List[str],
     os.rename(new_file_name, bundle_filename)
 
 
+def ensure_local_overlay_disabled(lines: List[str]) -> List[str]:
+    """Ensure that the line 'local_overlay_enabled: False' is in the bundle."""
+    for i in range(len(lines)):
+        if lines[i].startswith('local_overlay_enabled:'):
+            lines[i] = "local_overlay_enabled: False\n"
+            return lines
+    # insert local_overlay_enabled at the beginning of the file
+    lines.insert(0, "\n")
+    lines.insert(0, "local_overlay_enabled: False\n")
+    return lines
+
+
 def get_charms_list(*charms_files: Path) -> List[str]:
     """Get the list of charms from the charms files.
 
@@ -312,72 +346,21 @@ def get_charms_list(*charms_files: Path) -> List[str]:
     return [line for line in lines if line and not(line.startswith('#'))]
 
 
-def get_lp_builder_config() -> LpConfig:
-    """Fetch the lp builder configs for branch <-> channel maps.
-
-    The lp-build-config/*.yaml files provide a mapping between a git branch and
-    the resultant track/channel in the charmstore.  The return value is
-    effectvely:
-
-    {<charm-name>: {<branch-name>: [track/channel, ...]}}
-
-    :returns: The charm <-> branch <-> track/channel mapping.
-    """
-    lp_config = {}
-    for config_file in LP_DIR.glob('*.yaml'):
-        lp_config.update(parse_lp_builder_config_file(config_file))
-    return lp_config
-
-
-def parse_lp_builder_config_file(config_file: Path) -> LpConfig:
-    """Parse an lp builder config file into an LpConfig structure.
-
-    :param config_file: the file to read.
-    """
-    try:
-        with open(config_file) as f:
-            raw_config = yaml.safe_load(f)
-    except Exception as e:
-        logging.error("Couldn't read config_file: %s due to: %s",
-                      config_file, str(e))
-        sys.exit(1)
-    # load defaults if they exist
-    try:
-        default_branches = {
-            k: v['channels']
-            for k, v in raw_config['defaults']['branches'].items()}
-    except KeyError:
-        default_branches = {}
-    # Now iterate through the config and add default branches if now branches
-    # are specificed.
-    lp_config: Dict[str, Dict[str, List[str]]] = {}
-    try:
-        for project in raw_config['projects']:
-            try:
-                branches = {
-                    k: v['channels']
-                    for k, v in project['branches'].items()}
-            except KeyError:
-                branches = default_branches.copy()
-            lp_config[project['charmhub']] = branches
-    except KeyError:
-        # just ignore the file if there are no projects
-        logging.warning('File %s contains no projects key?', config_file)
-    return lp_config
-
-
 def update_bundles(charms: List[str],
                    lp_config: LpConfig,
                    bundle_paths: List[Path],
                    channel: Optional[str],
                    branches: List[str],
                    ensure_charmhub_prefix: bool,
-                   ignore_tracks: List[str]) -> None:
+                   ignore_tracks: List[str],
+                   disable_local_overlay: bool,
+                   set_local_charm: Optional[str],
+                   ) -> None:
     for path in bundle_paths:
         logger.debug("Doing path: %s", path)
         modify_channel(
             charms, lp_config, path, channel, branches, ensure_charmhub_prefix,
-            ignore_tracks)
+            ignore_tracks, set_local_charm, disable_local_overlay)
 
 
 def check_charm_dir_exists(charm_dir: Path) -> None:
@@ -387,6 +370,17 @@ def check_charm_dir_exists(charm_dir: Path) -> None:
     :raises: AssertionError if not valid
     """
     assert charm_dir.is_dir()
+
+
+def determine_charm(charm_dir: Path) -> Optional[str]:
+    """Workout what the charm is from the osci.yaml in the charm_dir."""
+    osci_file = charm_dir / 'osci.yaml'
+    if osci_file.is_file():
+        with osci_file.open() as f:
+            for line in f.readlines():
+                if "charm_build_name" in line:
+                    return line.split()[-1]
+    return None
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -445,6 +439,20 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
                         default=False,
                         help=('If set to True, then cs:~.../ prefixes of '
                               'charms will be switched to ch:<charm>'))
+    parser.add_argument('--disable-local-overlay',
+                        dest='disable_local_overlay',
+                        action='store_true',
+                        default=False,
+                        help=('If set to True, then ensure that '
+                              '"local_overlay_enabled: False" are in the '
+                              'bundles.'))
+    parser.add_argument('--set-local-charm',
+                        dest='set_local_charm',
+                        action='store_true',
+                        default=False,
+                        help=('If set to True, then the local charm, as '
+                              'determined by the charmcraft.yaml file is set '
+                              'to the ../../(../)<charm>.charm'))
     parser.add_argument('--log', dest='loglevel',
                         type=str.upper,
                         default='INFO',
@@ -493,9 +501,14 @@ def main() -> None:
     charms = get_charms_list(CHARMS_FILE, OPERATOR_CHARMS_FILE)
     config = get_lp_builder_config()
     print(dirs, bundles, charms)
+    local_charm = determine_charm(charm_dir) if args.set_local_charm \
+        else None
     update_bundles(
         charms, config, bundles, channel, args.branches, args.ensure_charmhub,
-        args.ignore_tracks or [])
+        args.ignore_tracks or [],
+        args.disable_local_overlay,
+        local_charm,
+    )
     logging.info("done.")
 
 
