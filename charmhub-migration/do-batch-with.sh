@@ -5,6 +5,7 @@
 
 script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 target_script="$script_dir/$1"
+shift
 
 charms=$(cd ../charms && ls -d1 *)
 
@@ -13,6 +14,6 @@ echo "Running $target_script:"
 for charm in $charms; do
     (
         cd ../charms/$charm
-        $target_script
+        $target_script $@
     )
 done

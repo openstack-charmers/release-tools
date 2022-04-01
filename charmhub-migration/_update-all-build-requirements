@@ -1,0 +1,30 @@
+#!/bin/bash -e
+#  Update tox.ini files from global/*.  Assumes git clones have already
+#  been performed.  Does not commit, push, or submit/review.
+#  See `batch-example` for usage as a batch of charm updates.
+
+charms=$(cd ../charms && ls -d1 *)
+
+for charm in $charms; do
+    charm_type="$(../what-is ../charms/$charm)"
+    echo "===== $charm ($charm_type) ====="
+    (
+        # Systematically copy tox.ini files into repos
+        case $charm_type in
+            classic-zaza)
+                cp -fvp ../global/$charm_type/build-requirements.txt ../charms/$charm/build-requirements.txt
+                ;;
+            source-zaza)
+                cp -fvp ../global/$charm_type/build-requirements.txt ../charms/$charm/build-requirements.txt
+                ;;
+            *)
+                echo "UNKNOWN TYPE -- do nothing"
+                ;;
+        esac
+
+        # overwrite one with the one from the charms-master if it's been set.
+        if [[ -e ../charms/$charm/__worktrees/master/build-requirements.txt ]]; then
+            cp ../charms/$charm/__worktrees/master/build-requirements.txt ../charms/$charm/build-requirements.txt
+        fi
+  )
+done

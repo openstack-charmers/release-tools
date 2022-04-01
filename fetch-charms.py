@@ -42,7 +42,9 @@ def fetch_charms(charms: List[Charm],
                  branch: Optional[str] = None,
                  worktrees: Optional[List[str]] = None,
                  ignore_failure: bool = False,
-                 worktree_dir: str = '__worktress',
+                 worktree_dir: str = '__worktrees',
+                 checkout_topic: Optional[str] = None,
+                 skip_if_present: bool = False,
                  ) -> None:
     """Fetch all the charms to where/<charmhub> directories."""
     # ensure the where directory exists.
@@ -50,6 +52,10 @@ def fetch_charms(charms: List[Charm],
     for c in charms:
         dest = where / c.charmhub
         if dest.exists():
+            if skip_if_present:
+                print(f"For {c.charmhub}, destination: {dest} exists, but "
+                      f"skip-if-present is set, so not fetching.")
+                continue
             if dest.is_file():
                 raise AssertionError(
                     f"Path: {dest} is a file, but we need to checkout "
@@ -93,6 +99,68 @@ def fetch_charms(charms: List[Charm],
                                  c.charmhub, str(e))
                     if not ignore_failure:
                         raise
+        if checkout_topic is not None:
+            print(f"Checking out topic: {checkout_topic}")
+            try:
+                with change_directory_to(dest):
+                    # first just set up the gerrit hook
+                    command = "git review -s"
+                    subprocess.check_call(command.split())
+                    # now list the reviews and find the topic.
+                    command = "git review -ll"
+                    reviews = subprocess.check_output(command.split()).decode()
+                    matched_reviews = []
+                    num = -1
+                    for review in reviews.splitlines()[:-2]:
+                        (r_num, r_branch, r_topic, desc) = (
+                            review.split(maxsplit=3))
+                        if (r_topic == checkout_topic and
+                                r_branch == (branch or 'master')):
+                            matched_reviews.append((r_num, r_branch, desc))
+                    if len(matched_reviews) == 0:
+                        if ignore_failure:
+                            logger.info(
+                                "No matching topic for %s but ignore_faiure "
+                                "is set, so continuing", c.charmhub)
+                        else:
+                            raise RuntimeError(
+                                f"No matching topic {checkout_topic} for "
+                                f"{c.charmhub}.")
+                    elif len(matched_reviews) > 1:
+                        # now have to pick the review.
+                        print("More than one matching review; please select "
+                              "by index number")
+                        print(f'{"Index":7} {"ID":8} {"Topic":25} '
+                              f'{"Branch":15} Description')
+                        for i, (n, b, desc) in enumerate(matched_reviews):
+                            print(f"{i:^7} {n:<8} {checkout_topic:<25} "
+                                  f"{b:<15} {desc}")
+                        while True:
+                            reply = str(
+                                input(
+                                    f"\nEnter 1..{len(matched_reviews)} or "
+                                    f"[Q]uit: ")).lower().strip()
+                            if reply == "q":
+                                raise RuntimeError("Quitting")
+                            try:
+                                num = int(reply) - 1
+                                if num < 0 or num >= len(matched_reviews):
+                                    raise ValueError()
+                            except ValueError:
+                                print("Enter number or Q?")
+                                continue
+                    else:
+                        num = 0
+                    # now with review num, let's check it out.
+                    if num >= 0:
+                        command = f"git review -d {matched_reviews[num][0]}"
+                        print(f"Fetching review '{matched_reviews[num][2]}'")
+                        subprocess.check_call(command.split())
+            except subprocess.CalledProcessError as e:
+                logger.error("Error checking out topic %s: %s",
+                             checkout_topic, str(e))
+                if not ignore_failure:
+                    raise
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
     """Parse command line arguments.
@@ -167,6 +235,20 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
                         help=('If set, then failures on branches or worktrees '
                               'are ignored.  Note that assertions that can be '
                               'forced, (e.g. replace) are not ignored.'))
+    parser.add_argument('--checkout-topic',
+                        dest='checkout_topic',
+                        help=('Optionally, fetch a topic from gerrit for the '
+                              'charm.  If more than one review is available '
+                              'then the user is asked to choose the review '
+                              'to download.  If no review is found then an '
+                              'error occurs unless --ignore-failure is set.'))
+    parser.add_argument('--skip-if-present',
+                        dest='skip_if_present',
+                        action='store_true',
+                        help=('If set, then ignore any directories that '
+                              'already exist.  Use this for incremental '
+                              'fetches if an error occurs, but you want to '
+                              'continue fetching.'))
     parser.set_defaults(worktree_dir='__worktrees',
                         ignore_failure=False,
                         loglevel='INFO')
@@ -191,7 +273,10 @@ def main() -> None:
             branch=args.branch,
             worktrees=args.worktrees,
             worktree_dir=args.worktree_dir,
-            ignore_failure=args.ignore_failure)
+            ignore_failure=args.ignore_failure,
+            checkout_topic=args.checkout_topic,
+            skip_if_present=args.skip_if_present,
+        )
     except AssertionError as e:
         print("One of the assertions is wrong: {}\n"
               "Please review and perhaps change the options to the command?"
