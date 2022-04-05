@@ -75,6 +75,11 @@ projects:
     launchpad: charm-ceilometer
     repository: https://opendev.org/openstack/charm-ceilometer.git
 
+  - name: OpenStack Ceilometer Agent Charm
+    charmhub: ceilometer-agent
+    launchpad: charm-ceilometer-agent
+    repository: https://opendev.org/openstack/charm-ceilometer-agent.git
+
   - name: OpenStack Cinder Charm
     charmhub: cinder
     launchpad: charm-cinder
