@@ -15,7 +15,12 @@ then
     exit 0
 fi
 
-echo "Updating, no-edit-amend and git review with topic for ${_dir}"
-git add .
-git commit --amend --no-edit
-git review -t charmhub-migration-yoga
+git_status="$(git status -s)"
+if [[ -n "$git_status" ]]; then
+    echo "Updating, no-edit-amend and git review with topic for ${_dir}"
+    git add .
+    git commit --amend --no-edit
+    git review -t charmhub-migration-yoga
+else
+    echo "Nothing to do."
+fi

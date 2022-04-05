@@ -14,30 +14,18 @@ import textwrap
 BASES_LIST = [f"{t}\n" for t in textwrap.dedent(
     """\
     bases:
-      - name: ubuntu
-        channel: "20.04"
-        architectures: [amd64]
-      - name: ubuntu
-        channel: "20.04"
-        architectures: [arm64]
-      - name: ubuntu
-        channel: "20.04"
-        architectures: [ppc64el]
-      - name: ubuntu
-        channel: "20.04"
-        architectures: [s390x]
-      - name: ubuntu
-        channel: "22.04"
-        architectures: [amd64]
-      - name: ubuntu
-        channel: "22.04"
-        architectures: [arm64]
-      - name: ubuntu
-        channel: "22.04"
-        architectures: [ppc64el]
-      - name: ubuntu
-        channel: "22.04"
-        architectures: [s390x]
+      - build-on:
+          - name: ubuntu
+            channel: "20.04"
+            architectures:
+              - amd64
+        run-on:
+          - name: ubuntu
+            channel: "20.04"
+            architectures: [amd64, s390x, ppc64el, arm64]
+          - name: ubuntu
+            channel: "22.04"
+            architectures: [amd64, s390x, ppc64el, arm64]
     """).splitlines()]
 
 logger = logging.getLogger(__name__)
