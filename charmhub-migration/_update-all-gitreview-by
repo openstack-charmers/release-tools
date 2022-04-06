@@ -1,0 +1,12 @@
+#!/bin/bash -e
+# param 1 is the stable channel to use
+branch=$1
+charms=$(cd charms && ls -d1 *)
+
+for charm in $charms; do
+    echo "===== $charm ====="
+    (
+        cd charms/$charm
+        sed -i "'s/stable\/21.10/stable\/$branch/g'" .gitreview
+    )
+done

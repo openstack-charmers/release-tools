@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Note that this needs to be run in the root for the charm directory
+
+# run this script in the root of the charm directory
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+repo_dir="$script_dir/.."
+worktree_branch="master"
+ceph_release="quincy"
+openstack_release="yoga"
+
+# bring in the common functions
+source $script_dir/utils.sh
+
+
+# update metadata // called in context of directory with metadata
+# param 1 is the file to update
+function update_metadata {
+    local metafile=$1
+    if [[ ! -L "$metafile" && -e "$metafile" ]]; then
+        sed -i '/- impish/d' $metafile
+        grep -q jammy $metafile || {
+            sed -i "/focal/a \- jammy" $metafile
+        }
+    fi
+}
+
+
+# update tox.ini to include python3.10
+function add_python310_to_tox {
+    local tox_file=$1
+    grep -q testenv:py310 $tox_file || {
+        block="[testenv:py310]\nbasepython = python3.10\ndeps = -r{toxinidir}/test-requirements.txt\ncommands = stestr run --slowest {posargs}\n"
+        sed -i "/^\[testenv:pep8\]/i $block" $tox_file
+    }
+    # remove py35, py36, py37 from the tox.ini
+    sed -i "/^\[testenv:py35\]/,+4d" $tox_file
+    sed -i "/^\[testenv:py36\]/,+4d" $tox_file
+    sed -i "/^\[testenv:py37\]/,+4d" $tox_file
+    sed -i "/^\[testenv:py39\]/,+4d" $tox_file
+}
+
+function add_python310_to_osciyaml {
+    local osci_file=$1
+    sed -i '/charm-unit-jobs-py39/d' $osci_file
+    grep -q jobs-py310 $osci_file || {
+        sed -i "/jobs-py38/a \      - charm-unit-jobs-py310" $osci_file
+    }
+}
+
+
+
+
+# Note that this needs to be run in the root for the charm directory
+charm_type="$($repo_dir/what-is .)"
+echo "===== $charm_type ====="
+ensure_git_branch $openstack_release
+$script_dir/update-charmcraft.py charmcraft.yaml
+update_metadata src/metadata.yaml
+update_metadata metadata.yaml
+add_python310_to_osciyaml osci.yaml
+add_python310_to_tox tox.ini

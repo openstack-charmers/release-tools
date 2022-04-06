@@ -7,3 +7,5 @@
 resource.zip
 bc-tools
 commit-message-tests-yaml.txt
+*.pyc
+__pycache__

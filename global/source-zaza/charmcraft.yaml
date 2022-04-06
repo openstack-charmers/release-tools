@@ -21,5 +21,25 @@ parts:
 bases:
   - name: ubuntu
     channel: "20.04"
-    architectures:
-      - amd64
+    architectures: [amd64]
+  - name: ubuntu
+    channel: "20.04"
+    architectures: [arm64]
+  - name: ubuntu
+    channel: "20.04"
+    architectures: [ppc64el]
+  - name: ubuntu
+    channel: "20.04"
+    architectures: [s390x]
+  - name: ubuntu
+    channel: "22.04"
+    architectures: [amd64]
+  - name: ubuntu
+    channel: "22.04"
+    architectures: [arm64]
+  - name: ubuntu
+    channel: "22.04"
+    architectures: [ppc64el]
+  - name: ubuntu
+    channel: "22.04"
+    architectures: [s390x]
