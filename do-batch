@@ -122,7 +122,7 @@ if [[ "$all_params" == *--update-reqs* ]]; then
   ./_update-requirements
 fi
 if [[ "$all_params" == *--sync-helpers* ]]; then
-  ./_sync-helpers
+  ./do-batch-with _do-single-charm-sync
 fi
 
 # fix up the commit message

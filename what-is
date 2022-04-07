@@ -28,7 +28,12 @@ if (cd $charm_dir && find -path "./src/*" -name metadata.yaml |
     charm_structure="source"
 elif (cd $charm_dir && find -maxdepth 1 -name metadata.yaml |
         xargs grep "name:" &> /dev/null); then
-    charm_structure="classic"
+    if (cd $charm_dir && find -maxdepth 1 -name charm-helpers-hooks.yaml |
+        xargs grep "repo:" &> /dev/null); then
+        charm_structure="classic"
+    else
+        charm_structure="ops"
+    fi
 else
     charm_structure="unknown"
 fi

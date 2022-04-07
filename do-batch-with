@@ -1,19 +1,21 @@
 #!/bin/bash -e
 #
 # Does a batch with a particular migration script.
+# The script needs to be in or relative to the this scripts' directory
 # looks at all the charms, cds into that directory and then runs the script
 
 script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 target_script="$script_dir/$1"
 shift
 
-charms=$(cd ../charms && ls -d1 *)
+charms=$(cd $script_dir/charms && ls -d1 *)
 
 echo "Running $target_script:"
 
 for charm in $charms; do
+    echo "Looking at: $charm"
     (
-        cd ../charms/$charm
+        cd $script_dir/charms/$charm
         $target_script $@
     )
 done

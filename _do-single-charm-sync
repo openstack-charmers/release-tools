@@ -1,0 +1,20 @@
+#!/bin/bash
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+repo_dir="$script_dir/.."
+
+
+charm_type="$($repo_dir/what-is .)"
+echo "===== $charm_type ====="
+case $charm_type in
+    source-zaza)
+        echo "Nothing to do."
+        ;;
+    classic-zaza)
+        echo "Updating classic charm."
+        make sync
+        grep ceph-sync Makefile && make ceph-sync ||:
+        ;;
+    *)
+        echo "Nothing to do."
+        ;;
+esac
