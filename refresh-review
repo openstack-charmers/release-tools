@@ -7,7 +7,17 @@
 git_status="$(git status -s)"
 if [[ -n "$git_status" ]]; then
     echo "Git repository is dirty; exiting."
-    exit 1
+    exit 0
+fi
+
+_dir=$(pwd)
+# verify that the branch isn't master
+branch=$(git branch --show-current | tr -d '\n')
+if [[ "$branch" == "master" ]];
+then
+    echo "Branch is ${_dir}"
+    echo "Branch is master - not updating."
+    exit 0
 fi
 
 # find the commit id

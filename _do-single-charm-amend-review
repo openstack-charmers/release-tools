@@ -1,8 +1,8 @@
 #!/bin/bash -e
-#
-# Does a batch with a particular migration script.
-# looks at all the charms, cds into that directory and then runs the script
+#  git add . then amend no-edit and then review.  Topic in param
+# Does a single charm; use with do-batch-with to do the entire batch.
 
+topic=$1
 script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
 _dir=$(pwd)
@@ -22,5 +22,5 @@ if [[ -n "$git_status" ]]; then
     git commit --amend --no-edit
     git review -t charmhub-migration-yoga
 else
-    echo "Nothing to do."
+    echo "Nothing to do as git repo is not dirty."
 fi
