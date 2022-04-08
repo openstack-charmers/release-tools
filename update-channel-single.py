@@ -397,6 +397,13 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument('dir', nargs='?',
                         help="Optional directory argument")
     group = parser.add_mutually_exclusive_group(required=True)
+    parser.add_argument('--bundle',
+                        dest='bundles',
+                        action='append',
+                        type=Path,
+                        metavar='FILE',
+                        help=('Path to a bundle file to update. '
+                              'May be repeated for multiple files to update'))
     group.add_argument('--channel', '-c',
                        dest='channel',
                        type=str.lower,
@@ -497,7 +504,10 @@ def main() -> None:
         logger.info("Charm dir: %s, removing the channel spec.", charm_dir)
 
     dirs = find_bundles_dirs(charm_dir)
-    bundles = find_bundles_in_dirs(dirs)
+    if args.bundles:
+        bundles = args.bundles
+    else:
+        bundles = find_bundles_in_dirs(dirs)
     charms = get_charms_list(CHARMS_FILE, OPERATOR_CHARMS_FILE)
     config = get_lp_builder_config()
     print(dirs, bundles, charms)
