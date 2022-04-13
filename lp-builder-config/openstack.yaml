@@ -57,6 +57,15 @@ projects:
         channels:
           - latest/edge
           - yoga/edge
+      stable/rocky:
+        channels:
+          - rocky/edge
+      stable/stein:
+        channels:
+          - stein/edge
+      stable/train:
+        channels:
+          - train/edge
       stable/ussuri:
         channels:
           - ussuri/edge
