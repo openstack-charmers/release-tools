@@ -51,6 +51,7 @@ def release(
     """Promote the list of charms from one channel to another."""
     releases: List[Release] = []
     errors: List[NoRelease] = []
+    already_released: List[Release] = []
     for charm in charms:
         print(charm.charmhub)
         cr = INFO_URL.format(charm=charm.charmhub)
@@ -78,7 +79,12 @@ def release(
             logger.info(
                 "For charm: %s, revision %s will be replaced by revision %s",
                 charm.charmhub, to_revision, from_revision)
-        releases.append(Release(charm.charmhub, from_revision, to_revision))
+        if from_revision != to_revision:
+            releases.append(
+                Release(charm.charmhub, from_revision, to_revision))
+        else:
+            already_released.append(
+                Release(charm.charmhub, from_revision, to_revision))
     # if we don't automatically confirm (confirmed == True) then print it out
     # and get acceptance.
     if not confirmed:
@@ -86,6 +92,16 @@ def release(
               f"on track: {track} for base: {base}")
         if arch:
             print(f"also search restricted to charms built on: {arch}")
+        if already_released:
+            print(f"These charms are already released from {from_channel} to "
+                  f"{to_channel}")
+            print(f"{'Charm':<30} {'Revision':^15} {'(Same)':^15}")
+            print(f"{'-' * 30} {'-' * 15} {'-' * 15}")
+            for release in already_released:
+                print(f"{release.charmhub:<30} {release.revision:^15} "
+                      f"{release.replaces or '-':^15}")
+            print(f"{'-' * 30} {'-' * 15} {'-' * 15}")
+            print()
         if releases:
             print(f"{'Charm':<30} {'Revision':^15} {'(Replaces)':^15}")
             print(f"{'-' * 30} {'-' * 15} {'-' * 15}")
@@ -141,6 +157,10 @@ def release(
         print("Failed releases: {}".format(", ".join(failures)))
     else:
         print("No failures")
+    if already_released:
+        print("Following charms were already released at that version and "
+              "not changed: {}"
+              .format(", ".join(r.charmhub for r in already_released)))
     if successes:
         print("Successful releases: {}".format(", ".join(successes)))
     else:
