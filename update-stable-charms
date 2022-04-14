@@ -1,8 +1,9 @@
 #!/bin/bash -e
 #
 # Apply stable-branch-updates to all charms (typically post-release charm-helper and zaza stable bit flips).
+# Note that the charms need to have been fetched using fetch-charms.py
 
-charms="$(cat charms.txt)"
+charms=$(cd charms && ls -d1 *)
 basedir="$(pwd)"
 username="$2"
 release="$1"
@@ -14,18 +15,17 @@ if [ -z "$release" ]; then
 fi
 
 for charm in $charms; do
-    [ -d charms/$charm ] && rm -Rf charms/$charm
-
-    # Handle repo url overrides if present
-    if grep "^$charm|" repo-link-overrides.txt > /dev/null; then
-       REPO_URL=$(grep "^$charm|" repo-link-overrides.txt | cut -f 2 -d "|")
-    else
-       REPO_URL="https://opendev.org/openstack/charm-${charm}"
-    fi
-
-    git clone $REPO_URL charms/$charm
     (
         cd charms/$charm
+        echo "Looking at charm $charm"
+        # get the url for the charm.
+        TLP=$(grep "^project=.*" .gitreview | perl -n -e'/=(.*)\// && print $1')
+        REPO_URL="https://opendev.org/$TLP/charm-${charm}"
+
+        git remote | grep gerrit || {
+            echo "Adding gerrit remote"
+            git remote add gerrit ssh://${username}@review.openstack.org:29418/${TLP}/charm-${charm}.git
+        }
         $basedir/stable-branch-updates $release
     )
 done
