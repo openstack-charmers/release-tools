@@ -1,0 +1,23 @@
+#!/bin/bash -e
+#
+# Add a gerrit remote if one doesn't exist
+# Note that the charms need to have been fetched using fetch-charms.py
+
+basedir="$(pwd)"
+username="$1"
+usage="usage: add-gerrit-remote gerrit-username"
+
+if [ -z "$username" ]; then
+    echo $usage
+    exit 1
+fi
+
+# get the url for the charm.
+TLP=$(grep "^project=.*" .gitreview | perl -n -e'/=(.*)\// && print $1')
+CHARM=$(grep "^project=.*" .gitreview | perl -n -e'/=.*\/(.*.git)/ && print $1')
+
+git remote | grep gerrit || {
+    echo "Adding gerrit remote"
+    git remote add gerrit ssh://${username}@review.openstack.org:29418/${TLP}/${CHARM}
+}
+

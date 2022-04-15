@@ -1,14 +1,8 @@
 #!/bin/bash -e
 # Get the git status of the charms -- i.e. what has changed
 
-charms="$(cat charms.txt)"
+charms=$(cd charms && ls -d1 *)
 
-for charm in $charms; do
-    if [ ! -d "charms/$charm" ]; then
-        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
-        #exit 1
-    fi
-done
 
 for charm in $charms; do
     echo "===== $charm git status ====="

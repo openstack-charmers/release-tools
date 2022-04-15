@@ -13,6 +13,9 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
+      stable/jammy:
+        channels:
+          - 2.4/edge
       stable/focal:
         build-channels:
           charmcraft: "1.5/stable"
@@ -45,11 +48,14 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
+      stable/jammy:
+        channels:
+          - jammy/edge
       stable/focal:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 8.0.19/edge
+          - focal/edge
 
   - name: MySQL Router
     charmhub: mysql-router
@@ -61,11 +67,14 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
+      stable/jammy:
+        channels:
+          - jammy/edge
       stable/focal:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 8.0.19/edge
+          - focal/edge
 
   - name: Percona Cluster Charm
     charmhub: percona-cluster
@@ -93,7 +102,9 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          #- 3.9/edge
+      stable/jammy:
+        channels:
+          - 3.9/edge
       stable/focal:
         build-channels:
           charmcraft: "1.5/stable"
@@ -154,6 +165,8 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
+      stable/jammy:
+        channels:
           - jammy/edge
       stable/focal:
         build-channels:

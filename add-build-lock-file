@@ -13,9 +13,14 @@ case $charm_type in
     source-zaza)
         # Build the charm.
         if [ ! -f src/build.lock ]; then
-            tox -e add-build-lock-file
+            # copy the add-build-lock file charmcraft in place
+            cp ${_dir}/global/source-zaza/charmcraft-build-lock-file.yaml charmcraft.yaml
+            tox -e build
             rm -rf .tox
-            rm -rf build
+            # unpack the build charm
+            charm=$(grep "charm_build_name" osci.yaml | awk '{print $2}')
+            unzip -p "${charm}.charm" build.lock >src/build.lock
+            git checkout charmcraft.yaml
             # temporarily workaround the stable branch detection - charm-tools Bug: #606
             sed -i "s#refs/heads/master\\\\nrefs/heads/stable/#refs/heads/stable/#g" src/build.lock
         fi

@@ -5,16 +5,21 @@
 #   - Update .gitreview with new stable branch name.
 
 release="$1"
+branch="$2"
 
-if [ -z "$release" ]; then
-    echo "Please provide release as only parameter"
+if [ -z "$branch" ]; then
+    echo "Please provide release and branch parameters"
+    echo "usage: stable-branch-updates release branch"
+    echo "e.g.   stable-branch-updates yoga jammy"
+    echo " means 'stable/yoga' for libs, and 'stable/jammy' for this charm"
     exit 1
 fi
 
-git checkout -b ${release}-updates origin/stable/${release}
+git fetch --all
+git checkout -b ${release}-updates origin/stable/${branch}
 
 grep -q defaultbranch .gitreview || {
-    echo -e "\ndefaultbranch=stable/$release" >> .gitreview
+    echo -e "\ndefaultbranch=stable/$branch" >> .gitreview
     git add .gitreview
 }
 

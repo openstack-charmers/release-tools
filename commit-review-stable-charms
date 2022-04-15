@@ -16,7 +16,7 @@ if [ ! -f "$msg_file" ]; then
     exit 1
 fi
 
-charms="$(cat charms.txt)"
+charms=$(cd charms && ls -d1 *)
 basedir="$(pwd)"
 
 for charm in $charms; do
