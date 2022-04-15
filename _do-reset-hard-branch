@@ -1,8 +1,13 @@
 #!/bin/bash -e
 #  Do a reset in all the charms; great for undoing damage and starting again.
 
-charms="$(cat charms.txt)"
+charms=$(cd charms && ls -d1 *)
 branch=$1
+
+if [ -z "$branch" ]; then
+    echo "Please provide the branch name as the param."
+    exit 1
+fi
 
 for charm in $charms; do
     if [ ! -d "charms/$charm" ]; then

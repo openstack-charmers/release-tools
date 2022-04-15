@@ -2,7 +2,8 @@
 # Check bug links
 
 DISPOSITION=0
-for charm in $(cat charms.txt); do
+charms=$(cd charms && ls -d1 *)
+for charm in $charms; do
 
   # Handle bug url overrides if present
   if grep "^$charm|" bug-link-overrides.txt > /dev/null; then

@@ -5,6 +5,12 @@
 topic=$1
 script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
+if [ -z "$topic" ]; then
+    echo "Please provide the topic as the only param."
+    echo "Usage $0 <topic>"
+    exit 1
+fi
+
 _dir=$(pwd)
 # verify that the branch isn't master
 branch=$(git branch --show-current | tr -d '\n')
@@ -20,7 +26,7 @@ if [[ -n "$git_status" ]]; then
     echo "Updating, no-edit-amend and git review with topic for ${_dir}"
     git add .
     git commit --amend --no-edit
-    git review -t charmhub-migration-yoga
+    git review -t $topic
 else
     echo "Nothing to do as git repo is not dirty."
 fi
