@@ -1,0 +1,24 @@
+#!/bin/bash -e
+#  git add . then amend no-edit and then review.  Topic in param
+# Does a single charm; use with do-batch-with to do the entire batch.
+
+topic=$1
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+if [ -z "$topic" ]; then
+    echo "Please provide the topic as the only param."
+    echo "Usage $0 <topic>"
+    exit 1
+fi
+
+_dir=$(pwd)
+# verify that the branch isn't master
+branch=$(git branch --show-current | tr -d '\n')
+if [[ "$branch" == "master" ]];
+then
+    echo "Branch is ${_dir}"
+    echo "Branch is master - not updating."
+    exit 0
+fi
+
+git review -t $topic
