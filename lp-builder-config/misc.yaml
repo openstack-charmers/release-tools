@@ -55,7 +55,8 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - focal/edge
+          # - focal/edge
+          - 8.0.19/edge
 
   - name: MySQL Router
     charmhub: mysql-router
@@ -74,7 +75,8 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - focal/edge
+          # - focal/edge
+          - 8.0.19/edge
 
   - name: Percona Cluster Charm
     charmhub: percona-cluster
