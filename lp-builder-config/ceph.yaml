@@ -3,26 +3,38 @@ defaults:
   team: openstack-charmers
   branches:
     master:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - latest/edge
         - quincy/edge
     stable/luminous:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - openstack-queens/edge
         - openstack-rocky/edge
         - luminous/edge
     stable/mimic:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - openstack-stein/edge
         - mimic/edge
     stable/nautilus:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - openstack-train/edge
         - nautilus/edge
     stable/octopus:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - octopus/edge
     stable/pacific:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - pacific/edge
 
@@ -33,13 +45,19 @@ projects:
     repository: https://opendev.org/openstack/charm-ceph-dashboard.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - quincy/edge
       stable/octopus:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - octopus/edge
       stable/pacific:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - pacific/edge
 

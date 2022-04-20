@@ -3,19 +3,27 @@ defaults:
   team: openstack-charmers
   branches:
     master:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - latest/edge
         - 22.03/edge
     stable/20.03:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - openstack-ussuri/edge
         - openstack-victoria/edge
         - 20.03/edge
     stable/20.12:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - openstack-wallaby/edge
         - 20.12/edge
     stable/21.09:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - openstack-xena/edge
         - 21.09/edge
