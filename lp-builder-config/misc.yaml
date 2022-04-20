@@ -9,12 +9,18 @@ projects:
     repository: https://opendev.org/openstack/charm-hacluster.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
       stable/focal:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 2.0.3/edge
       stable/bionic:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 1.1.18/edge
 
@@ -24,6 +30,8 @@ projects:
     repository: https://opendev.org/openstack/charm-magpie.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
 
@@ -33,9 +41,13 @@ projects:
     repository: https://opendev.org/openstack/charm-mysql-innodb-cluster.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
       stable/focal:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 8.0.19/edge
 
@@ -45,9 +57,13 @@ projects:
     repository: https://opendev.org/openstack/charm-mysql-router.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
       stable/focal:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 8.0.19/edge
 
@@ -57,9 +73,13 @@ projects:
     repository: https://opendev.org/openstack/charm-percona-cluster.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
       stable/bionic:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 5.7/edge
 
@@ -69,13 +89,19 @@ projects:
     repository: https://opendev.org/openstack/charm-rabbitmq-server.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           #- 3.9/edge
       stable/focal:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 3.8/edge
       stable/bionic:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 3.6/edge
 
@@ -86,6 +112,8 @@ projects:
     repository: https://github.com/openstack-charmers/charm-woodpecker
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
 
@@ -96,15 +124,23 @@ projects:
     repository: https://opendev.org/openstack/charm-vault.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
       stable/1.7:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 1.7/edge
       stable/1.6:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 1.6/edge
       stable/1.5:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - 1.5/edge
 
@@ -114,9 +150,13 @@ projects:
     repository: https://opendev.org/openstack/charm-openstack-loadbalancer.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - jammy/edge
       stable/focal:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - focal/edge

@@ -3,31 +3,49 @@ defaults:
   team: openstack-charmers
   branches:
     master:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - latest/edge
         - yoga/edge
     stable/queens:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - queens/edge
     stable/rocky:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - rocky/edge
     stable/stein:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - stein/edge
     stable/train:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - train/edge
     stable/ussuri:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - ussuri/edge
     stable/victoria:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - victoria/edge
     stable/wallaby:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - wallaby/edge
     stable/xena:
+      build-channels:
+        charmcraft: "1.5/stable"
       channels:
         - xena/edge
 
@@ -54,28 +72,44 @@ projects:
     repository: https://opendev.org/openstack/charm-barbican-vault.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/rocky:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - rocky/edge
       stable/stein:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - stein/edge
       stable/train:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
@@ -241,22 +275,34 @@ projects:
     repository: https://opendev.org/openstack/charm-placement.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/train:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
@@ -315,19 +361,29 @@ projects:
     repository: https://opendev.org/openstack/charm-cinder-nimblestorage.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
@@ -337,19 +393,29 @@ projects:
     repository: https://opendev.org/openstack/charm-cinder-solidfire.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
@@ -364,22 +430,34 @@ projects:
     repository: https://opendev.org/openstack/charm-ironic-api.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/train:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
@@ -389,22 +467,34 @@ projects:
     repository: https://opendev.org/openstack/charm-ironic-conductor.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/train:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
@@ -424,19 +514,29 @@ projects:
     repository: https://opendev.org/openstack/charm-magnum.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
@@ -446,19 +546,29 @@ projects:
     repository: https://opendev.org/openstack/charm-magnum-dashboard.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
@@ -483,22 +593,34 @@ projects:
     repository: https://opendev.org/openstack/charm-neutron-api-plugin-ironic.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/train:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
@@ -508,19 +630,29 @@ projects:
     repository: https://opendev.org/openstack/charm-neutron-api-plugin-ovn.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
           - yoga/edge
       stable/ussuri:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - xena/edge
 
