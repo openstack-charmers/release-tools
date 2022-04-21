@@ -336,8 +336,7 @@ def main() -> None:
     if args.ignore_charms:
         charms = [c for c in charms if c.charmhub not in args.ignore_charms]
     try:
-        pass
-        print(f"Would do releases from {args.from_channel} -> "
+        print(f"Will do releases from {args.from_channel} -> "
               f"{args.to_channel} on track {args.track}.")
         validate_channels(args.from_channel, args.to_channel)
         release(
