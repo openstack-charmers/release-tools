@@ -7,25 +7,29 @@ defaults:
         charmcraft: "1.5/stable"
       channels:
         - latest/edge
+    stable/quincy:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
         - quincy/edge
     stable/luminous:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - openstack-queens/edge
-        - openstack-rocky/edge
+        #- openstack-queens/edge
+        #- openstack-rocky/edge
         - luminous/edge
     stable/mimic:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - openstack-stein/edge
+        #- openstack-stein/edge
         - mimic/edge
     stable/nautilus:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - openstack-train/edge
+        #- openstack-train/edge
         - nautilus/edge
     stable/octopus:
       build-channels:
@@ -49,6 +53,10 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
+    stable/quincy:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
           - quincy/edge
       stable/octopus:
         build-channels:

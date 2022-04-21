@@ -7,7 +7,6 @@ defaults:
         charmcraft: "1.5/stable"
       channels:
         - latest/edge
-        - yoga/edge
     stable/queens:
       build-channels:
         charmcraft: "1.5/stable"
@@ -48,6 +47,11 @@ defaults:
         charmcraft: "1.5/stable"
       channels:
         - xena/edge
+    stable/yoga:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
+        - yoga/edge
 
 projects:
   - name: OpenStack Aodh Charm
@@ -76,7 +80,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/rocky:
         build-channels:
           charmcraft: "1.5/stable"
@@ -112,6 +115,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
   - name: OpenStack Ceilometer Charm
     charmhub: ceilometer
@@ -279,7 +287,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/train:
         build-channels:
           charmcraft: "1.5/stable"
@@ -305,6 +312,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
 #  - name: OpenStack Tempest Charm
 #    charmhub: tempest
@@ -365,7 +377,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/ussuri:
         build-channels:
           charmcraft: "1.5/stable"
@@ -386,6 +397,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
   - name: OpenStack Cinder Solidfire Charm
     charmhub: cinder-solidfire
@@ -397,7 +413,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/ussuri:
         build-channels:
           charmcraft: "1.5/stable"
@@ -418,6 +433,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
   - name: OpenStack Cinder NetApp Charm
     charmhub: cinder-netapp
@@ -434,7 +454,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/train:
         build-channels:
           charmcraft: "1.5/stable"
@@ -460,6 +479,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
   - name: OpenStack Ironic Conductor Charm
     charmhub: ironic-conductor
@@ -471,7 +495,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/train:
         build-channels:
           charmcraft: "1.5/stable"
@@ -497,6 +520,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
   - name: OpenStack Keystone Kerberos Charm
     charmhub: keystone-kerberos
@@ -518,7 +546,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/ussuri:
         build-channels:
           charmcraft: "1.5/stable"
@@ -539,6 +566,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
   - name: OpenStack Magnum Dashboard Charm
     charmhub: magnum-dashboard
@@ -550,7 +582,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/ussuri:
         build-channels:
           charmcraft: "1.5/stable"
@@ -571,6 +602,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
   - name: OpenStack Manila Dashboard Charm
     charmhub: manila-dashboard
@@ -597,7 +633,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/train:
         build-channels:
           charmcraft: "1.5/stable"
@@ -623,6 +658,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
   - name: OpenStack Neutron API OVN Plugin Charm
     charmhub: neutron-api-plugin-ovn
@@ -634,7 +674,6 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-          - yoga/edge
       stable/ussuri:
         build-channels:
           charmcraft: "1.5/stable"
@@ -655,6 +694,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/edge
 
   # - name: OpenStack Neutron Dynamic Routing Charm
   #  charmhub: neutron-dynamic-routing

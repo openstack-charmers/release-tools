@@ -7,25 +7,29 @@ defaults:
         charmcraft: "1.5/stable"
       channels:
         - latest/edge
+    stable/22.03:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
         - 22.03/edge
     stable/20.03:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - openstack-ussuri/edge
-        - openstack-victoria/edge
+        #- openstack-ussuri/edge
+        #- openstack-victoria/edge
         - 20.03/edge
     stable/20.12:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - openstack-wallaby/edge
+        #- openstack-wallaby/edge
         - 20.12/edge
     stable/21.09:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - openstack-xena/edge
+        #- openstack-xena/edge
         - 21.09/edge
 
 projects:
