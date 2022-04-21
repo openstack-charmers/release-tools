@@ -32,34 +32,36 @@ logger = logging.getLogger(__name__)
 class Release(NamedTuple):
     charmhub: str
     revision: int
-    replaces: Optional[int]
 
 class NoRelease(NamedTuple):
     charmhub: str
     issue: str
 
 
-def release(
+def clean_track(
     charms: List[Charm],
     track: str,
+    risk: str,
     base: str,
-    from_channel: str,
-    to_channel: str,
     arch: Optional[str] = None,
     confirmed: bool = False,
     ignore_errors: bool = False,
-):
-    """Promote the list of charms from one channel to another."""
+) -> None:
+    """Clean a track by finding the most recent revision.
+
+    This uses the arch/base/track/risk to find the most recent revision of
+    that is released there, then closes the track, and then re-releases the
+    revision back to this track.  That cleans the track up.
+    """
     releases: List[Release] = []
     errors: List[NoRelease] = []
-    already_released: List[Release] = []
     for charm in charms:
-        print(charm.charmhub)
+        print(f"Looking at {charm.charmhub}")
         cr = INFO_URL.format(charm=charm.charmhub)
         result = requests.get(cr).json()
         try:
-            from_revision = decode_channel_map(
-                charm.charmhub, result, track, from_channel,
+            revision = decode_channel_map(
+                charm.charmhub, result, track, risk,
                 base=base,
                 arch=arch)
         except ValueError as e:
@@ -69,47 +71,20 @@ def release(
                 errors.append(NoRelease(charm.charmhub, error))
                 continue
             raise
-        try:
-            to_revision = decode_channel_map(
-                charm.charmhub, result, track, to_channel,
-                base=base,
-                arch=arch)
-        except ValueError as e:
-            to_revision = None
-        if to_revision is not None:
-            logger.info(
-                "For charm: %s, revision %s will be replaced by revision %s",
-                charm.charmhub, to_revision, from_revision)
-        if from_revision != to_revision:
-            releases.append(
-                Release(charm.charmhub, from_revision, to_revision))
-        else:
-            already_released.append(
-                Release(charm.charmhub, from_revision, to_revision))
+        releases.append(Release(charm.charmhub, revision))
     # if we don't automatically confirm (confirmed == True) then print it out
     # and get acceptance.
     if not confirmed:
-        print(f"The following releases from {from_channel} to {to_channel} "
-              f"on track: {track} for base: {base}")
+        print(f"The following releases on channel: {track}/{risk} "
+              f"for base: {base}")
         if arch:
             print(f"also search restricted to charms built on: {arch}")
-        if already_released:
-            print(f"These charms are already released from {from_channel} to "
-                  f"{to_channel}")
-            print(f"{'Charm':<30} {'Revision':^15} {'(Same)':^15}")
-            print(f"{'-' * 30} {'-' * 15} {'-' * 15}")
-            for release in already_released:
-                print(f"{release.charmhub:<30} {release.revision:^15} "
-                      f"{release.replaces or '-':^15}")
-            print(f"{'-' * 30} {'-' * 15} {'-' * 15}")
-            print()
         if releases:
-            print(f"{'Charm':<30} {'Revision':^15} {'(Replaces)':^15}")
-            print(f"{'-' * 30} {'-' * 15} {'-' * 15}")
+            print(f"{'Charm':<30} {'Revision':^15}")
+            print(f"{'-' * 30} {'-' * 15}")
             for release in releases:
-                print(f"{release.charmhub:<30} {release.revision:^15} "
-                      f"{release.replaces or '-':^15}")
-            print(f"{'-' * 30} {'-' * 15} {'-' * 15}")
+                print(f"{release.charmhub:<30} {release.revision:^15} ")
+            print(f"{'-' * 30} {'-' * 15}")
             print()
         if errors:
             print(f"{'Charm':<30} Issue")
@@ -135,10 +110,23 @@ def release(
     failures: List[str] = []
     successes: List[str] = []
     for release in releases:
+        # first clean the channel
+        cmd = (f"charmcraft close {release.charmhub} {track}/{risk}")
+        print(f"Cleaning channel using: {cmd}")
+        try:
+            subprocess.check_call(cmd.split())
+        except Exception as e:
+            if ignore_errors:
+                logger.error("Attempting to clean with '%s' failed: %s",
+                             cmd, str(e))
+                failures.append(release.charmhub)
+                continue
+            raise
+        # then release the revision back into the channel.
         cmd = (f"charmcraft release {release.charmhub} "
                f"--revision {release.revision} "
-               f"--channel={track}/{to_channel}")
-        print(f"Doing: {cmd}")
+               f"--channel={track}/{risk}")
+        print(f"Re-releasing: {cmd}")
         try:
             subprocess.check_call(cmd.split())
             successes.append(release.charmhub)
@@ -158,10 +146,6 @@ def release(
         print("Failed releases: {}".format(", ".join(failures)))
     else:
         print("No failures")
-    if already_released:
-        print("Following charms were already released at that version and "
-              "not changed: {}"
-              .format(", ".join(r.charmhub for r in already_released)))
     if successes:
         print("Successful releases: {}".format(", ".join(successes)))
     else:
@@ -176,8 +160,12 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         description=(
-            "Promote charms from one release channel to a more stable release "
-            "channel.  e.g. from beta -> stable or edge -> candidate. "
+            "Clean a track/risk (channel) by picking the most recent "
+            "arch/base/track/risk revision, closing the track/risk and then "
+            "re-releasing the charm to that track/risk.  This removes "
+            "existing revisions for older bases, or specific (unsupported) "
+            "architectures, and ensures that just the single revision is "
+            "released into that track/risk. "
             "Note: use the --i-really-mean-it flag to override asking for "
             "confirmation as this is a potentially destructive action."))
     parser.add_argument('--log', dest='loglevel',
@@ -216,6 +204,14 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         help=("The track to adjust.  If the track doesn't exist then an error "
               "is raised unless --ignore-failure is specified."))
     parser.add_argument(
+        '--risk', '-r',
+        dest='risk',
+        required=True,
+        metavar='RISK',
+        type=str.lower,
+        choices=('edge', 'beta', 'candidate', 'stable'),
+        help=("The risk to change."))
+    parser.add_argument(
         '--base', '-b',
         dest='base',
         required=True,
@@ -238,24 +234,6 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
               ' Note that assertions that can be forced, (e.g. replace) are '
               'not ignored.'))
     parser.add_argument(
-        '--from',
-        dest='from_channel',
-        required=True,
-        metavar='FROM',
-        type=str.lower,
-        choices=('edge', 'beta', 'candidate',),
-        help=('The channel to promote from. Must be one of edge, beta or '
-              'candidate.'))
-    parser.add_argument(
-        '--to',
-        dest='to_channel',
-        required=True,
-        metavar='TO',
-        type=str.lower,
-        choices=('beta', 'candidate', 'stable'),
-        help=('The channel to promote to. Must be more "stable" than FROM. '
-              'Must be one of beta, candidate, stable.'))
-    parser.add_argument(
         '--i-really-mean-it',
         dest="confirmed",
         action='store_true',
@@ -263,20 +241,6 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
               'caller of the script to confirm.'))
     return parser.parse_args(argv)
 
-
-def validate_channels(from_channel: str, to_channel: str):
-    """Verify that the channels are valid."""
-    assert from_channel in ('edge', 'beta', 'candidate')
-    assert to_channel in ('beta', 'candidate', 'stable')
-    channels = ('edge', 'beta', 'candidate', 'stable')
-    from_index = channels.index(from_channel)
-    to_index = channels.index(to_channel)
-    if from_index == to_index:
-        raise AssertionError(f"--from and --to are the same channel "
-                             f"'{from_channel}'")
-    if from_index > to_index:
-        raise AssertionError(f"--from({from_channel}) is more stable than "
-                             f"--to({to_channel})")
 
 def main() -> None:
     args = parse_args(sys.argv[1:])
@@ -288,15 +252,12 @@ def main() -> None:
     if args.ignore_charms:
         charms = [c for c in charms if c.charmhub not in args.ignore_charms]
     try:
-        print(f"Will do releases from {args.from_channel} -> "
-              f"{args.to_channel} on track {args.track}.")
-        validate_channels(args.from_channel, args.to_channel)
-        release(
+        print("Checking for cleaning a track.")
+        clean_track(
             charms=charms,
             track=args.track,
+            risk=args.risk,
             base=args.base,
-            from_channel=args.from_channel,
-            to_channel=args.to_channel,
             arch=args.arch,
             confirmed=args.confirmed,
             ignore_errors=args.ignore_failure)
