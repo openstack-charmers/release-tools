@@ -25,10 +25,6 @@ logger = logging.getLogger(__name__)
 
 
 CUR_DIR = Path(__file__).parent.resolve()
-CHARMS_FILE = CUR_DIR / 'charms.txt'
-assert CHARMS_FILE.is_file(), f"{CHARMS_FILE} doesn't exist?"
-OPERATOR_CHARMS_FILE = CUR_DIR / 'operator-charms.txt'
-assert OPERATOR_CHARMS_FILE.is_file(), f"{OPERATOR_CHARMS_FILE} doesn't exist?"
 LP_DIR = CUR_DIR / 'lp-builder-config'
 assert LP_DIR.is_dir(), f"{LP_DIR} doesn't seem to exist?"
 
@@ -508,8 +504,8 @@ def main() -> None:
         bundles = args.bundles
     else:
         bundles = find_bundles_in_dirs(dirs)
-    charms = get_charms_list(CHARMS_FILE, OPERATOR_CHARMS_FILE)
     config = get_lp_builder_config()
+    charms = list(config.keys())
     print(dirs, bundles, charms)
     local_charm = determine_charm(charm_dir) if args.set_local_charm \
         else None
