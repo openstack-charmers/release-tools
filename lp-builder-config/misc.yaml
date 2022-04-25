@@ -167,7 +167,11 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          #- latest/edge
+          - latest/edge
+      stable/jammy:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
           - jammy/edge
       stable/focal:
         build-channels:
