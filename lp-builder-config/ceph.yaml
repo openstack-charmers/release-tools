@@ -84,6 +84,21 @@ projects:
     launchpad: charm-ceph-mon
     repository: https://opendev.org/openstack/charm-ceph-mon.git
 
+  - name: Ceph NFS Charm
+    charmhub: ceph-nfs
+    launchpad: charm-ceph-nfs
+    repository: https://opendev.org/openstack/charm-ceph-nfs.git
+    branches:
+      master:
+        channels:
+          - latest/edge
+      stable/quincy:
+        channels:
+          - quincy/edge
+      stable/pacific:
+        channels:
+          - pacific/edge
+
   - name: Ceph OSD Charm
     charmhub: ceph-osd
     launchpad: charm-ceph-osd
