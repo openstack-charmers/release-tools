@@ -216,6 +216,11 @@ projects:
     launchpad: charm-masakari-monitors
     repository: https://opendev.org/openstack/charm-masakari-monitors.git
 
+  - name: Pacemaker Remote Charm
+    charmhub: pacemaker-remote
+    launchpad: charm-pacemaker-remote
+    repository: https://opendev.org/openstack/charm-pacemaker-remote.git
+
 #  - name: OpenStack Mistral Charm
 #    charmhub: mistral
 #    launchpad: charm-mistral
