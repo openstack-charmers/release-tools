@@ -11,8 +11,9 @@ defaults:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - 22.03/edge
+        - 22.03/stable
     stable/20.03:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -20,12 +21,14 @@ defaults:
         #- openstack-victoria/edge
         - 20.03/edge
     stable/20.12:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         #- openstack-wallaby/edge
         - 20.12/edge
     stable/21.09:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:

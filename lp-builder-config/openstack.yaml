@@ -8,36 +8,43 @@ defaults:
       channels:
         - latest/edge
     stable/queens:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - queens/edge
     stable/rocky:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - rocky/edge
     stable/stein:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - stein/edge
     stable/train:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - train/edge
     stable/ussuri:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - ussuri/edge
     stable/victoria:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - victoria/edge
     stable/wallaby:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -51,7 +58,7 @@ defaults:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - yoga/edge
+        - yoga/stable
 
 projects:
   - name: OpenStack Aodh Charm
@@ -81,31 +88,37 @@ projects:
         channels:
           - latest/edge
       stable/rocky:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - rocky/edge
       stable/stein:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - stein/edge
       stable/train:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -119,7 +132,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
   - name: OpenStack Ceilometer Charm
     charmhub: ceilometer
@@ -293,21 +306,25 @@ projects:
         channels:
           - latest/edge
       stable/train:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -321,7 +338,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
 #  - name: OpenStack Tempest Charm
 #    charmhub: tempest
@@ -383,16 +400,19 @@ projects:
         channels:
           - latest/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -406,7 +426,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
   - name: OpenStack Cinder Solidfire Charm
     charmhub: cinder-solidfire
@@ -419,16 +439,19 @@ projects:
         channels:
           - latest/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -442,7 +465,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
   - name: OpenStack Cinder NetApp Charm
     charmhub: cinder-netapp
@@ -460,21 +483,25 @@ projects:
         channels:
           - latest/edge
       stable/train:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -488,7 +515,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
   - name: OpenStack Ironic Conductor Charm
     charmhub: ironic-conductor
@@ -501,21 +528,25 @@ projects:
         channels:
           - latest/edge
       stable/train:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -529,7 +560,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
   - name: OpenStack Keystone Kerberos Charm
     charmhub: keystone-kerberos
@@ -552,16 +583,19 @@ projects:
         channels:
           - latest/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -575,7 +609,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
   - name: OpenStack Magnum Dashboard Charm
     charmhub: magnum-dashboard
@@ -588,16 +622,19 @@ projects:
         channels:
           - latest/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -611,7 +648,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
   - name: OpenStack Manila Dashboard Charm
     charmhub: manila-dashboard
@@ -639,21 +676,25 @@ projects:
         channels:
           - latest/edge
       stable/train:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -667,7 +708,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
   - name: OpenStack Neutron API OVN Plugin Charm
     charmhub: neutron-api-plugin-ovn
@@ -680,16 +721,19 @@ projects:
         channels:
           - latest/edge
       stable/ussuri:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -703,7 +747,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - yoga/edge
+          - yoga/stable
 
   # - name: OpenStack Neutron Dynamic Routing Charm
   #  charmhub: neutron-dynamic-routing

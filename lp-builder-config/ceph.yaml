@@ -11,8 +11,9 @@ defaults:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - quincy/edge
+        - quincy/stable
     stable/luminous:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -20,23 +21,27 @@ defaults:
         #- openstack-rocky/edge
         - luminous/edge
     stable/mimic:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         #- openstack-stein/edge
         - mimic/edge
     stable/nautilus:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         #- openstack-train/edge
         - nautilus/edge
     stable/octopus:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - octopus/edge
     stable/pacific:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -53,17 +58,19 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-    stable/quincy:
-      build-channels:
-        charmcraft: "1.5/stable"
-      channels:
-          - quincy/edge
+      stable/quincy:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+            - quincy/stable
       stable/octopus:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - octopus/edge
       stable/pacific:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -90,12 +97,19 @@ projects:
     repository: https://opendev.org/openstack/charm-ceph-nfs.git
     branches:
       master:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
       stable/quincy:
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
-          - quincy/edge
+          - quincy/stable
       stable/pacific:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
         channels:
           - pacific/edge
 

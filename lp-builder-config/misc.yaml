@@ -17,13 +17,14 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 2.4/edge
+          - 2.4/stable
       stable/focal:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 2.0.3/edge
+          - 2.0.3/stable
       stable/bionic:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -50,12 +51,13 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-      stable/8.0:
+      #stable/8.0:
+      stable/jammy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           # - rename this one to 8.0 when we can do an alias from 8.0.19 -> 8.0
-          - 8.0.19/edge
+          - 8.0.19/stable
 
   - name: MySQL Router
     charmhub: mysql-router
@@ -67,12 +69,13 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-      stable/8.0:
+      #stable/8.0:
+      stable/jammy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           # - rename this one to 8.0 when we can do an alias from 8.0.19 -> 8.0
-          - 8.0.19/edge
+          - 8.0.19/stable
 
   - name: Percona Cluster Charm
     charmhub: percona-cluster
@@ -85,6 +88,7 @@ projects:
         channels:
           - latest/edge
       stable/5.7:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -101,19 +105,23 @@ projects:
         channels:
           - latest/edge
       # jammy
-      stable/3.9:
+      #stable/3.9:
+      stable/jammy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 3.9/edge
+          - 3.9/stable
       # focal
-      stable/3.8:
+      #stable/3.8:
+      stable/focal:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 3.8/edge
-      # bionic
+      # bionic - not enabled yet
       stable/3.6:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -146,17 +154,17 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 1.7/edge
+          - 1.7/stable
       stable/1.6:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 1.6/edge
+          - 1.6/stable
       stable/1.5:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 1.5/edge
+          - 1.5/stable
 
   - name: OpenStack Loadbalancer Charm
     charmhub: openstack-loadbalancer
@@ -172,8 +180,9 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - jammy/edge
+          - jammy/stable
       stable/focal:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
