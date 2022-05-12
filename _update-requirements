@@ -3,14 +3,7 @@
 #  been performed.  Does not commit, push, or submit/review.
 #  See `batch-example` for usage as a batch of charm updates.
 
-charms="$(cat charms.txt)"
-
-for charm in $charms; do
-    if [ ! -d charms/$charm ]; then
-        echo "Use ./get-charms master to clone the charm dirs first ($charm not found)"
-        exit 1
-    fi
-done
+charms=$(cd charms && ls -d1 *)
 
 for charm in $charms; do
     charm_type="$(./what-is charms/$charm)"

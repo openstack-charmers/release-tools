@@ -1,9 +1,9 @@
 Updates for stable branch creation
 
-Set default branch for git review/gerrit.
-
-Switch tests to stable.
-
-Switch to using stable charm-helpers branch.
-
-Switch to using stable charm.openstack branch.
+- Set default branch for git review/gerrit.
+- Switch tests to stable.
+- Switch to using stable charm-helpers branch.
+- Switch to using stable charm.openstack branch.
+- Switch to using stable zaza, zaza-openstack-tests
+  branch
+- (reactive charms) Add build.lock file

@@ -18,14 +18,8 @@ for charm in $charms; do
     (
         cd charms/$charm
         echo "Looking at charm $charm"
-        # get the url for the charm.
-        TLP=$(grep "^project=.*" .gitreview | perl -n -e'/=(.*)\// && print $1')
-        REPO_URL="https://opendev.org/$TLP/charm-${charm}"
-
-        git remote | grep gerrit || {
-            echo "Adding gerrit remote"
-            git remote add gerrit ssh://${username}@review.openstack.org:29418/${TLP}/charm-${charm}.git
-        }
+        # Add the remote gerrit if needed
+        $basedir/add-gerrit-remote $username
         echo "Creating stable branch for release $release"
         $basedir/create-stable-branch $release
     )

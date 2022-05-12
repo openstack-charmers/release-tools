@@ -7,9 +7,10 @@ charms=$(cd charms && ls -d1 *)
 basedir="$(pwd)"
 username="$2"
 release="$1"
-usage="usage: update-stable-charms release-name"
+branch="$3"
+usage="usage: update-stable-charms release-name username branch"
 
-if [ -z "$release" ]; then
+if [ -z "$branch" ]; then
     echo $usage
     exit 1
 fi
@@ -19,13 +20,7 @@ for charm in $charms; do
         cd charms/$charm
         echo "Looking at charm $charm"
         # get the url for the charm.
-        TLP=$(grep "^project=.*" .gitreview | perl -n -e'/=(.*)\// && print $1')
-        REPO_URL="https://opendev.org/$TLP/charm-${charm}"
-
-        git remote | grep gerrit || {
-            echo "Adding gerrit remote"
-            git remote add gerrit ssh://${username}@review.openstack.org:29418/${TLP}/charm-${charm}.git
-        }
-        $basedir/stable-branch-updates $release
+        $basedir/add-gerrit-remote $username
+        $basedir/stable-branch-updates $release $branch
     )
 done

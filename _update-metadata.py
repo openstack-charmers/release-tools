@@ -19,7 +19,7 @@ Command = collections.namedtuple('Command', ['charm', 'cmd', 'params'])
 
 
 def usage():
-    print("usage: {} [list | add | remove | ensure] [<series, ...]"
+    print("usage: {} <charm> [list | add | remove | ensure] [<series, ...]"
           .format(sys.argv[0]))
 
 
@@ -61,27 +61,30 @@ def run_command(cmd, yml):
         sys.exit(1)
 
 
-def charm_dir(cmd):
+def metadata_file(cmd):
+    """Find the metadata.yaml file"""
     charm_dir = os.path.join("charms", cmd.charm)
     if not os.path.isdir(charm_dir):
         print("dir: {} doesn't exist.".format(charm_dir))
         sys.exit(1)
-    src_charm_dir = os.path.join(charm_dir, "src")
-    if os.path.isdir(src_charm_dir):
-        return src_charm_dir
-    else:
-        return charm_dir
+    metadata_in_root = os.path.join(charm_dir, 'metadata.yaml')
+    if (os.path.isfile(metadata_in_root) and
+            not os.path.islink(metadata_in_root)):
+        return metadata_in_root
+    metadata_in_src = os.path.join(charm_dir, 'src', 'metadata.yaml')
+    if os.path.isfile(metadata_in_src):
+        return metadata_in_src
+    print("Can't find metadata!")
+    sys.exit(1)
 
 
 def load_yaml(cmd):
-    file = os.path.join(charm_dir(cmd), "metadata.yaml")
-    with open(file) as f:
+    with open(metadata_file(cmd)) as f:
         return YAML.load(f, YAML.RoundTripLoader)
 
 
 def write_yaml(cmd, yml):
-    file = os.path.join(charm_dir(cmd), "metadata.yaml")
-    with open(file, "w") as f:
+    with open(metadata_file(cmd), "w") as f:
         YAML.dump(yml, f, Dumper=YAML.RoundTripDumper)
 
 

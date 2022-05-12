@@ -21,12 +21,4 @@ then
     exit 0
 fi
 
-git_status="$(git status -s)"
-if [[ -n "$git_status" ]]; then
-    echo "Updating, no-edit-amend and git review with topic for ${_dir}"
-    git add .
-    git commit --amend --no-edit
-    git review -t $topic
-else
-    echo "Nothing to do as git repo is not dirty."
-fi
+git review -t $topic
