@@ -11,6 +11,7 @@ parts:
       - libxml2-dev
       - libxslt1-dev
       - libmysqlclient-dev  # for executable mysql_shell 
+      - libpq-dev  # for the `pg_config` executable
     override-build: |
       apt-get install ca-certificates -y
       tox -e add-build-lock-file
