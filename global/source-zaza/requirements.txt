@@ -18,7 +18,8 @@ cffi==1.14.6; python_version < '3.6'  # cffi 1.15.0 drops support for py35.
 #
 cryptography<3.4
 
-charm-tools==2.8.3
+charm-tools==2.8.3; python_version < '3.10'
+git+https://github.com/juju/charm-tools.git; python_version >= '3.10'
 
 simplejson
 
