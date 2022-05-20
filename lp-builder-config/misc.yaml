@@ -56,8 +56,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          # - rename this one to 8.0 when we can do an alias from 8.0.19 -> 8.0
-          - 8.0.19/stable
+          - 8.0/stable
 
   - name: MySQL Router
     charmhub: mysql-router
@@ -74,8 +73,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          # - rename this one to 8.0 when we can do an alias from 8.0.19 -> 8.0
-          - 8.0.19/stable
+          - 8.0/stable
 
   - name: Percona Cluster Charm
     charmhub: percona-cluster
