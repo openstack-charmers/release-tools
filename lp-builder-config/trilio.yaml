@@ -1,0 +1,30 @@
+# Trilio Charms
+defaults:
+  team: openstack-charmers
+  branches:
+    master:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
+        - latest/edge
+
+projects:
+  - name: Trilio Data Mover
+    charmhub: openstack-charmers-trilio-data-mover
+    launchpad: charm-trilio-data-mover
+    repository: https://opendev.org/openstack/charm-trilio-data-mover.git
+
+  - name: Trilio Data Mover API
+    charmhub: openstack-charmers-trilio-dm-api
+    launchpad: charm-trilio-dm-api
+    repository: https://opendev.org/openstack/charm-trilio-dm-api.git
+
+  - name: Trilio Horizon Plugin
+    charmhub: openstack-charmers-trilio-horizon-plugin
+    launchpad: charm-trilio-horizon-plugin
+    repository: https://opendev.org/openstack/charm-trilio-horizon-plugin.git
+
+  - name: Trilio Workload Manager
+    charmhub: openstack-charmers-trilio-wlm
+    launchpad: charm-trilio-wlm
+    repository: https://opendev.org/openstack/charm-trilio-wlm.git
