@@ -4,6 +4,6 @@ charms=$(cd ../charms && ls -d1 *)
 for charm in $charms; do
     echo "===== $charm ====="
     (
-        ./update-charmcraft.py ../charms/$charm/charmcraft.yaml
+        ./update-charmcraft-xena.py ../charms/$charm/charmcraft.yaml
     )
 done

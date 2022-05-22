@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, NamedTuple, List
 
 
 def decode_channel_map(charm: str,
@@ -47,3 +47,55 @@ def decode_channel_map(charm: str,
             "More than 1 revision num found for charm: %s, revisions: %s",
             charm, sorted(revision_nums))
     return sorted(revision_nums)[-1]
+
+
+class Release(NamedTuple):
+    arches: List[str]
+    base: str
+    revision: int
+
+
+class TrackRiskRelease(NamedTuple):
+    track: str
+    risk: str
+    releases: List[Release]
+
+
+RISKS: List[str] = ['edge', 'beta', 'candidate', 'stable']
+
+
+def decode_channel_map_to_risks(result: Dict[str, Any],
+                                track: str,
+                                ) -> Dict[str, TrackRiskRelease]:
+    """Decode the channel map for a charm into list of Track/release sets.
+
+    :param result: the result from the INFO_URL request.
+    :param track: the track to home in on.
+    :returns: a dictionary of risk: releases
+    """
+    assert '/' not in track
+    risk_release: Dict[str, TrackRiskRelease] = {
+        'edge': TrackRiskRelease(track, 'edge', []),
+        'beta': TrackRiskRelease(track, 'beta', []),
+        'candidate': TrackRiskRelease(track, 'candidate', []),
+        'stable': TrackRiskRelease(track, 'stable', []),
+    }
+
+
+    for i, channel_def in enumerate(result['channel-map']):
+        # print("channel_def:", channel_def)
+        base_arch = channel_def['channel']['base']['architecture']
+        base_channel = channel_def['channel']['base']['channel']
+        channel_track = channel_def['channel']['track']
+        channel_risk = channel_def['channel']['risk']
+        revision = channel_def['revision']
+        revision_num = revision['revision']
+        arches = [f"{v['architecture']}/{v['channel']}"
+                  for v in revision['bases']]
+        arches_str = ",".join(arches)
+        risk_release[channel_risk].releases.append(
+            Release(arches, base_channel, revision_num))
+    return risk_release
+
+
+

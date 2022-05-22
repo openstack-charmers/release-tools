@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sed -i 's/charm-ussuri-functional-jobs/charm-focal-ussuri-functional-jobs/' osci.yaml

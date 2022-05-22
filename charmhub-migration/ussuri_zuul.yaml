@@ -1,0 +1,4 @@
+- project:
+    templates:
+      - openstack-python3-ussuri-jobs
+      - openstack-cover-jobs
