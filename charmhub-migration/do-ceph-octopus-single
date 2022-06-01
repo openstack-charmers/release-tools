@@ -1,0 +1,284 @@
+#!/bin/bash
+
+# run this script in the root of the charm directory
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+repo_dir="$script_dir/.."
+worktree_branch="master"
+openstack_release="ussuri"
+ceph_release="octopus"
+
+# update charmcraft
+function charmcraft_classic {
+    if [ -e "__worktrees/$worktree_branch/charmcraft.yaml" ];
+    then
+        cp __worktrees/$worktree_branch/charmcraft.yaml .
+    else
+        cp $script_dir/global/classic-zaza/charmcraft.yaml .
+    fi
+}
+function charmcraft_source {
+    if [ -e "__worktrees/$worktree_branch/charmcraft.yaml" ];
+    then
+        cp __worktrees/$worktree_branch/charmcraft.yaml .
+    else
+        cp $repo_dir/global/source-zaza/charmcraft.yaml .
+    fi
+}
+
+function add_rename {
+    if [ -e "__worktrees/$worktree_branch/rename.sh" ];
+    then
+        cp __worktrees/$worktree_branch/rename.sh .
+    else
+        cp $repo_dir/global/source-zaza/rename.sh .
+    fi
+}
+
+
+function add_build_requirements {
+    if [ -e "__worktrees/$worktree_branch/build-requirements.txt" ];
+    then
+        cp __worktrees/$worktree_branch/build-requirements.txt .
+    else
+        cp $repo_dir/global/source-zaza/build-requirements.txt .
+    fi
+}
+
+
+function ensure_tox_classic {
+    if [ -e "__worktrees/$worktree_branch/tox.ini" ];
+    then
+        cp __worktrees/$worktree_branch/tox.ini .
+    else
+        cp $repo_dir/global/classic-zaza/tox.ini .
+    fi
+}
+
+function ensure_tox_source {
+    if [ -e "__worktrees/$worktree_branch/tox.ini" ];
+    then
+        cp __worktrees/$worktree_branch/tox.ini .
+    else
+        cp $repo_dir/global/source-zaza/tox.ini .
+    fi
+}
+
+# update metadata // called in context of directory with metadata
+# param 1 is the file to update
+function update_metadata {
+    local metafile=$1
+    sed -i '/- trusty/d' $metafile
+    sed -i '/- xenial/d' $metafile
+    sed -i '/- bionic/d' $metafile
+    sed -i '/- groovy/d' $metafile
+    sed -i '/- hirsute/d' $metafile
+    sed -i '/- impish/d' $metafile
+}
+
+function update_osci {
+    local oscifile=$1
+    sed -i 's/- charm-yoga-unit-jobs/- charm-unit-jobs-py38/1' $oscifile
+    sed -i 's/- charm-unit-jobs/- charm-unit-jobs-py38/1' $oscifile
+    sed -i '/- charm-xena.*jobs/d' $oscifile
+    sed -i '/- charm-yoga.*jobs/d' $oscifile
+    sed -i '/- charm-victoria.*jobs/d' $oscifile
+    sed -i '/- charm-stein.*jobs/d' $oscifile
+    sed -i '/- charm-queens.*jobs/d' $oscifile
+}
+
+function update_tests_yaml {
+    local yamlfile=$1
+    sed -i '/- .*queens/d' $yamlfile
+    sed -i '/- .*rocky/d' $yamlfile
+    sed -i '/- .*stein/d' $yamlfile
+    sed -i '/- .*train/d' $yamlfile
+    sed -i '/- .*victoria/d' $yamlfile
+    sed -i '/- .*groovy/d' $yamlfile
+    sed -i '/- .*impish/d' $yamlfile
+    sed -i '/- .*hirsute/d' $yamlfile
+    sed -i '/- .*xena/d' $yamlfile
+    sed -i '/- .*yoga/d' $yamlfile
+    sed -i '/- .*xenial/d' $yamlfile
+    sed -i '/- .*bionic/d' $yamlfile
+}
+
+function remove_bundles {
+    local bundles_dir=$1
+    (
+        cd $bundles_dir
+        rm *queens*.yaml
+        rm *rocky*.yaml
+        rm *stein*.yaml
+        rm *groovy*.yaml
+        rm *hirsute*.yaml
+        rm *xena*.yaml
+        rm *yoga*.yaml
+        rm *xenial*.yaml
+        rm *bionic*.yaml
+        rm *trusty*.yaml
+    )
+}
+
+function update_bundles {
+    local charm_dir=$1
+    (
+        cd $charm_dir
+        # remove any existing channel specs
+        $repo_dir/update-channel-single.py --log DEBUG \
+            --remove-channel \
+            --disable-local-overlay \
+            --set-local-charm
+        # set all the branches to latest/edge and ch: prefixes
+        $repo_dir/update-channel-single.py --log DEBUG --branch stable/octopus --ensure-charmhub
+        # Then overwrite with branches appropirate to ceph-octopus
+        $repo_dir/update-channel-single.py --log DEBUG \
+            --branch stable/ussuri \
+            --branch stable/victoria \
+            --branch stable/focal \
+            --branch stable/octopuc
+    )
+}
+
+
+# run in the charm directory
+function ensure_git_branch {
+    branch=$(git branch --show-current | tr -d '\n')
+    if [[ "$branch" != "charmhub-migration-ceph" ]];
+    then
+        git checkout -b charmhub-migration-ceph
+    fi
+}
+
+
+# run in the charm directory
+function ensure_git_review {
+    # if it doesn't exist, add something to it.
+    grep -q defaultbranch .gitreview || {
+        echo -e "\ndefaultbranch=" >> .gitreview
+    }
+    # now ensure it is the correct release
+    sed -i "s'defaultbranch=.*$'defaultbranch=stable/$ceph_release'g" .gitreview
+    git add .gitreview
+}
+
+
+# run in the charm directory
+function ensure_gitignore_charm {
+    grep -q '*.charm' .gitignore || {
+        echo -e "*.charm" >> .gitignore
+    }
+}
+
+
+
+# run in the charm directory
+function ensure_libs_classic {
+    # switch classic charms libs
+    for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
+        if [ -f $ch ]; then
+            echo
+            sed -i "s'https://github.com/juju/charm-helpers.*$'https://github.com/juju/charm-helpers@stable/${openstack_release}'g" $ch
+        fi
+    done
+
+    echo "Updating test-requirements.txt in repository with stable Zaza"
+    for file in requirements.txt test-requirements.txt; do
+        if [ -e "$file" ]; then
+            set +e
+            sed -i "s'openstack-charmers/zaza.git.*$'openstack-charmers/zaza.git@stable/$openstack_release#egg=zaza'g" $file
+            sed -i "s'openstack-charmers/zaza-openstack-tests.git.*$'openstack-charmers/zaza-openstack-tests.git@stable/$openstack_release#egg=zaza.openstack'g" $file
+            sed -i "s'github.com/juju/charm-helpers.*$'github.com/juju/charm-helpers@stable/$openstack_release#egg=charmhelper'g" $file
+            sed -i "s'github.com/openstack/charms.ceph.git.*$'github.com/openstack/charms.ceph.git@stable/$ceph_release#egg=charms.ceph'g" $file
+            set -e
+        fi
+    done
+
+}
+
+# run in the charm directory
+function ensure_libs_source {
+        echo "Updating test-requirements.txt in repository with stable Zaza"
+        for file in requirements.txt test-requirements.txt src/test-requirements src/wheelhouse.txt; do
+        if [ -e "$file" ]; then
+            set +e
+            sed -i "s'openstack-charmers/zaza.git.*$'openstack-charmers/zaza.git@stable/$openstack_release#egg=zaza'g" $file
+            sed -i "s'openstack-charmers/zaza-openstack-tests.git.*$'openstack-charmers/zaza-openstack-tests.git@stable/$openstack_release#egg=zaza.openstack'g" $file
+            sed -i "s'github.com/juju/charm-helpers.*$'github.com/juju/charm-helpers@stable/$openstack_release#egg=charmhelpers'g" $file
+            sed -i "s'github.com/openstack/charms.ceph.git.*$'github.com/openstack/charms.ceph.git@stable/$ceph_release#egg=charms.ceph'g" $file
+            sed -i "s'github.com/openstack/charms.openstack.git.*$'github.com/openstack/charms.openstack.git@stable/$openstack_release#egg=charms.openstack'g" $file
+            set -e
+        fi
+    done
+}
+
+
+# run in the charm directory
+function ensure_libs_ops {
+        echo "Updating test-requirements.txt in repository with stable Zaza"
+        for file in requirements.txt test-requirements.txt requirements-dev.txt src/test-requirements; do
+        if [ -e "$file" ]; then
+            set +e
+            sed -i "s'openstack-charmers/zaza.git.*$'openstack-charmers/zaza.git@stable/$openstack_release#egg=zaza'g" $file
+            sed -i "s'openstack-charmers/zaza-openstack-tests.git.*$'openstack-charmers/zaza-openstack-tests.git@stable/$openstack_release#egg=zaza.openstack'g" $file
+            sed -i "s'github.com/juju/charm-helpers.*$'github.com/juju/charm-helpers@stable/$openstack_release#egg=charmhelpers'g" $file
+            sed -i "s'github.com/openstack/charms.ceph.git.*$'github.com/openstack/charms.ceph.git@stable/$ceph_release#egg=charms.ceph'g" $file
+            set -e
+        fi
+    done
+}
+
+charm_type="$($repo_dir/what-is .)"
+echo "===== $charm_type ====="
+case $charm_type in
+    source-zaza)
+        ensure_git_branch
+        ensure_gitignore_charm
+        charmcraft_source
+        $script_dir/update-charmcraft.py charmcraft.yaml
+        $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
+        ln -s src/metadata.yaml
+        update_metadata src/metadata.yaml
+        update_osci osci.yaml
+        update_tests_yaml src/tests/tests.yaml
+        remove_bundles src/tests/bundles
+        update_bundles .
+        add_rename
+        add_build_requirements
+        ensure_tox_source
+        ensure_git_review
+        ensure_libs_source
+        ;;
+    classic-zaza)
+        ensure_git_branch
+        ensure_gitignore_charm
+        charmcraft_classic
+        $script_dir/update-charmcraft.py charmcraft.yaml
+        $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
+        update_metadata metadata.yaml
+        update_osci osci.yaml
+        update_tests_yaml tests/tests.yaml
+        remove_bundles tests/bundles
+        update_bundles .
+        add_rename
+        add_build_requirements
+        ensure_tox_classic
+        ensure_git_review
+        ensure_libs_classic
+        ;;
+    *)
+        echo "It must be a charmcraft native one."
+        $script_dir/update-charmcraft.py charmcraft.yaml
+        $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
+        ensure_git_branch
+        ensure_git_review
+        ensure_gitignore_charm
+        update_osci osci.yaml
+        update_metadata metadata.yaml
+        update_tests_yaml src/tests/tests.yaml
+        remove_bundles src/tests/bundles
+        update_bundles .
+        add_rename
+        ensure_libs_ops
+        ;;
+esac
