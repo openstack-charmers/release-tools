@@ -10,13 +10,17 @@ parts:
       apt-get install ca-certificates -y
       tox -e build-reactive
     override-stage: |
-      echo "Copying charm to staging area: $CHARMCRAFT_STAGE"
-      NAME=$(ls $CHARMCRAFT_PART_BUILD/build/builds)
-      cp -r $CHARMCRAFT_PART_BUILD/build/builds/$NAME/* $CHARMCRAFT_STAGE/
+      STAGE_DIR=${CRAFT_STAGE:-$CHARMCRAFT_STAGE}
+      BUILD_DIR=${CRAFT_PART_BUILD:-$CHARMCRAFT_PART_BUILD}
+
+      echo "Copying charm to staging area: $STAGE_DIR"
+      NAME=$(ls $BUILD_DIR/build/builds)
+      cp -r $BUILD_DIR/build/builds/$NAME/* $STAGE_DIR/
     override-prime: |
       # For some reason, the normal priming chokes on the fact that there's a
       # hooks directory.
-      cp -r $CHARMCRAFT_STAGE/* .
+      STAGE_DIR=${CRAFT_STAGE:-$CHARMCRAFT_STAGE}
+      cp -r $STAGE_DIR/* .
 
 bases:
   - name: ubuntu
