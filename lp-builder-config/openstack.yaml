@@ -4,7 +4,7 @@ defaults:
   branches:
     master:
       build-channels:
-        charmcraft: "1.7/stable"
+        charmcraft: "2.0/stable"
       channels:
         - latest/edge
     stable/queens:
@@ -84,7 +84,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/rocky:
@@ -158,6 +158,11 @@ projects:
     charmhub: cinder-ceph
     launchpad: charm-cinder-ceph
     repository: https://opendev.org/openstack/charm-cinder-ceph.git
+
+  - name: OpenStack Cinder Purestorage Charm
+    charmhub: cinder-purestorage
+    launchpad: charm-cinder-purestorage
+    repository: https://opendev.org/openstack/charm-cinder-purestorage.git
 
   - name: OpenStack Dashboard Charm
     charmhub: openstack-dashboard
@@ -302,7 +307,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/train:
@@ -396,7 +401,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
@@ -480,7 +485,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
@@ -563,7 +568,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/train:
@@ -608,7 +613,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/train:
@@ -674,7 +679,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
@@ -713,7 +718,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
@@ -767,7 +772,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/train:
@@ -812,7 +817,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
