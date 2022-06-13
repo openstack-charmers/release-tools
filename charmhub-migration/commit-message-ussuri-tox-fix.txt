@@ -1,0 +1,4 @@
+Ensure that the tox.ini has py37 support
+
+This is needed for the "openstack-python3-ussuri-jobs"
+job on upstream zuul referenced in the .zuul.yaml
