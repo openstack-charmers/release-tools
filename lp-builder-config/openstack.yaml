@@ -472,6 +472,11 @@ projects:
     launchpad: charm-cinder-netapp
     repository: https://opendev.org/openstack/charm-cinder-netapp.git
 
+  - name: OpenStack Cinder 3PAR Charm
+    charmhub: cinder-three-par
+    launchpad: charm-cinder-three-par
+    repository: https://opendev.org/openstack/charm-cinder-three-par.git
+
   - name: OpenStack Ironic API Charm
     charmhub: ironic-api
     launchpad: charm-ironic-api
