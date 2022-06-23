@@ -7,6 +7,21 @@ defaults:
         charmcraft: "1.5/stable"
       channels:
         - latest/edge
+    stable/4.0:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
+        - 4.0/stable
+    stable/4.1:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
+        - 4.1/stable
+    stable/4.2:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
+        - 4.2/stable
 
 projects:
   - name: Trilio Data Mover
