@@ -1,0 +1,5 @@
+Update the bundles to use the stable track, edge risk for victoria
+
+This update points the charms to the appropriate channel for
+the charm being used, either from ceph, openstack, ovn or the
+misc tracks for victoria.

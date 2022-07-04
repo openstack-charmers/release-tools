@@ -1,0 +1,12 @@
+Charmhub migration for stable/train (bionic-only)
+
+This is the main patch for the migration of the stable/21.10
+charm to charmhub for the stable/train branch (train track on
+charmhub).  This patch initially supports bionic from queens
+to train, and does not support ussuri.  It supports upgrades
+from bionic-queens to bionic-train (with each intermediate
+step needed).  Crucially it does NOT set a default
+openstack-origin, which means installing train/stable
+without specifying the openstack-origin will result in a
+bionic-queens installation.  This is intentional as the branch
+covers queens to train.

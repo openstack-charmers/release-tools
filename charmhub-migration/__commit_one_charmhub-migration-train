@@ -1,0 +1,32 @@
+#!/bin/bash -e
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+topic="charmhub-migration"
+git_branch="charmhub-migration-train"
+commit_msg_file=$script_dir/commit-message-charmhub-migration-train.txt
+_dir=$(pwd)
+
+commit_msg="$(cat $commit_msg_file ||:)"
+if [ -z "$commit_msg" ]; then
+    echo " ! $commit_msg_file not found or empty." && exit 1
+fi
+
+# check there is something to do
+git_status="$(git status -s)"
+if [[ -z "$git_status" ]]; then
+    echo "Git not dirty, so nothing to do"
+    exit 0
+fi
+
+# verify that the branch isn't master
+branch=$(git branch --show-current | tr -d '\n')
+if [[ "$branch" == "$git_branch" ]];
+then
+    echo "Branch is ${_dir}"
+    echo "Doing add, commit and review"
+    git add .
+    git commit -F $commit_msg_file
+    git review -t $topic
+    exit 0
+fi
+
+echo "Not $git_branch, doing nothing."
