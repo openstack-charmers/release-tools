@@ -1,7 +1,8 @@
-There are 2 basic OpenStack Charm structure:
+There are 3 basic OpenStack Charm structure:
 
 1. Classic (non-reactive) + Zaza functional tests
 2. Source (reactive) + Zaza functional tests
+3. Ops (Operator framework)
 
 The 'global' dir contains gold reference files for each of the above,
 which should be maintained as the source of truth, and pushed out
