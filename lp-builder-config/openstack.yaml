@@ -4,7 +4,7 @@ defaults:
   branches:
     master:
       build-channels:
-        charmcraft: "1.5/stable"
+        charmcraft: "1.7/stable"
       channels:
         - latest/edge
     stable/queens:
@@ -84,7 +84,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/rocky:
@@ -302,7 +302,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/train:
@@ -396,7 +396,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/ussuri:
@@ -435,7 +435,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/ussuri:
@@ -479,7 +479,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/train:
@@ -524,7 +524,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/train:
@@ -579,7 +579,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/ussuri:
@@ -618,7 +618,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/ussuri:
@@ -672,7 +672,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/train:
@@ -717,7 +717,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/ussuri:
