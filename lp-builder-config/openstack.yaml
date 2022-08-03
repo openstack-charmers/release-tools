@@ -438,6 +438,12 @@ projects:
           charmcraft: "1.7/stable"
         channels:
           - latest/edge
+      stable/train:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - ussuri/edge
       stable/ussuri:
         enabled: False
         build-channels:
