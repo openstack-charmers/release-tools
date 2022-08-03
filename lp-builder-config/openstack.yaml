@@ -428,6 +428,45 @@ projects:
         channels:
           - yoga/stable
 
+  - name: OpenStack Cinder Purestorage Charm
+    charmhub: cinder-purestorage
+    launchpad: charm-cinder-purestorage
+    repository: https://opendev.org/openstack/charm-cinder-purestorage.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "1.7/stable"
+        channels:
+          - latest/edge
+      stable/ussuri:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - wallaby/edge
+      stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - xena/edge
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/stable
+
   - name: OpenStack Cinder Solidfire Charm
     charmhub: cinder-solidfire
     launchpad: charm-cinder-solidfire
