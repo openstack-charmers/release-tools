@@ -116,7 +116,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 3.8/edge
+          - 3.8/stable
       # bionic - not enabled yet
       stable/3.6:
         enabled: False

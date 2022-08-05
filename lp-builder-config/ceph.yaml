@@ -45,7 +45,7 @@ defaults:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - pacific/edge
+        - pacific/stable
 
 projects:
   - name: Ceph Dashboard Charm
@@ -74,7 +74,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - pacific/edge
+          - pacific/stable
 
   - name: Ceph FileSystem Charm
     charmhub: ceph-fs
