@@ -53,7 +53,7 @@ defaults:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - xena/edge
+        - xena/stable
     stable/yoga:
       build-channels:
         charmcraft: "1.5/stable"
@@ -127,7 +127,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"
@@ -333,7 +333,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"
@@ -421,7 +421,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"
@@ -460,7 +460,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"
@@ -510,7 +510,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"
@@ -555,7 +555,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"
@@ -604,7 +604,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"
@@ -643,7 +643,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"
@@ -703,7 +703,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"
@@ -742,7 +742,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - xena/edge
+          - xena/stable
       stable/yoga:
         build-channels:
           charmcraft: "1.5/stable"

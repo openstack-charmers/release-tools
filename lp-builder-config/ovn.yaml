@@ -33,7 +33,7 @@ defaults:
         charmcraft: "1.5/stable"
       channels:
         #- openstack-xena/edge
-        - 21.09/edge
+        - 21.09/stable
 
 projects:
   - name: OVN Central
