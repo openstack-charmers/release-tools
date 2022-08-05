@@ -148,11 +148,11 @@ projects:
           charmcraft: "1.7/stable"
         channels:
           - latest/edge
-      stable/1.5:
+      stable/1.7:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - 1.5/stable
+          - 1.7/stable
       stable/1.6:
         build-channels:
           charmcraft: "1.5/stable"
