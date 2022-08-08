@@ -517,6 +517,45 @@ projects:
     launchpad: charm-cinder-netapp
     repository: https://opendev.org/openstack/charm-cinder-netapp.git
 
+  - name: OpenStack Cinder Three Par Charm
+    charmhub: cinder-three-par
+    launchpad: charm-cinder-three-par
+    repository: https://opendev.org/openstack/charm-cinder-three-par.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "1.7/stable"
+        channels:
+          - latest/edge
+      stable/ussuri:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - wallaby/edge
+      stable/xena:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - xena/stable
+      stable/yoga:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/stable
+
   - name: OpenStack Ironic API Charm
     charmhub: ironic-api
     launchpad: charm-ironic-api
