@@ -107,7 +107,8 @@ def close_track(
             for release in releases:
                 # if the risk revision is None, then it's already closed,
                 # effected, so ignore it.
-                if getattr(release, risk) is None:
+                risk_revision = getattr(release, risk)
+                if risk_revision is None:
                     continue
                 rnums = [release.edge, release.beta, release.candidate,
                          release.stable]
@@ -118,19 +119,22 @@ def close_track(
                 for risk_ in RISKS:
                     if getattr(release, risk_) is None or risk_ == risk:
                         continue
-                    if getattr(release, risk_) == getattr(release, risk):
+                    if getattr(release, risk_) == risk_revision:
                         break
                 else:
-                    issues.append(f"{risk}:{getattr(release, risk)} is unique")
+                    issues.append(f"{risk}:{risk_revision} is unique")
                 # Test if any risk being closed is highest
                 for risk_ in RISKS:
                     if risk_ == risk:
                         continue
-                    if getattr(release, risk_) >= getattr(release, risk):
+                    test_revision = getattr(release, risk_)
+
+                    if (test_revision is None or
+                            test_revision >= risk_revision):
                         break
                 else:
                     issues.append(
-                        f"{risk}:{getattr(release, risk)} is the highest.")
+                        f"{risk}:{risk_revision} is the highest.")
 
                 print(f"{release.charmhub:<30} "
                       f"{release.edge or 'None':^15} "
@@ -162,13 +166,12 @@ def close_track(
             return
     # Now do the releases
     # do something with resources?
-    assert False
     failures: List[str] = []
     successes: List[str] = []
     for release in releases:
-        # first clean the channel
         if getattr(release, risk) is None:
-            errors.append(f"{release.charmhub} {track}/{risk} has no revision")
+            error = f"{release.charmhub} {track}/{risk} has no revision"
+            errors.append(NoRelease(release.charmhub, error))
             continue
         cmd = (f"charmcraft close {release.charmhub} {track}/{risk}")
         print(f"Closing {release.charmhub} {track}/{risk} using: {cmd}")
@@ -188,7 +191,7 @@ def close_track(
         print("Not attempted due to no revision being found: {}"
               .format(", ".join(e.charmhub for e in errors)))
     if failures:
-        print("Failed releases: {}".format(", ".join(failures)))
+        print("Failed closures: {}".format(", ".join(failures)))
     else:
         print("No failures")
     if successes:
@@ -205,12 +208,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         description=(
-            "Clean a track/risk (channel) by picking the most recent "
-            "arch/base/track/risk revision, closing the track/risk and then "
-            "re-releasing the charm to that track/risk.  This removes "
-            "existing revisions for older bases, or specific (unsupported) "
-            "architectures, and ensures that just the single revision is "
-            "released into that track/risk. "
+            "Close a track/risk (channel)."
             "Note: use the --i-really-mean-it flag to override asking for "
             "confirmation as this is a potentially destructive action."))
     parser.add_argument('--log', dest='loglevel',
@@ -232,7 +230,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
          action='append',
          metavar='CHARM',
          type=str.lower,
-         help=('If present, adds a specific charm to fetch.  If not present, '
+         help=('If present, adds a specific charm.  If not present, '
                'then the section is used. If neither the section nor '
                'charm(s) are available then all the charms are fetched'))
     parser.add_argument(
@@ -240,7 +238,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         dest='ignore_charms',
         action='append',
         metavar='IGNORE_CHARM',
-        help=('Charms to not download. Repeat for multiple charms to ignore.'))
+        help=('Charms to ignore. Repeat for multiple charms to ignore.'))
     parser.add_argument(
         '--track', '-t',
         dest='track',
@@ -255,22 +253,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         metavar='RISK',
         type=str.lower,
         choices=('edge', 'beta', 'candidate', 'stable'),
-        help=("The risk to change."))
-    # parser.add_argument(
-        # '--base', '-b',
-        # dest='base',
-        # required=True,
-        # metavar='BASE',
-        # help=("The base to match to.  This is the base from which to choose "
-              # "the charm revision to promote. Note this the base that the "
-              # "charm was built on, not the bases that the charm runs on."))
-    # parser.add_argument(
-        # '--arch', '-a',
-        # dest='arch',
-        # required=False,
-        # metavar='ARCH',
-        # default=None,
-        # help=("The arch to match against."))
+        help=("The risk to close."))
     parser.add_argument(
         '--ignore-failure',
         dest='ignore_failure',
@@ -290,7 +273,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
 def main() -> None:
     args = parse_args(sys.argv[1:])
     logger.setLevel(getattr(logging, args.loglevel, 'INFO'))
-    print(args)
+    # print(args)
     charms = get_charms(args.section)
     if args.charms:
         charms = [c for c in charms if c.charmhub in args.charms]

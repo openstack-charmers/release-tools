@@ -73,6 +73,7 @@ def decode_channel_map_to_risks(result: Dict[str, Any],
     :param track: the track to home in on.
     :returns: a dictionary of risk: releases
     """
+    assert type(track) is str
     assert '/' not in track
     risk_release: Dict[str, TrackRiskRelease] = {
         'edge': TrackRiskRelease(track, 'edge', []),
@@ -80,7 +81,6 @@ def decode_channel_map_to_risks(result: Dict[str, Any],
         'candidate': TrackRiskRelease(track, 'candidate', []),
         'stable': TrackRiskRelease(track, 'stable', []),
     }
-
 
     for i, channel_def in enumerate(result['channel-map']):
         # print("channel_def:", channel_def)
@@ -93,9 +93,11 @@ def decode_channel_map_to_risks(result: Dict[str, Any],
         arches = [f"{v['architecture']}/{v['channel']}"
                   for v in revision['bases']]
         arches_str = ",".join(arches)
-        risk_release[channel_risk].releases.append(
-            Release(arches, base_channel, revision_num))
+        # print("base_arch:", base_arch, "\nbase_channel", base_channel,
+              # "\nchannel_track:", channel_track, "\nchannel_risk:", channel_risk,
+              # "\nrevision:", revision, "\nrevision_num:", revision_num,
+              # "\narches:", arches_str)
+        if channel_track == track:
+            risk_release[channel_risk].releases.append(
+                Release(arches, base_channel, revision_num))
     return risk_release
-
-
-
