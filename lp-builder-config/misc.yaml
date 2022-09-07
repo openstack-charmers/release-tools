@@ -185,3 +185,14 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - focal/edge
+
+  - name: OpenID Connect Test Fixture Charm
+    charmhub: openidc-test-fixture
+    launchpad: charm-openidc-test-fixture
+    repository: https://github.com/openstack-charmers/charm-openidc-test-fixture.git
+    branches:
+      main:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
