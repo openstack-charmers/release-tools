@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Note that this needs to be run in the root for the charm directory
+
+# run this script in the root of the charm directory
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+repo_dir="$script_dir/.."
+worktree_branch="stable/yoga"
+ceph_release="octopus"
+openstack_release="ussuri"
+
+# bring in the common functions
+source "$script_dir/utils.sh"
+
+
+# update metadata // called in context of directory with metadata
+# param 1 is the file to update
+function update_metadata {
+    local metafile=$1
+    local _change="- kinetic"
+    grep -q "\- kinetic" $metafile || {
+        sed -i "/jammy/a $_change" $metafile
+    }
+}
+
+
+# Note that this needs to be run in the root for the charm directory
+charm_type="$($repo_dir/what-is .)"
+echo "===== $charm_type ====="
+case $charm_type in
+    source-zaza)
+        update_metadata src/metadata.yaml
+        ;;
+    classic-zaza)
+        update_metadata metadata.yaml
+        ;;
+    *)
+        echo "It must be a charmcraft native one."
+        update_metadata metadata.yaml
+        ;;
+esac
