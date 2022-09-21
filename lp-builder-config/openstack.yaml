@@ -651,6 +651,17 @@ projects:
     launchpad: charm-keystone-kerberos
     repository: https://opendev.org/openstack/charm-keystone-kerberos.git
 
+  - name: OpenStack Keystone OpenID Connect
+    charmhub: keystone-openidc
+    launchpad: charm-keystone-openidc
+    repository: https://opendev.org/openstack/charm-keystone-openidc.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+
   - name: OpenStack Keystone SAML Mellon Charm
     charmhub: keystone-saml-mellon
     launchpad: charm-keystone-saml-mellon
