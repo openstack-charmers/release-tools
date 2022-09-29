@@ -1,0 +1,27 @@
+#!/bin/bash -e
+#
+# Add new release support including new bundles, updates to config.yaml,
+# charmcraft.yaml, tests.yaml, osci.yaml, and .zuul.yaml using the
+# add-new-release-single helper.
+
+charms=$(cd charms && ls -d1 *)
+basedir="$(pwd)"
+prev_series_bundle=$1
+prev_uca_bundle=$2
+new_series_bundle=$3
+new_uca_bundle=$4
+new_ubuntu_version=$5
+usage="usage: add-new-release-batch prev-series-bundle prev-uca-bundle new-series-bundle new-uca-bundle new-ubuntu-version"
+example="example: add-new-release-batch jammy-yoga.yaml focal-yoga.yaml kinetic-zed.yaml jammy-zed.yaml 22.10"
+
+if [[ -z "$prev_series_bundle" || -z "$prev_uca_bundle" || -z "$new_series_bundle" || -z "$new_uca_bundle" || -z "$new_ubuntu_version" ]]; then
+   echo $usage
+   echo $example
+   exit 1
+fi
+
+for charm in $charms; do
+    echo "===== $charm ====="
+    cd $basedir/charms/$charm
+    $basedir/add-new-release-single $prev_series_bundle $prev_uca_bundle $new_series_bundle $new_uca_bundle $new_ubuntu_version
+done

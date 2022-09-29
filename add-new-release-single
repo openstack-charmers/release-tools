@@ -1,0 +1,172 @@
+#!/bin/bash -e
+#
+# Add new release support including new bundles, updates to config.yaml,
+# charmcraft.yaml, tests.yaml, osci.yaml, and .zuul.yaml.
+
+prev_series_bundle=$1
+prev_uca_bundle=$2
+new_series_bundle=$3
+new_uca_bundle=$4
+new_ubuntu_version=$5
+
+charmcraft_yaml=$(find . -name charmcraft.yaml)
+config_yaml=$(find . -name config.yaml)
+osci_yaml=$(find . -name osci.yaml)
+tests_yaml=$(find . -name tests.yaml)
+zuul_yaml=$(find . -name .zuul.yaml)
+
+usage="usage: add-new-release-batch prev-series-bundle prev-uca-bundle new-series-bundle new-uca-bundle new-ubuntu-version"
+example="example: add-new-release-single jammy-yoga.yaml focal-yoga.yaml kinetic-zed.yaml jammy-zed.yaml 22.10"
+if [[ -z "$prev_series_bundle" || -z "$prev_uca_bundle" || -z "$new_series_bundle" || -z "$new_uca_bundle" || -z "$new_ubuntu_version" ]]; then
+   echo $usage
+   echo $example
+   exit 1
+fi
+
+function get_series {
+    local bundle_path=$1
+    echo $bundle_path | sed 's/.*\/tests\/bundles\/\(.*\)\-.*.yaml/\1/1'
+}
+
+function get_release {
+    local bundle_path=$1
+    echo $bundle_path | sed 's/.*\/tests\/bundles\/\(.*\).yaml/\1/1'
+}
+
+function get_os_codename {
+    local bundle=$1
+    echo $bundle | sed 's/.*\-\(.*\)\.yaml/\1/1'
+}
+
+function create_new_bundle {
+    local prev_bundle=$1
+    local new_bundle=$2
+    local tests_yaml=$3
+
+    local prev_bundle_path=$(find . -name ${prev_bundle})
+    if [ -z $prev_bundle_path ]; then
+        echo "Bundle doesn't exist: ${prev_bundle}"
+        return
+    fi
+
+    local prev_series=$(get_series $prev_bundle_path)
+    local prev_release=$(get_release $prev_bundle_path)
+
+    local new_bundle_path=$(dirname $prev_bundle_path)/${new_bundle}
+    if [ -f $new_bundle_path ]; then
+        echo "Bundle already exists: ${new_bundle_path}"
+        return
+    fi
+
+    local new_series=$(get_series $new_bundle_path)
+    local new_release=$(get_release $new_bundle_path)
+
+    cp $prev_bundle_path $new_bundle_path
+
+    sed -i "s/${prev_release}/${new_release}/1" $new_bundle_path
+    sed -i "s/${prev_series}/${new_series}/1" $new_bundle_path
+    sed -i "s/\(.*\)${prev_release}\(.*\)/\1${prev_release}\2\n\1${new_release}\2/g" $tests_yaml
+
+    git add $new_bundle_path
+}
+
+function add_new_osci_job {
+    local osci_yaml=$1
+    local prev_os_codename=$2
+    local new_os_codename=$3
+
+    local prev_unit_job="charm-${prev_os_codename}-unit-jobs"
+    local new_unit_job="charm-${new_os_codename}-unit-jobs"
+    local prev_func_job="charm-${prev_os_codename}-functional-jobs"
+    local new_func_job="charm-${new_os_codename}-functional-jobs"
+
+    if grep -Fq "$new_unit_job" "$osci_yaml"; then
+        echo "Job $new_unit_job already exists in $osci_yaml"
+        return
+    fi
+
+    if grep -Fq "$new_func_job" "$osci_yaml"; then
+        echo "Job $new_func_job already exists in $osci_yaml"
+        return
+    fi
+
+    if grep -Fq "$prev_unit_job" "$osci_yaml"; then
+        sed -i "s/\(.*\)${prev_unit_job}\(.*\)/\1${prev_unit_job}\2\n\1${new_unit_job}\2/1" $osci_yaml
+    else
+        echo "Job $prev_unit_job doesn't exists in $osci_yaml"
+    fi
+
+    if grep -Fq "$prev_func_job" "$osci_yaml"; then
+        sed -i "s/\(.*\)${prev_func_job}\(.*\)/\1${prev_func_job}\2\n\1${new_func_job}\2/1" $osci_yaml
+    else
+        echo "Job $prev_func_job doesn't exists in $osci_yaml"
+    fi
+}
+
+function add_new_zuul_job {
+    local zuul_yaml=$1
+    local prev_os_codename=$2
+    local new_os_codename=$3
+
+    local prev_job="openstack-python3-charm-${prev_os_codename}-jobs"
+    local new_job="openstack-python3-charm-${new_os_codename}-jobs"
+
+    if grep -Fq "$new_job" "$zuul_yaml"; then
+        echo "Job $new_job already exists in $zuul_yaml"
+        return
+    fi
+
+    if grep -Fq "$prev_job" "$zuul_yaml"; then
+        sed -i "s/\(.*\)${prev_job}\(.*\)/\1${prev_job}\2\n\1${new_job}\2/1" $zuul_yaml
+    else
+        echo "Job $prev_job doesn't exists in $zuul_yaml"
+    fi
+}
+
+function add_new_config_default {
+    local config_yaml=$1
+    local prev_os_codename=$2
+    local new_os_codename=$3
+
+    if [ ! -f $config_yaml ]; then
+        echo "File doesn't exist: ${config_yaml}"
+        return
+    fi
+
+    if grep -Fq "$new_os_codename" "$config_yaml"; then
+        echo "$new_os_codename already exists in $config_yaml"
+        return
+    fi
+
+    if grep -Fq "$prev_os_codename" "$config_yaml"; then
+        sed -i "s/default: ${prev_os_codename}/default: ${new_os_codename}/1" $config_yaml
+    else
+        echo "Job $prev_os_codename doesn't exists in $config_yaml"
+    fi
+}
+
+function add_new_run_on_base {
+    local charmcraft_yaml=$1
+    local new_ubuntu_version=$2
+
+    if grep -Fq "$new_ubuntu_version" "$charmcraft_yaml"; then
+        echo "Version $new_ubuntu_version already exists in $charmcraft_yaml"
+        return
+    fi
+
+    run_on_text="\
+      - name: ubuntu
+        channel: \"$new_ubuntu_version\"
+        architectures: [amd64, s390x, ppc64el, arm64]"
+    echo "$run_on_text" >> $charmcraft_yaml
+}
+
+prev_os_codename=$(get_os_codename "$prev_series_bundle")
+new_os_codename=$(get_os_codename "$new_series_bundle")
+
+create_new_bundle $prev_series_bundle $new_series_bundle $tests_yaml
+create_new_bundle $prev_uca_bundle $new_uca_bundle $tests_yaml
+add_new_osci_job $osci_yaml $prev_os_codename $new_os_codename
+add_new_zuul_job $zuul_yaml $prev_os_codename $new_os_codename
+add_new_config_default $config_yaml $prev_os_codename $new_os_codename
+add_new_run_on_base $charmcraft_yaml $new_ubuntu_version
