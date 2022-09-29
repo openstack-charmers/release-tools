@@ -159,11 +159,6 @@ projects:
     launchpad: charm-cinder-ceph
     repository: https://opendev.org/openstack/charm-cinder-ceph.git
 
-  - name: OpenStack Cinder Purestorage Charm
-    charmhub: cinder-purestorage
-    launchpad: charm-cinder-purestorage
-    repository: https://opendev.org/openstack/charm-cinder-purestorage.git
-
   - name: OpenStack Dashboard Charm
     charmhub: openstack-dashboard
     launchpad: charm-openstack-dashboard
