@@ -7,54 +7,58 @@ defaults:
         charmcraft: "2.0/stable"
       channels:
         - latest/edge
-    stable/queens:
-      enabled: False
-      build-channels:
-        charmcraft: "1.5/stable"
-      channels:
-        - queens/edge
-    stable/rocky:
-      enabled: False
-      build-channels:
-        charmcraft: "1.5/stable"
-      channels:
-        - rocky/edge
-    stable/stein:
-      enabled: False
-      build-channels:
-        charmcraft: "1.5/stable"
-      channels:
-        - stein/edge
+    # Remove the queens, rocky and stein recipes at all those will be served
+    # from stable/train
+    #stable/queens:
+      #enabled: False
+      #build-channels:
+        #charmcraft: "1.5/stable"
+      #channels:
+        #- queens/edge
+    #stable/rocky:
+      #enabled: False
+      #build-channels:
+        #charmcraft: "1.5/stable"
+      #channels:
+        #- rocky/edge
+    #stable/stein:
+      #enabled: False
+      #build-channels:
+        #charmcraft: "1.5/stable"
+      #channels:
+        #- stein/edge
     stable/train:
-      enabled: False
+      enabled: True
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - train/edge
     stable/ussuri:
-      enabled: False
+      enabled: True
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - ussuri/edge
     stable/victoria:
-      enabled: False
+      enabled: True
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - victoria/edge
     stable/wallaby:
-      enabled: False
+      enabled: True
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - wallaby/edge
     stable/xena:
+      enabled: True
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - xena/stable
     stable/yoga:
+      enabled: True
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -83,42 +87,43 @@ projects:
     repository: https://opendev.org/openstack/charm-barbican-vault.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
-      stable/rocky:
-        enabled: False
-        build-channels:
-          charmcraft: "1.5/stable"
-        channels:
-          - rocky/edge
-      stable/stein:
-        enabled: False
-        build-channels:
-          charmcraft: "1.5/stable"
-        channels:
-          - stein/edge
+      #stable/rocky:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- rocky/edge
+      #stable/stein:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- stein/edge
       stable/train:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -129,6 +134,7 @@ projects:
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -233,6 +239,31 @@ projects:
     charmhub: pacemaker-remote
     launchpad: charm-pacemaker-remote
     repository: https://opendev.org/openstack/charm-pacemaker-remote.git
+    branches:
+      master:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+      stable/bionic:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - bionic/edge
+      stable/focal:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - focal/edge
+      stable/jammy:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - jammy/edge
 
 #  - name: OpenStack Mistral Charm
 #    charmhub: mistral
@@ -301,40 +332,43 @@ projects:
     repository: https://opendev.org/openstack/charm-placement.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/train:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -395,34 +429,37 @@ projects:
     repository: https://opendev.org/openstack/charm-cinder-nimblestorage.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -434,40 +471,43 @@ projects:
     repository: https://opendev.org/openstack/charm-cinder-purestorage.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/train:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/edge
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -479,34 +519,37 @@ projects:
     repository: https://opendev.org/openstack/charm-cinder-solidfire.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -523,34 +566,37 @@ projects:
     repository: https://opendev.org/openstack/charm-cinder-three-par.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "1.7/stable"
         channels:
           - latest/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -562,40 +608,43 @@ projects:
     repository: https://opendev.org/openstack/charm-ironic-api.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/train:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -607,40 +656,43 @@ projects:
     repository: https://opendev.org/openstack/charm-ironic-conductor.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/train:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -657,6 +709,7 @@ projects:
     repository: https://opendev.org/openstack/charm-keystone-openidc.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
@@ -673,34 +726,37 @@ projects:
     repository: https://opendev.org/openstack/charm-magnum.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -712,34 +768,37 @@ projects:
     repository: https://opendev.org/openstack/charm-magnum-dashboard.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -766,40 +825,43 @@ projects:
     repository: https://opendev.org/openstack/charm-neutron-api-plugin-ironic.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/train:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - train/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -811,34 +873,37 @@ projects:
     repository: https://opendev.org/openstack/charm-neutron-api-plugin-ovn.git
     branches:
       master:
+        enabled: True
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/ussuri:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
       stable/victoria:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - victoria/edge
       stable/wallaby:
-        enabled: False
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - wallaby/edge
       stable/xena:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - xena/stable
       stable/yoga:
+        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
