@@ -146,6 +146,7 @@ def fetch_charms(charms: List[Charm],
                                 num = int(reply) - 1
                                 if num < 0 or num >= len(matched_reviews):
                                     raise ValueError()
+                                break
                             except ValueError:
                                 print("Enter number or Q?")
                                 continue
