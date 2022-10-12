@@ -235,36 +235,6 @@ projects:
     launchpad: charm-masakari-monitors
     repository: https://opendev.org/openstack/charm-masakari-monitors.git
 
-  - name: Pacemaker Remote Charm
-    charmhub: pacemaker-remote
-    launchpad: charm-pacemaker-remote
-    repository: https://opendev.org/openstack/charm-pacemaker-remote.git
-    branches:
-      master:
-        enabled: True
-        build-channels:
-          charmcraft: "2.0/stable"
-        channels:
-          - latest/edge
-      stable/bionic:
-        enabled: True
-        build-channels:
-          charmcraft: "1.5/stable"
-        channels:
-          - bionic/edge
-      stable/focal:
-        enabled: True
-        build-channels:
-          charmcraft: "1.5/stable"
-        channels:
-          - focal/edge
-      stable/jammy:
-        enabled: True
-        build-channels:
-          charmcraft: "1.5/stable"
-        channels:
-          - jammy/edge
-
 #  - name: OpenStack Mistral Charm
 #    charmhub: mistral
 #    launchpad: charm-mistral
