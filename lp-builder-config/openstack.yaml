@@ -74,6 +74,62 @@ projects:
     charmhub: barbican
     launchpad: charm-barbican
     repository: https://opendev.org/openstack/charm-barbican.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+      # Remove the rocky and stein recipes at all those will be served
+      # from stable/train
+      #stable/rocky:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- rocky/edge
+      #stable/stein:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- stein/edge
+      stable/train:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - train/edge
+      stable/ussuri:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - wallaby/edge
+      stable/xena:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - xena/stable
+      stable/yoga:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/stable
 
   # disabled as no longer supported
   # - name: OpenStack Barbican SoftHSM Charm
@@ -295,6 +351,62 @@ projects:
     charmhub: octavia
     launchpad: charm-octavia
     repository: https://opendev.org/openstack/charm-octavia.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+      # Remove the rocky and stein recipes at all those will be served
+      # from stable/train
+      #stable/rocky:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- rocky/edge
+      #stable/stein:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- stein/edge
+      stable/train:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - train/edge
+      stable/ussuri:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - wallaby/edge
+      stable/xena:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - xena/stable
+      stable/yoga:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/stable
 
   - name: OpenStack Placement charm
     charmhub: placement
@@ -888,8 +1000,120 @@ projects:
     charmhub: octavia-dashboard
     launchpad: charm-octavia-dashboard
     repository: https://opendev.org/openstack/charm-octavia-dashboard.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+      # Remove the rocky and stein recipes at all those will be served
+      # from stable/train
+      #stable/rocky:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- rocky/edge
+      #stable/stein:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- stein/edge
+      stable/train:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - train/edge
+      stable/ussuri:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - wallaby/edge
+      stable/xena:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - xena/stable
+      stable/yoga:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/stable
 
   - name: OpenStack Octavia Disk-Image Retrofit Charm
     charmhub: octavia-diskimage-retrofit
     launchpad: charm-octavia-diskimage-retrofit
     repository: https://opendev.org/openstack/charm-octavia-diskimage-retrofit.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+      # Remove the rocky and stein recipes at all those will be served
+      # from stable/train
+      #stable/rocky:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- rocky/edge
+      #stable/stein:
+        #enabled: False
+        #build-channels:
+          #charmcraft: "1.5/stable"
+        #channels:
+          #- stein/edge
+      stable/train:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - train/edge
+      stable/ussuri:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - ussuri/edge
+      stable/victoria:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - victoria/edge
+      stable/wallaby:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - wallaby/edge
+      stable/xena:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - xena/stable
+      stable/yoga:
+        enabled: True
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - yoga/stable
