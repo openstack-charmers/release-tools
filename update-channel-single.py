@@ -107,6 +107,7 @@ def modify_channel(charms: List[str],
                    ignore_tracks: List[str],
                    set_local_charm: Optional[str],
                    disable_local_overlay: bool,
+                   enforce_edge: bool,
                    ) -> None:
     """Modify the candidate channel to the bundle as needed.
 
@@ -141,6 +142,7 @@ def modify_channel(charms: List[str],
     :param ignore_tracks: Tracks or prefixes to ignore.  Note that the test is
         "starts with" so that 'latest' can match against any channel, for
         example.
+    :param enforce_edge: If set to True, enforce the track as <track>/edge
     """
     logger.debug("Looking at file: %s", bundle_filename)
     new_file_name = bundle_filename.with_suffix(
@@ -168,6 +170,9 @@ def modify_channel(charms: List[str],
 
         Otherwise just return the current channel in the `channel` var.
 
+        if the outer-scoped variable enforce_edge is set, then ensure that the
+        track/channel returned is <track>/edge
+
         :param _charm: the charm to check against.
         """
         if _charm is None:
@@ -182,7 +187,9 @@ def modify_channel(charms: List[str],
                             # ignore this track
                             break
                     else:
-                        # return lp_config[_charm][branch][0]
+                        if enforce_edge:
+                            if '/' in track:
+                                track = "{}/edge".format(track.split('/')[0])
                         return track
             except (KeyError, IndexError):
                 pass
@@ -351,12 +358,14 @@ def update_bundles(charms: List[str],
                    ignore_tracks: List[str],
                    disable_local_overlay: bool,
                    set_local_charm: Optional[str],
+                   enforce_edge: bool,
                    ) -> None:
     for path in bundle_paths:
         logger.debug("Doing path: %s", path)
         modify_channel(
             charms, lp_config, path, channel, branches, ensure_charmhub_prefix,
-            ignore_tracks, set_local_charm, disable_local_overlay)
+            ignore_tracks, set_local_charm, disable_local_overlay,
+            enforce_edge)
 
 
 def check_charm_dir_exists(charm_dir: Path) -> None:
@@ -456,6 +465,13 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
                         help=('If set to True, then the local charm, as '
                               'determined by the charmcraft.yaml file is set '
                               'to the ../../(../)<charm>.charm'))
+    parser.add_argument('--enforce-edge',
+                        dest='enforce_edge',
+                        action='store_true',
+                        default=False,
+                        help=('If set to True, then ensure that the channel '
+                              'is set to <track>/edge regardless of how it is '
+                              'set in the lp-build-config.'))
     parser.add_argument('--log', dest='loglevel',
                         type=str.upper,
                         default='INFO',
@@ -514,6 +530,7 @@ def main() -> None:
         args.ignore_tracks or [],
         args.disable_local_overlay,
         local_charm,
+        args.enforce_edge,
     )
     logging.info("done.")
 
