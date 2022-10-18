@@ -6,12 +6,19 @@
 
 script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 repo_dir="$script_dir/.."
-worktree_branch="master"
-ceph_release="pacific"
-openstack_release="xena"
+worktree_branch="stable/ussuri"
+ceph_release="nautilus"
+openstack_release="train"
+
+ceph_branch="nautilus"
+openstack_branch="train"
+mysql_branch="5.7"
+hacluster_branch="bionic"
+rabbitmq_server_branch="bionic"
+vault_branch="1.6"
 
 # bring in the common functions
-source utils.sh
+source "$script_dir/utils.sh"
 
 
 # update metadata // called in context of directory with metadata
@@ -20,7 +27,7 @@ function update_metadata {
     local metafile=$1
     sed -i '/- trusty/d' $metafile
     sed -i '/- xenial/d' $metafile
-    sed -i '/- bionic/d' $metafile
+    sed -i '/- focal/d' $metafile
     sed -i '/- groovy/d' $metafile
     sed -i '/- impish/d' $metafile
     sed -i '/- hirsute/d' $metafile
@@ -28,53 +35,67 @@ function update_metadata {
 
 function update_osci {
     local oscifile=$1
-    sed -i 's/- charm-yoga-unit-jobs/- charm-unit-jobs-py38/1' $oscifile
-    sed -i 's/- charm-unit-jobs.*/- charm-unit-jobs-py38/1' $oscifile
-    sed -i '/- .*queens.*/d' $oscifile
-    sed -i '/- .*rocky/d' $yamlfile
-    sed -i '/- .*stein.*/d' $oscifile
-    sed -i '/- .*train.*/d' $oscifile
+    sed -i 's/- charm-yoga-unit-jobs/- charm-unit-jobs-py36/1' $oscifile
+    sed -i 's/- charm-unit-jobs.*/- charm-unit-jobs-py36/1' $oscifile
     sed -i '/- .*ussuri.*d/' $oscifile
     sed -i '/- .*victoria.*d/' $oscifile
+    sed -i '/- .*wallaby.*d/' $oscifile
+    sed -i '/- .*xena.*d/' $oscifile
     sed -i '/- .*yoga.*d/' $oscifile
     sed -i '/- .*xenial.*/d' $oscifile
-    sed -i '/- .*bionic.*/d' $oscifile
     sed -i '/- .*hirsute.*/d' $oscifile
     sed -i '/- .*impish.*/d' $oscifile
+    sed -i '/- .*focal.*/d' $oscifile
     sed -i '/- .*groovy.*/d' $oscifile
+
+    # ensure that charm-train-functional-jobs is present
+    sed -i '/- charm-functional-jobs/d' $oscifile
+    grep -q "charm-train-functional-jobs" $oscifile || {
+        change="\      - charm-train-functional-jobs"
+        sed -i "/- charm-unit-jobs-py36/a $change" $oscifile
+    }
+    grep -q "charm-stein-functional-jobs" $oscifile || {
+        change="\      - charm-stein-functional-jobs"
+        sed -i "/- charm-unit-jobs-py36/a $change" $oscifile
+    }
+    grep -q "charm-rocky-functional-jobs" $oscifile || {
+        change="\      - charm-rocky-functional-jobs"
+        sed -i "/- charm-unit-jobs-py36/a $change" $oscifile
+    }
+    grep -q "charm-queens-functional-jobs" $oscifile || {
+        change="\      - charm-queens-functional-jobs"
+        sed -i "/- charm-unit-jobs-py36/a $change" $oscifile
+    }
 }
 
 function update_tests_yaml {
     local yamlfile=$1
-    sed -i '/- .*mitaka/d' $yamlfile
-    sed -i '/- .*queens/d' $yamlfile
-    sed -i '/- .*rocky/d' $yamlfile
-    sed -i '/- .*stein/d' $yamlfile
-    sed -i '/- .*train/d' $yamlfile
     sed -i '/- .*ussuri/d' $yamlfile
     sed -i '/- .*victoria/d' $yamlfile
-    sed -i '/- .*impish/d' $yamlfile
-    sed -i '/- .*hirsute/d' $yamlfile
+    sed -i '/- .*wallaby/d' $yamlfile
+    sed -i '/- .*xena/d' $yamlfile
     sed -i '/- .*yoga/d' $yamlfile
+    sed -i '/- .*impish/d' $yamlfile
+    sed -i '/- .*focal/d' $yamlfile
+    sed -i '/- .*groovy/d' $yamlfile
+    sed -i '/- .*hirsute/d' $yamlfile
     sed -i '/- .*xenial/d' $yamlfile
-    sed -i '/- .*bionic/d' $yamlfile
 }
 
 function remove_bundles {
     local bundles_dir=$1
     (
         cd $bundles_dir
-        rm *queens*.yaml
-        rm *rocky*.yaml
-        rm *stein*.yaml
-        rm *train*.yaml
         rm *ussuri*.yaml
         rm *victoria*.yaml
+        rm *wallaby*.yaml
+        rm *xena*.yaml
+        rm *yoga*.yaml
+        rm *focal*.yaml
+        rm *groovy*.yaml
         rm *hirsute*.yaml
         rm *impish*.yaml
-        rm *yoga*.yaml
         rm *xenial*.yaml
-        rm *bionic*.yaml
         rm *trusty*.yaml
     )
 }
@@ -86,17 +107,20 @@ function update_bundles {
         # remove any existing channel specs
         $repo_dir/update-channel-single.py --log DEBUG \
             --remove-channel \
-            --disable-local-overlay \
-            --set-local-charm
+            --disable-local-overlay
         # set all the branches to latest/edge and ch: prefixes
-        $repo_dir/update-channel-single.py --log DEBUG --branch master --ensure-charmhub
+        $repo_dir/update-channel-single.py --log DEBUG --branch master \
+            --ensure-charmhub --enforce-edge
         # Then overwrite with branches appropirate to ceph-pacific
         $repo_dir/update-channel-single.py --log DEBUG \
-            --branch stable/xena \
-            --branch stable/21.09 \
-            --branch stable/focal \
-            --branch stable/1.7 \
-            --branch stable/pacific
+            --branch stable/$openstack_branch \
+            --branch stable/$mysql_branch   \
+            --branch stable/$hacluster_branch \
+            --branch stable/$vault_branch \
+            --branch stable/$rabbitmq_server_branch \
+            --branch stable/$ceph_branch \
+            --set-local-charm \
+            --enforce-edge
     )
 }
 
@@ -117,7 +141,7 @@ function update_bundles {
 #     - openstack-cover-jobs
 # run this in the directory of the charm to update
 function ensure_zuul_conf {
-    cp $script_dir/xena_zuul.yaml .zuul.yaml
+    cp $script_dir/train_zuul.yaml .zuul.yaml
 }
 
 
@@ -125,21 +149,42 @@ function ensure_zuul_conf {
 # file is passed in $1
 function fix_lock_file {
     local filename="$1"
-    $script_dir/update-build-lock.py \
+    $repo_dir/update-build-lock.py \
         --file $filename \
         --type python_module \
         --package Tempita \
         delete
-    $script_dir/update-build-lock.py \
+    $repo_dir/update-build-lock.py \
         --file $filename \
         --type python_module \
         --package charmhelpers \
-        modify --spec='{"branch": "stable/xena", "version": "63229d2ba725e773d9a0dfc97f10643b89a7f7ac"}'
-    $script_dir/update-build-lock.py \
+        modify --spec='{"branch": "stable/train", "version": "13fc2babe1999df87aaf149c549d8140289837a3"}'
+    $repo_dir/update-build-lock.py \
         --file $filename \
         --type python_module \
         --package charms.openstack \
-        modify --spec='{"branch": "stable/xena", "version": "10627ee5f991c268f174d6d100e218a0e1867af1"}'
+        modify --spec='{"branch": "stable/train", "version": "10627ee5f991c268f174d6d100e218a0e1867af1"}'
+}
+
+
+## remove py39 and py310 as they are not needed.
+function fix_up_tox_file {
+    local tox_file=tox.ini
+    sed -i "/^\[testenv:py39\]/,+4d" $tox_file
+    sed -i "/^\[testenv:py310\]/,+4d" $tox_file
+}
+
+## fix the tempest import of py36
+function fix_up_tempest_import {
+    local test_file=test-requirements.txt
+    local found="$(grep tempest $test_file ||:)"
+    if [[ -n "$found" ]]; then
+        # do the tempest changes
+        sed -i "s/egg=tempest;python_version>='3.6'/egg=tempest;python_version>='3.8'/g" $test_file
+        grep -q "tempest<31.0.0;python_version<'3.8'" $test_file || {
+            sed -i "/python_version>='3.8'/a tempest<31.0.0;python_version<'3.8'" $test_file
+        }
+    fi
 }
 
 
@@ -151,7 +196,7 @@ case $charm_type in
         ensure_git_branch $openstack_release
         ensure_gitignore_charm
         charmcraft_source $worktree_branch
-        $script_dir/update-charmcraft-xena.py charmcraft.yaml
+        $script_dir/update-charmcraft-train.py charmcraft.yaml
         $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
         ln -s src/metadata.yaml
         update_metadata src/metadata.yaml
@@ -162,18 +207,20 @@ case $charm_type in
         add_rename $worktree_branch
         add_build_requirements $worktree_branch
         ensure_tox_source $worktree_branch
+        fix_up_tox_file
         ensure_git_review $openstack_release
         ensure_libs_source $openstack_release $ceph_release
         ensure_src_tr_tox
         ensure_zuul_conf
         fix_lock_file src/build.lock
         ensure_pyparsing_pin
+        fix_up_tempest_import
         ;;
     classic-zaza)
         ensure_git_branch $openstack_release
         ensure_gitignore_charm
         charmcraft_classic $worktree_branch
-        $script_dir/update-charmcraft-xena.py charmcraft.yaml
+        $script_dir/update-charmcraft-train.py charmcraft.yaml
         $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
         update_metadata metadata.yaml
         update_osci osci.yaml
@@ -183,14 +230,16 @@ case $charm_type in
         add_rename $worktree_branch
         add_build_requirements $worktree_branch
         ensure_tox_classic $worktree_branch
+        fix_up_tox_file
         ensure_git_review $openstack_release
         ensure_libs_classic $openstack_release $ceph_release
         ensure_zuul_conf
         ensure_pyparsing_pin
+        fix_up_tempest_import
         ;;
     *)
         echo "It must be a charmcraft native one."
-        $script_dir/update-charmcraft-xena.py charmcraft.yaml
+        $script_dir/update-charmcraft-train.py charmcraft.yaml
         $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
         ensure_git_branch $openstack_release
         ensure_git_review $openstack_release
@@ -204,5 +253,6 @@ case $charm_type in
         ensure_libs_ops $openstack_release $ceph_release
         ensure_zuul_conf
         ensure_pyparsing_pin
+        fix_up_tempest_import
         ;;
 esac

@@ -1,0 +1,5 @@
+- project:
+    templates:
+      # note that this requires tox-py36 and tox-py37 targets
+      - openstack-python3-train-jobs
+      - openstack-cover-jobs

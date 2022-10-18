@@ -50,7 +50,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     group.add_argument('--item', '-i',
                        dest='item',
                        metavar='ITEM',
-                       help=('The item, when --type=layer'))
+                       help=('The item, when --type=layer; pass :all:'))
     group.add_argument('--package', '-p',
                        dest='package',
                        metavar='PACKAGE',
@@ -81,6 +81,11 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         'delete',
         help=('Delete an existing lock element.'))
     delete_command.set_defaults(func=delete_lock)
+    lock_layer_command = subparser.add_parser(
+        'lock-layer',
+        help=("modify the layer so that the branch is locked to the commit "
+              "sha."))
+    lock_layer_command.set_defaults(func=lock_layer)
 
     return parser.parse_args(argv)
 
@@ -168,6 +173,20 @@ def delete_lock(args: argparse.Namespace, locks: Dict) -> Dict:
     locks['locks'] = new_locks
     return locks
 
+
+def lock_layer(args: argparse.Namespace, locks: Dict) -> Dict:
+    """Lock the layers so that the branch is locked to the commit SHA."""
+    locks = copy.deepcopy(locks)
+    if args.type != 'layer':
+        raise RuntimeError(
+            f"Won't lock branches to commits for {args.type} type of lock")
+    try:
+        for s in locks['locks']:
+            if s['type'] == 'layer':
+                s['branch'] = s['commit']
+    except Exception:
+        raise
+    return locks
 
 
 # update the charmcraft.yaml file (passed on the line as arg1) and ensure that

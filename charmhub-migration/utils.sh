@@ -152,7 +152,7 @@ function ensure_libs_source {
     local openstack_release=$1
     local ceph_release=$2
     echo "Updating test-requirements.txt in repository with stable Zaza"
-    for file in requirements.txt test-requirements.txt src/test-requirements src/wheelhouse.txt; do
+    for file in requirements.txt test-requirements.txt src/test-requirements.txt src/wheelhouse.txt; do
         if [ -e "$file" ]; then
             set +e
             sed -i "s'openstack-charmers/zaza.git.*$'openstack-charmers/zaza.git@stable/$openstack_release#egg=zaza'g" $file
@@ -171,7 +171,7 @@ function ensure_libs_ops {
     local openstack_release=$1
     local ceph_release=$2
     echo "Updating test-requirements.txt in repository with stable Zaza"
-    for file in requirements.txt test-requirements.txt requirements-dev.txt src/test-requirements; do
+    for file in requirements.txt test-requirements.txt requirements-dev.txt src/test-requirements.txt; do
         if [ -e "$file" ]; then
             set +e
             sed -i "s'openstack-charmers/zaza.git.*$'openstack-charmers/zaza.git@stable/$openstack_release#egg=zaza'g" $file

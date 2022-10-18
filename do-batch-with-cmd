@@ -1,0 +1,19 @@
+#!/bin/bash -e
+#
+# Does a batch with a cmd passed on the command line.
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+target_cmd="$@"
+#shift
+
+charms=$(cd $script_dir/charms && ls -d1 *)
+
+echo "Running '$target_cmd':"
+
+for charm in $charms; do
+    echo "Looking at: $charm"
+    (
+        cd $script_dir/charms/$charm
+        $target_cmd
+    )
+done

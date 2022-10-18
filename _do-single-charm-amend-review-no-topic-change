@@ -1,0 +1,25 @@
+#!/bin/bash -e
+#  git add . then amend no-edit and then review.  Topic in param
+# Does a single charm; use with do-batch-with to do the entire batch.
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+_dir=$(pwd)
+# verify that the branch isn't master
+branch=$(git branch --show-current | tr -d '\n')
+if [[ "$branch" == "master" ]];
+then
+    echo "Branch is ${_dir}"
+    echo "Branch is master - not updating."
+    exit 0
+fi
+
+git_status="$(git status -s)"
+if [[ -n "$git_status" ]]; then
+    echo "Updating, no-edit-amend and git review existing topic for ${_dir}"
+    git add .
+    git commit --amend --no-edit
+    git review -T
+else
+    echo "Nothing to do as git repo is not dirty."
+fi

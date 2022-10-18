@@ -1,0 +1,5 @@
+Ensure that kinetic/22.10 is enabled
+
+This patch adds kinetic to the metadata.yaml and ensures
+that a run-on base for 22.10 is added in the
+charmcraft.yaml

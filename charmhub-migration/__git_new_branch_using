@@ -1,0 +1,23 @@
+#!/bin/bash
+
+
+# run in the charm directory
+# relies on openstack_release being passed as var 1
+# if a match is passed in var 2, then it is checked to match before the
+# checkout.
+function ensure_git_branch {
+    local new_branch=$1
+    local match_branch=$2
+    local branch=$(git branch --show-current | tr -d '\n')
+    if [[ -n "$match_branch" && "$branch" != "$match_branch" ]];
+    then
+        echo "Branch is $branch which doesn't match $match_branch"
+        return
+    fi
+    if [[ "$branch" != "$new_branch" ]];
+    then
+        git checkout -b "$new_branch"
+    fi
+}
+
+ensure_git_branch "$1" "$2"

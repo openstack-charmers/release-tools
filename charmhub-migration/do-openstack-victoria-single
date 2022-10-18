@@ -6,12 +6,12 @@
 
 script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 repo_dir="$script_dir/.."
-worktree_branch="master"
+worktree_branch="stable/yoga"
 ceph_release="pacific"
-openstack_release="xena"
+openstack_release="victoria"
 
 # bring in the common functions
-source utils.sh
+source "$script_dir/utils.sh"
 
 
 # update metadata // called in context of directory with metadata
@@ -34,14 +34,26 @@ function update_osci {
     sed -i '/- .*rocky/d' $yamlfile
     sed -i '/- .*stein.*/d' $oscifile
     sed -i '/- .*train.*/d' $oscifile
-    sed -i '/- .*ussuri.*d/' $oscifile
-    sed -i '/- .*victoria.*d/' $oscifile
+    sed -i '/- .*wallaby.*d/' $oscifile
+    sed -i '/- .*xena.*d/' $oscifile
     sed -i '/- .*yoga.*d/' $oscifile
     sed -i '/- .*xenial.*/d' $oscifile
     sed -i '/- .*bionic.*/d' $oscifile
     sed -i '/- .*hirsute.*/d' $oscifile
     sed -i '/- .*impish.*/d' $oscifile
     sed -i '/- .*groovy.*/d' $oscifile
+
+    # ensure that charm-ussuri-functional-jobs and charm-victora-functional-jobs
+    # is present
+    sed -i '/- charm-functional-jobs/d' $oscifile
+    grep -q "charm-victoria-functional-jobs" $oscifile || {
+        change="\      - charm-victoria-functional-jobs"
+        sed -i "/- charm-unit-jobs-py38/a $change" $oscifile
+    }
+    grep -q "charm-ussuri-functional-jobs" $oscifile || {
+        change="\      - charm-ussuri-functional-jobs"
+        sed -i "/- charm-unit-jobs-py38/a $change" $oscifile
+    }
 }
 
 function update_tests_yaml {
@@ -51,11 +63,12 @@ function update_tests_yaml {
     sed -i '/- .*rocky/d' $yamlfile
     sed -i '/- .*stein/d' $yamlfile
     sed -i '/- .*train/d' $yamlfile
-    sed -i '/- .*ussuri/d' $yamlfile
-    sed -i '/- .*victoria/d' $yamlfile
-    sed -i '/- .*impish/d' $yamlfile
-    sed -i '/- .*hirsute/d' $yamlfile
+    sed -i '/- .*wallaby/d' $yamlfile
+    sed -i '/- .*xena/d' $yamlfile
     sed -i '/- .*yoga/d' $yamlfile
+    sed -i '/- .*impish/d' $yamlfile
+    sed -i '/- .*groovy/d' $yamlfile
+    sed -i '/- .*hirsute/d' $yamlfile
     sed -i '/- .*xenial/d' $yamlfile
     sed -i '/- .*bionic/d' $yamlfile
 }
@@ -68,11 +81,12 @@ function remove_bundles {
         rm *rocky*.yaml
         rm *stein*.yaml
         rm *train*.yaml
-        rm *ussuri*.yaml
-        rm *victoria*.yaml
+        rm *wallaby*.yaml
+        rm *xena*.yaml
+        rm *yoga*.yaml
+        rm *groovy*.yaml
         rm *hirsute*.yaml
         rm *impish*.yaml
-        rm *yoga*.yaml
         rm *xenial*.yaml
         rm *bionic*.yaml
         rm *trusty*.yaml
@@ -92,11 +106,12 @@ function update_bundles {
         $repo_dir/update-channel-single.py --log DEBUG --branch master --ensure-charmhub
         # Then overwrite with branches appropirate to ceph-pacific
         $repo_dir/update-channel-single.py --log DEBUG \
-            --branch stable/xena \
-            --branch stable/21.09 \
+            --branch stable/$openstack_release \
+            --branch stable/20.03 \
             --branch stable/focal \
             --branch stable/1.7 \
-            --branch stable/pacific
+            --branch stable/jammy \
+            --branch stable/$ceph_release
     )
 }
 
@@ -117,7 +132,7 @@ function update_bundles {
 #     - openstack-cover-jobs
 # run this in the directory of the charm to update
 function ensure_zuul_conf {
-    cp $script_dir/xena_zuul.yaml .zuul.yaml
+    cp $script_dir/victoria_zuul.yaml .zuul.yaml
 }
 
 
@@ -125,21 +140,21 @@ function ensure_zuul_conf {
 # file is passed in $1
 function fix_lock_file {
     local filename="$1"
-    $script_dir/update-build-lock.py \
+    $repo_dir/update-build-lock.py \
         --file $filename \
         --type python_module \
         --package Tempita \
         delete
-    $script_dir/update-build-lock.py \
+    $repo_dir/update-build-lock.py \
         --file $filename \
         --type python_module \
         --package charmhelpers \
-        modify --spec='{"branch": "stable/xena", "version": "63229d2ba725e773d9a0dfc97f10643b89a7f7ac"}'
-    $script_dir/update-build-lock.py \
+        modify --spec='{"branch": "stable/victoria", "version": "df2e33ed634200de1d02d7e5f1baaf80f22a6315"}'
+    $repo_dir/update-build-lock.py \
         --file $filename \
         --type python_module \
         --package charms.openstack \
-        modify --spec='{"branch": "stable/xena", "version": "10627ee5f991c268f174d6d100e218a0e1867af1"}'
+        modify --spec='{"branch": "stable/victoria", "version": "10627ee5f991c268f174d6d100e218a0e1867af1"}'
 }
 
 
@@ -151,7 +166,7 @@ case $charm_type in
         ensure_git_branch $openstack_release
         ensure_gitignore_charm
         charmcraft_source $worktree_branch
-        $script_dir/update-charmcraft-xena.py charmcraft.yaml
+        $script_dir/update-charmcraft-victoria.py charmcraft.yaml
         $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
         ln -s src/metadata.yaml
         update_metadata src/metadata.yaml
@@ -173,7 +188,7 @@ case $charm_type in
         ensure_git_branch $openstack_release
         ensure_gitignore_charm
         charmcraft_classic $worktree_branch
-        $script_dir/update-charmcraft-xena.py charmcraft.yaml
+        $script_dir/update-charmcraft-victoria.py charmcraft.yaml
         $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
         update_metadata metadata.yaml
         update_osci osci.yaml
@@ -190,7 +205,7 @@ case $charm_type in
         ;;
     *)
         echo "It must be a charmcraft native one."
-        $script_dir/update-charmcraft-xena.py charmcraft.yaml
+        $script_dir/update-charmcraft-victoria.py charmcraft.yaml
         $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
         ensure_git_branch $openstack_release
         ensure_git_review $openstack_release

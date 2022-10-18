@@ -152,7 +152,7 @@ case $charm_type in
         ensure_git_branch $ovn_release
         ensure_gitignore_charm
         charmcraft_source $worktree_branch
-        $script_dir/update-charmcraft.py charmcraft.yaml
+        $script_dir/update-charmcraft-xena.py charmcraft.yaml
         $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
         ln -s src/metadata.yaml
         update_metadata src/metadata.yaml
@@ -174,7 +174,7 @@ case $charm_type in
         ensure_git_branch $openstack_release
         ensure_gitignore_charm
         charmcraft_classic $worktree_branch
-        $script_dir/update-charmcraft.py charmcraft.yaml
+        $script_dir/update-charmcraft-xena.py charmcraft.yaml
         $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
         update_metadata metadata.yaml
         update_osci osci.yaml
@@ -191,7 +191,7 @@ case $charm_type in
         ;;
     *)
         echo "It must be a charmcraft native one."
-        $script_dir/update-charmcraft.py charmcraft.yaml
+        $script_dir/update-charmcraft-xena.py charmcraft.yaml
         $script_dir/ensure-osci-vars-charmcraft.py osci.yaml
         ensure_git_branch $openstack_release
         ensure_git_review $openstack_release

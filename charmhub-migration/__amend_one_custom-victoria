@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+# check there is something to do
+git_status="$(git status -s)"
+if [[ -z "$git_status" ]]; then
+    echo "Git not dirty, so nothing to do"
+    exit 0
+fi
+
+# verify that the branch isn't master
+branch=$(git branch --show-current | tr -d '\n')
+if [[ "$branch" == "charmhub-migration-victoria" ]];
+then
+    echo "Branch is ${_dir}"
+    echo "Doing add, no-edit-amend and review"
+    git add .
+    git commit --amend --no-edit
+    git review -T
+    exit 0
+fi
+
+echo "Not charmhub-migration-wallaby, doing nothing."
