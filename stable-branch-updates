@@ -16,7 +16,19 @@ if [ -z "$branch" ]; then
 fi
 
 git fetch --all
-git checkout -b ${release}-updates origin/stable/${branch}
+
+# relies on openstack_release being passed as var 1 and branch in var 2
+function ensure_git_branch {
+    local release=$1
+    local branch=$2
+    local current_branch=$(git branch --show-current | tr -d '\n')
+    if [[ "$current_branch" != "${release}-updates" ]];
+    then
+        git checkout -b ${release}-updates origin/stable/${branch}
+    fi
+}
+
+ensure_git_branch ${release} ${branch}
 
 grep -q defaultbranch .gitreview || {
     echo -e "\ndefaultbranch=stable/$branch" >> .gitreview

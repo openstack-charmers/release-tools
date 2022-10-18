@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#
+# param 1 should be the name of the charm
+
+charm=$1
+
+# find the container name
+match="^charmcraft-$charm-[0-9]"
+line=$(lxc list --project charmcraft --format csv | grep -e "$match")
+container=$(echo $line | cut -d, -f1)
+echo "container is '$container'"
+
+if [ -z $container ];
+then
+    echo "Can't find $charm?"
+    exit 1
+fi
+
+if [[ "$line" == *"STOPPED"* ]];
+then
+    lxc start --project charmcraft $container
+    echo "Started $container"
+fi
+
+lxc shell --project charmcraft $container
+

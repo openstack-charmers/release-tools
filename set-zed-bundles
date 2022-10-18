@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# run this script in the root of the charm directory
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+repo_dir="$script_dir/.."
+ceph_release="quincy"
+openstack_release="zed"
+ubuntu_release="jammy"
+ovn_release="22.09"
+vault_release="1.8"
+
+
+function update_bundles {
+    local charm_dir=$1
+    (
+        cd $charm_dir
+        $script_dir/update-channel-single.py --log DEBUG \
+            --branch stable/$openstack_release \
+            --branch stable/$ovn_release \
+            --branch stable/$ubuntu_release \
+            --branch stable/1.8 \
+            --branch stable/$ceph_release \
+            --enforce-edge
+    )
+}
+
+# Note that this needs to be run in the root for the charm directory
+update_bundles .

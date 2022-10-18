@@ -63,6 +63,12 @@ defaults:
         charmcraft: "1.5/stable"
       channels:
         - yoga/stable
+    stable/zed:
+      enabled: True
+      build-channels:
+        charmcraft: "2.0/stable"
+      channels:
+        - zed/edge
 
 projects:
   - name: OpenStack Aodh Charm
@@ -195,6 +201,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Ceilometer Charm
     charmhub: ceilometer
@@ -455,6 +467,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
 #  - name: OpenStack Tempest Charm
 #    charmhub: tempest
@@ -546,6 +564,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Cinder Purestorage Charm
     charmhub: cinder-purestorage
@@ -594,6 +618,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Cinder Solidfire Charm
     charmhub: cinder-solidfire
@@ -636,6 +666,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Cinder NetApp Charm
     charmhub: cinder-netapp
@@ -683,6 +719,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Ironic API Charm
     charmhub: ironic-api
@@ -731,6 +773,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Ironic Conductor Charm
     charmhub: ironic-conductor
@@ -779,6 +827,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Keystone Kerberos Charm
     charmhub: keystone-kerberos
@@ -796,6 +850,12 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Keystone SAML Mellon Charm
     charmhub: keystone-saml-mellon
@@ -843,6 +903,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Magnum Dashboard Charm
     charmhub: magnum-dashboard
@@ -885,6 +951,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Manila Dashboard Charm
     charmhub: manila-dashboard
@@ -948,6 +1020,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Neutron API OVN Plugin Charm
     charmhub: neutron-api-plugin-ovn
@@ -990,6 +1068,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   # - name: OpenStack Neutron Dynamic Routing Charm
   #  charmhub: neutron-dynamic-routing
