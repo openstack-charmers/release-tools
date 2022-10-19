@@ -1198,6 +1198,6 @@ projects:
       stable/yoga:
         enabled: True
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "2.0/stable"
         channels:
           - yoga/stable
