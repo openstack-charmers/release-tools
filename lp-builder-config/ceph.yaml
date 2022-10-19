@@ -4,9 +4,14 @@ defaults:
   branches:
     master:
       build-channels:
-        charmcraft: "2.0/stable"
+        charmcraft: "1.5/stable"
       channels:
         - latest/edge
+    stable/quincy.2:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
+        - quincy/edge
     stable/quincy:
       build-channels:
         charmcraft: "1.5/stable"
@@ -55,9 +60,14 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
+    stable/quincy.2:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
+        - quincy/edge
       stable/quincy:
         build-channels:
           charmcraft: "1.5/stable"
@@ -98,9 +108,14 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
+      stable/quincy.2:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - quincy/edge
       stable/quincy:
         build-channels:
           charmcraft: "1.5/stable"
