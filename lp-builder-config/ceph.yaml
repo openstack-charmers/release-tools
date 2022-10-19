@@ -95,11 +95,111 @@ projects:
     charmhub: ceph-iscsi
     launchpad: charm-ceph-iscsi
     repository: https://opendev.org/openstack/charm-ceph-iscsi.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+      stable/quincy.2:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - quincy/edge
+      stable/quincy:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - quincy/stable
+      stable/luminous:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-queens/edge
+          #- openstack-rocky/edge
+          - luminous/edge
+      stable/mimic:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-stein/edge
+          - mimic/edge
+      stable/nautilus:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-train/edge
+          - nautilus/edge
+      stable/octopus:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - octopus/edge
+      stable/pacific:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - pacific/stable
 
   - name: Ceph Monitor Charm
     charmhub: ceph-mon
     launchpad: charm-ceph-mon
     repository: https://opendev.org/openstack/charm-ceph-mon.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+      stable/quincy.2:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - quincy/edge
+      stable/quincy:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - quincy/stable
+      stable/luminous:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-queens/edge
+          #- openstack-rocky/edge
+          - luminous/edge
+      stable/mimic:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-stein/edge
+          - mimic/edge
+      stable/nautilus:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-train/edge
+          - nautilus/edge
+      stable/octopus:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - octopus/edge
+      stable/pacific:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - pacific/stable
 
   - name: Ceph NFS Charm
     charmhub: ceph-nfs
@@ -137,11 +237,111 @@ projects:
     charmhub: ceph-proxy
     launchpad: charm-ceph-proxy
     repository: https://opendev.org/openstack/charm-ceph-proxy.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+      stable/quincy.2:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - quincy/edge
+      stable/quincy:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - quincy/stable
+      stable/luminous:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-queens/edge
+          #- openstack-rocky/edge
+          - luminous/edge
+      stable/mimic:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-stein/edge
+          - mimic/edge
+      stable/nautilus:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-train/edge
+          - nautilus/edge
+      stable/octopus:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - octopus/edge
+      stable/pacific:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - pacific/stable
 
   - name: Ceph Rados Gateway Charm
     charmhub: ceph-radosgw
     launchpad: charm-ceph-radosgw
     repository: https://opendev.org/openstack/charm-ceph-radosgw.git
+    branches:
+      master:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - latest/edge
+      stable/quincy.2:
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - quincy/edge
+      stable/quincy:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - quincy/stable
+      stable/luminous:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-queens/edge
+          #- openstack-rocky/edge
+          - luminous/edge
+      stable/mimic:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-stein/edge
+          - mimic/edge
+      stable/nautilus:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          #- openstack-train/edge
+          - nautilus/edge
+      stable/octopus:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - octopus/edge
+      stable/pacific:
+        enabled: False
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - pacific/stable
 
   - name: Ceph RBD Mirror Charm
     charmhub: ceph-rbd-mirror
