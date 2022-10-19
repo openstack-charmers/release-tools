@@ -65,7 +65,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
       #stable/8.0:
