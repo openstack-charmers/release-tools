@@ -7,11 +7,6 @@ defaults:
         charmcraft: "2.0/stable"
       channels:
         - latest/edge
-    stable/22.03:
-      build-channels:
-        charmcraft: "1.5/stable"
-      channels:
-        - 22.03/stable
     stable/20.03:
       enabled: False
       build-channels:
@@ -34,6 +29,16 @@ defaults:
       channels:
         #- openstack-xena/edge
         - 21.09/stable
+    stable/22.03:
+      build-channels:
+        charmcraft: "1.5/stable"
+      channels:
+        - 22.03/stable
+    stable/22.09:
+      build-channels:
+        charmcraft: "2.1/stable"
+      channels:
+        - 22.09/stable
 
 projects:
   - name: OVN Central
