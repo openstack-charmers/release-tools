@@ -579,43 +579,43 @@ projects:
       master:
         enabled: True
         build-channels:
-          charmcraft: "1.7/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
       stable/train:
         enabled: True
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "2.0/stable"
         channels:
           - ussuri/edge
       stable/ussuri:
         enabled: True
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "2.0/stable"
         channels:
           - ussuri/edge
       stable/victoria:
         enabled: True
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "2.0/stable"
         channels:
           - victoria/edge
       stable/wallaby:
         enabled: True
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "2.0/stable"
         channels:
           - wallaby/edge
       stable/xena:
         enabled: True
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "2.0/stable"
         channels:
           - xena/edge
       stable/yoga:
         enabled: True
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "2.0/stable"
         channels:
           - yoga/stable
       stable/zed:
