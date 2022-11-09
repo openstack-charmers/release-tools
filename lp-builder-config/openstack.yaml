@@ -136,6 +136,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   # disabled as no longer supported
   # - name: OpenStack Barbican SoftHSM Charm
@@ -419,6 +425,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Placement charm
     charmhub: placement
@@ -1140,6 +1152,12 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
 
   - name: OpenStack Octavia Disk-Image Retrofit Charm
     charmhub: octavia-diskimage-retrofit
@@ -1201,3 +1219,9 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - yoga/stable
+      stable/zed:
+        enabled: True
+        build-channels:
+          charmcraft: "2.0/stable"
+        channels:
+          - zed/edge
