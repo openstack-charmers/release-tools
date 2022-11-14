@@ -19,7 +19,7 @@ defaults:
         - 4.1/stable
     stable/4.2:
       build-channels:
-        charmcraft: "1.5/stable"
+        charmcraft: "2.0/stable"
       channels:
         - 4.2/stable
 
