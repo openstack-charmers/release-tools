@@ -2,7 +2,11 @@
 
 function print_usage {
   echo "Usage example:"
-  echo "    ${0} "
+  echo "    ${0} --os-baseline stable/yoga \\"
+  echo "        --ovn-baseline stable/22.03 \\"
+  echo "        --ceph-baseline stable/quincy \\"
+  echo "        --libs-dir ./libs-dir \\"
+  echo "        --output contributors.txt"
 }
 
 
@@ -10,6 +14,7 @@ function print_usage {
 CLEAN=0
 LAST_REF=master
 BASE_DIR=
+OUTPUT=
 declare -A BASELINE_BRANCHES
 # parse cli arguments
 while (($# > 0))
@@ -34,6 +39,10 @@ do
       BASE_DIR=$2
       shift
       ;;
+    --output)
+      OUTPUT=$2
+      shift
+      ;;
     *)
       echo "ERROR: invalid input '$1'"
       print_usage
@@ -45,6 +54,7 @@ done
 
 if [ -z $BASE_DIR ] || [ "${#BASELINE_BRANCHES[@]}" -eq 0 ]; then
   print_usage
+  exit 2
 fi
 
 function log {
@@ -100,4 +110,9 @@ CONTRIB_NUMBER=$(wc -l $SUMMARY_FILE | awk '{print $1}')
 
 echo -e "\n${CONTRIB_NUMBER} different people contributed since release ${BASELINE_BRANCHES[@]}."
 echo ""
-cat ${SUMMARY_FILE}
+if [ -z $OUTPUT ]; then
+  cat ${SUMMARY_FILE}
+else
+  cp ${SUMMARY_FILE} $OUTPUT
+  echo "See file ${OUTPUT}"
+fi
