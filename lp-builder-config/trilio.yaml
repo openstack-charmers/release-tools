@@ -7,21 +7,33 @@ defaults:
         charmcraft: "2.0/stable"
       channels:
         - latest/edge
+      bases:
+        - "18.04"
+        - "20.04"
     stable/4.0:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - 4.0/stable
+      bases:
+        - "20.04"
+        - "22.04"
     stable/4.1:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - 4.1/stable
+      bases:
+        - "20.04"
+        - "22.04"
     stable/4.2:
       build-channels:
         charmcraft: "2.0/stable"
       channels:
         - 4.2/stable
+      bases:
+        - "18.04"
+        - "20.04"
 
 projects:
   - name: Trilio Data Mover

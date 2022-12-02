@@ -13,22 +13,33 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/jammy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 2.4/stable
+        bases:
+          - "20.04"
+          - "22.04"
       stable/focal:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 2.0.3/stable
+        bases:
+          - "18.04"
+          - "20.04"
       stable/bionic:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 1.1.18/edge
+        bases:
+          - "18.04"
 
   - name: Magpie Charm
     charmhub: magpie
@@ -51,12 +62,17 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "22.04"
       #stable/8.0:
       stable/jammy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 8.0/stable
+        bases:
+          - "20.04"
+          - "22.04"
 
   - name: MySQL Router
     charmhub: mysql-router
@@ -68,12 +84,17 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
+        bases:
+          - "22.04"
       #stable/8.0:
       stable/jammy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 8.0/stable
+        bases:
+          - "20.04"
+          - "22.04"
 
   - name: Percona Cluster Charm
     charmhub: percona-cluster
@@ -85,12 +106,16 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "18.04"
       stable/5.7:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 5.7/edge
+        bases:
+          - "18.04"
 
   - name: RabbitMQ Server Charm
     charmhub: rabbitmq-server
@@ -102,6 +127,9 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "20.04"
+          - "22.04"
       # jammy
       #stable/3.9:
       stable/jammy:
@@ -109,6 +137,9 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - 3.9/stable
+        bases:
+          - "20.04"
+          - "22.04"
       # focal
       #stable/3.8:
       stable/focal:
@@ -117,6 +148,9 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - 3.8/stable
+        bases:
+          - "18.04"
+          - "20.04"
       # bionic - not enabled yet
       stable/3.6:
         enabled: False
@@ -124,6 +158,8 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - 3.6/edge
+        bases:
+          - "18.04"
 
   - name: Woodpecker Charm
     # Note: woodpecker has not been promulgated
@@ -148,26 +184,39 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "22.04"
       stable/1.8:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - 1.8/edge
+        bases:
+          - "22.04"
       stable/1.7:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 1.7/stable
+        bases:
+          - "20.04"
+          - "22.04"
       stable/1.6:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 1.6/stable
+        bases:
+          - "18.04"
+          - "20.04"
       stable/1.5:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - 1.5/stable
+        bases:
+          - "18.04"
+          - "20.04"
 
   - name: OpenStack Loadbalancer Charm
     charmhub: openstack-loadbalancer
@@ -179,17 +228,25 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "22.04"
+          - "22.10"
       stable/jammy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - jammy/stable
+        bases:
+          - "20.04"
+          - "22.04"
       stable/focal:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - focal/edge
+        bases:
+          - "20.04"
 
   - name: OpenID Connect Test Fixture Charm
     charmhub: openidc-test-fixture
@@ -213,21 +270,32 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "22.04"
+          - "22.10"
       stable/bionic:
         enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - bionic/edge
+        bases:
+          - "18.04"
       stable/focal:
         enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - focal/edge
+        bases:
+          - "18.04"
+          - "20.04"
       stable/jammy:
         enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - jammy/edge
+        bases:
+          - "20.04"
+          - "22.04"

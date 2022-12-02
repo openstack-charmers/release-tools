@@ -7,16 +7,25 @@ defaults:
         charmcraft: "1.5/stable"
       channels:
         - latest/edge
+      bases:
+        - "20.04"
+        - "22.04"
     stable/quincy.2:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - quincy/edge
+      bases:
+        - "20.04"
+        - "22.04"
     stable/quincy:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - quincy/stable
+      bases:
+        - "20.04"
+        - "22.04"
     stable/luminous:
       enabled: False
       build-channels:
@@ -25,6 +34,8 @@ defaults:
         #- openstack-queens/edge
         #- openstack-rocky/edge
         - luminous/edge
+      bases:
+        - "18.04"
     stable/mimic:
       enabled: False
       build-channels:
@@ -32,6 +43,8 @@ defaults:
       channels:
         #- openstack-stein/edge
         - mimic/edge
+      bases:
+        - "18.04"
     stable/nautilus:
       enabled: False
       build-channels:
@@ -39,18 +52,25 @@ defaults:
       channels:
         #- openstack-train/edge
         - nautilus/edge
+      bases:
+        - "18.04"
     stable/octopus:
       enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - octopus/edge
+      bases:
+        - "18.04"
+        - "20.04"
     stable/pacific:
       enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
         - pacific/stable
+      bases:
+        - "20.04"
 
 projects:
   - name: Ceph Dashboard Charm
@@ -63,28 +83,42 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy.2:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - quincy/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
             - quincy/stable
+        bases:
+          - "20.04"
+          - "22.04"
       stable/octopus:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - octopus/edge
+        bases:
+          - "18.04"
+          - "20.04"
       stable/pacific:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - pacific/stable
+      bases:
+        - "20.04"
 
   - name: Ceph FileSystem Charm
     charmhub: ceph-fs
@@ -101,16 +135,25 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy.2:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - quincy/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - quincy/stable
+        bases:
+          - "20.04"
+          - "22.04"
       stable/luminous:
         enabled: False
         build-channels:
@@ -119,6 +162,8 @@ projects:
           #- openstack-queens/edge
           #- openstack-rocky/edge
           - luminous/edge
+        bases:
+          - "18.04"
       stable/mimic:
         enabled: False
         build-channels:
@@ -126,6 +171,8 @@ projects:
         channels:
           #- openstack-stein/edge
           - mimic/edge
+        bases:
+          - "18.04"
       stable/nautilus:
         enabled: False
         build-channels:
@@ -133,18 +180,25 @@ projects:
         channels:
           #- openstack-train/edge
           - nautilus/edge
+        bases:
+          - "18.04"
       stable/octopus:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - octopus/edge
+        bases:
+          - "18.04"
+          - "20.04"
       stable/pacific:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - pacific/stable
+        bases:
+          - "20.04"
 
   - name: Ceph Monitor Charm
     charmhub: ceph-mon
@@ -156,16 +210,25 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy.2:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - quincy/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - quincy/stable
+        bases:
+          - "20.04"
+          - "22.04"
       stable/luminous:
         enabled: False
         build-channels:
@@ -174,6 +237,8 @@ projects:
           #- openstack-queens/edge
           #- openstack-rocky/edge
           - luminous/edge
+        bases:
+          - "18.04"
       stable/mimic:
         enabled: False
         build-channels:
@@ -181,6 +246,8 @@ projects:
         channels:
           #- openstack-stein/edge
           - mimic/edge
+        bases:
+          - "18.04"
       stable/nautilus:
         enabled: False
         build-channels:
@@ -188,18 +255,25 @@ projects:
         channels:
           #- openstack-train/edge
           - nautilus/edge
+        bases:
+          - "18.04"
       stable/octopus:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - octopus/edge
+        bases:
+          - "18.04"
+          - "20.04"
       stable/pacific:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - pacific/stable
+        bases:
+          - "20.04"
 
   - name: Ceph NFS Charm
     charmhub: ceph-nfs
@@ -211,22 +285,33 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy.2:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - quincy/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - quincy/stable
+        bases:
+          - "20.04"
+          - "22.04"
       stable/pacific:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - pacific/edge
+        bases:
+          - "20.04"
 
   - name: Ceph OSD Charm
     charmhub: ceph-osd
@@ -243,16 +328,25 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy.2:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - quincy/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - quincy/stable
+        bases:
+          - "20.04"
+          - "22.04"
       stable/luminous:
         enabled: False
         build-channels:
@@ -261,6 +355,8 @@ projects:
           #- openstack-queens/edge
           #- openstack-rocky/edge
           - luminous/edge
+        bases:
+          - "18.04"
       stable/mimic:
         enabled: False
         build-channels:
@@ -268,6 +364,8 @@ projects:
         channels:
           #- openstack-stein/edge
           - mimic/edge
+        bases:
+          - "18.04"
       stable/nautilus:
         enabled: False
         build-channels:
@@ -275,18 +373,25 @@ projects:
         channels:
           #- openstack-train/edge
           - nautilus/edge
+        bases:
+          - "18.04"
       stable/octopus:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - octopus/edge
+        bases:
+          - "18.04"
+          - "20.04"
       stable/pacific:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - pacific/stable
+        bases:
+          - "20.04"
 
   - name: Ceph Rados Gateway Charm
     charmhub: ceph-radosgw
@@ -298,16 +403,25 @@ projects:
           charmcraft: "2.0/stable"
         channels:
           - latest/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy.2:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
           - quincy/edge
+        bases:
+          - "20.04"
+          - "22.04"
       stable/quincy:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - quincy/stable
+        bases:
+          - "20.04"
+          - "22.04"
       stable/luminous:
         enabled: False
         build-channels:
@@ -316,6 +430,8 @@ projects:
           #- openstack-queens/edge
           #- openstack-rocky/edge
           - luminous/edge
+        bases:
+          - "18.04"
       stable/mimic:
         enabled: False
         build-channels:
@@ -323,6 +439,8 @@ projects:
         channels:
           #- openstack-stein/edge
           - mimic/edge
+        bases:
+          - "18.04"
       stable/nautilus:
         enabled: False
         build-channels:
@@ -330,18 +448,25 @@ projects:
         channels:
           #- openstack-train/edge
           - nautilus/edge
+        bases:
+          - "18.04"
       stable/octopus:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - octopus/edge
+        bases:
+          - "18.04"
+          - "20.04"
       stable/pacific:
         enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - pacific/stable
+        bases:
+          - "20.04"
 
   - name: Ceph RBD Mirror Charm
     charmhub: ceph-rbd-mirror
