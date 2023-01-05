@@ -63,11 +63,11 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - latest/edge
-    stable/quincy.2:
-      build-channels:
-        charmcraft: "1.5/stable"
-      channels:
-        - quincy/edge
+      stable/quincy.2:
+        build-channels:
+          charmcraft: "1.5/stable"
+        channels:
+          - quincy/edge
       stable/quincy:
         build-channels:
           charmcraft: "1.5/stable"
