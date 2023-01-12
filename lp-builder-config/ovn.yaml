@@ -11,7 +11,6 @@ defaults:
         - "22.04"
         - "22.10"
     stable/20.03:
-      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -22,7 +21,6 @@ defaults:
         - "18.04"
         - "20.04"
     stable/20.12:
-      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -31,7 +29,6 @@ defaults:
       bases:
         - "20.04"
     stable/21.09:
-      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:

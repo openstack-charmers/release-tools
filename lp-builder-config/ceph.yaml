@@ -55,7 +55,6 @@ defaults:
       bases:
         - "18.04"
     stable/octopus:
-      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -64,7 +63,6 @@ defaults:
         - "18.04"
         - "20.04"
     stable/pacific:
-      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -103,7 +101,6 @@ projects:
           - "20.04"
           - "22.04"
       stable/octopus:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -112,13 +109,12 @@ projects:
           - "18.04"
           - "20.04"
       stable/pacific:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
           - pacific/stable
-      bases:
-        - "20.04"
+        bases:
+          - "20.04"
 
   - name: Ceph FileSystem Charm
     charmhub: ceph-fs
@@ -183,7 +179,6 @@ projects:
         bases:
           - "18.04"
       stable/octopus:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -192,7 +187,6 @@ projects:
           - "18.04"
           - "20.04"
       stable/pacific:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -258,7 +252,6 @@ projects:
         bases:
           - "18.04"
       stable/octopus:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -267,7 +260,6 @@ projects:
           - "18.04"
           - "20.04"
       stable/pacific:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -305,11 +297,10 @@ projects:
           - "20.04"
           - "22.04"
       stable/pacific:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - pacific/edge
+          - pacific/stable
         bases:
           - "20.04"
 
@@ -376,7 +367,6 @@ projects:
         bases:
           - "18.04"
       stable/octopus:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -385,7 +375,6 @@ projects:
           - "18.04"
           - "20.04"
       stable/pacific:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -451,7 +440,6 @@ projects:
         bases:
           - "18.04"
       stable/octopus:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -460,7 +448,6 @@ projects:
           - "18.04"
           - "20.04"
       stable/pacific:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:

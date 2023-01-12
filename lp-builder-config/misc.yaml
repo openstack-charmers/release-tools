@@ -109,7 +109,6 @@ projects:
         bases:
           - "18.04"
       stable/5.7:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -143,7 +142,6 @@ projects:
       # focal
       #stable/3.8:
       stable/focal:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:

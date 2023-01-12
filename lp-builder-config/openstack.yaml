@@ -20,7 +20,7 @@ defaults:
       channels:
         - train/edge
         - stein/edge
-        - rock/edge
+        - rocky/edge
         - queens/edge
       bases:
         - "18.04"
@@ -501,6 +501,9 @@ projects:
           charmcraft: "1.5/stable"
         channels:
           - ussuri/edge
+        bases:
+          - "18.04"
+          - "20.04"
       stable/victoria:
         enabled: True
         build-channels:
@@ -508,7 +511,6 @@ projects:
         channels:
           - victoria/edge
         bases:
-          - "18.04"
           - "20.04"
       stable/wallaby:
         enabled: True
