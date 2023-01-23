@@ -14,11 +14,14 @@ defaults:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - quincy/edge
+        - quincy/stable
       bases:
         - "20.04"
         - "22.04"
+    # stable/quincy is deprecated in favour of stable/quincy.2 which is now the
+    # "quincy" branch.
     stable/quincy:
+      enabled: False
       build-channels:
         charmcraft: "1.5/stable"
       channels:
@@ -58,7 +61,7 @@ defaults:
       build-channels:
         charmcraft: "1.5/stable"
       channels:
-        - octopus/edge
+        - octopus/stable
       bases:
         - "18.04"
         - "20.04"
@@ -88,11 +91,14 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - quincy/edge
+          - quincy/stable
         bases:
           - "20.04"
           - "22.04"
+    # stable/quincy is deprecated in favour of stable/quincy.2 which is now the
+    # "quincy" branch.
       stable/quincy:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -104,7 +110,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - octopus/edge
+          - octopus/stable
         bases:
           - "18.04"
           - "20.04"
@@ -138,11 +144,14 @@ projects:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
-          - quincy/edge
+          - quincy/stable
         bases:
           - "20.04"
           - "22.04"
+    # stable/quincy is deprecated in favour of stable/quincy.2 which is now the
+    # "quincy" branch.
       stable/quincy:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -182,7 +191,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - octopus/edge
+          - octopus/stable
         bases:
           - "18.04"
           - "20.04"
@@ -211,11 +220,14 @@ projects:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
-          - quincy/edge
+          - quincy/stable
         bases:
           - "20.04"
           - "22.04"
+    # stable/quincy is deprecated in favour of stable/quincy.2 which is now the
+    # "quincy" branch.
       stable/quincy:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -255,7 +267,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - octopus/edge
+          - octopus/stable
         bases:
           - "18.04"
           - "20.04"
@@ -284,11 +296,14 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - quincy/edge
+          - quincy/stable
         bases:
           - "20.04"
           - "22.04"
+    # stable/quincy is deprecated in favour of stable/quincy.2 which is now the
+    # "quincy" branch.
       stable/quincy:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -326,11 +341,14 @@ projects:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
-          - quincy/edge
+          - quincy/stable
         bases:
           - "20.04"
           - "22.04"
+    # stable/quincy is deprecated in favour of stable/quincy.2 which is now the
+    # "quincy" branch.
       stable/quincy:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -370,7 +388,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - octopus/edge
+          - octopus/stable
         bases:
           - "18.04"
           - "20.04"
@@ -399,11 +417,14 @@ projects:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
-          - quincy/edge
+          - quincy/stable
         bases:
           - "20.04"
           - "22.04"
+    # stable/quincy is deprecated in favour of stable/quincy.2 which is now the
+    # "quincy" branch.
       stable/quincy:
+        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -443,7 +464,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - octopus/edge
+          - octopus/stable
         bases:
           - "18.04"
           - "20.04"
