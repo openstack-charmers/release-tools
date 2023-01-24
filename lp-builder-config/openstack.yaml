@@ -1213,7 +1213,7 @@ projects:
         channels:
           - victoria/stable
         bases:
-          - "18.04"
+          - "20.04"
       stable/wallaby:
         enabled: True
         build-channels:
@@ -1221,7 +1221,7 @@ projects:
         channels:
           - wallaby/stable
         bases:
-          - "18.04"
+          - "20.04"
       stable/xena:
         enabled: True
         build-channels:
@@ -1229,7 +1229,7 @@ projects:
         channels:
           - xena/stable
         bases:
-          - "18.04"
+          - "20.04"
       stable/yoga:
         enabled: True
         build-channels:

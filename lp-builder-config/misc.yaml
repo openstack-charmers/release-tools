@@ -10,7 +10,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
         bases:
@@ -33,7 +33,6 @@ projects:
           - "18.04"
           - "20.04"
       stable/bionic:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -48,7 +47,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "1.5/stable"
         channels:
           - latest/edge
 
@@ -59,7 +58,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
         bases:
@@ -103,7 +102,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
         bases:
@@ -123,7 +122,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
         bases:
@@ -151,7 +150,6 @@ projects:
           - "20.04"
       # bionic - not enabled yet
       stable/3.6:
-        enabled: False
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -167,7 +165,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "1.7/stable"
         channels:
           - latest/edge
 
@@ -179,7 +177,7 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "2.1/stable"
         channels:
           - latest/edge
         bases:
@@ -188,7 +186,7 @@ projects:
         build-channels:
           charmcraft: "2.0/stable"
         channels:
-          - 1.8/edge
+          - 1.8/stable
         bases:
           - "22.04"
       stable/1.7:
@@ -238,7 +236,6 @@ projects:
           - "20.04"
           - "22.04"
       stable/focal:
-        enabled: True
         build-channels:
           charmcraft: "1.5/stable"
         channels:
@@ -293,7 +290,7 @@ projects:
         build-channels:
           charmcraft: "1.5/stable"
         channels:
-          - jammy/Stable
+          - jammy/stable
         bases:
           - "20.04"
           - "22.04"
