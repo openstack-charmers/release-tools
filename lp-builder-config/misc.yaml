@@ -63,6 +63,7 @@ projects:
           - latest/edge
         bases:
           - "22.04"
+          - "22.10"
       #stable/8.0:
       stable/jammy:
         build-channels:
@@ -80,11 +81,12 @@ projects:
     branches:
       master:
         build-channels:
-          charmcraft: "1.5/stable"
+          charmcraft: "2.0/stable"
         channels:
           - latest/edge
         bases:
           - "22.04"
+          - "22.10"
       #stable/8.0:
       stable/jammy:
         build-channels:
@@ -128,6 +130,7 @@ projects:
         bases:
           - "20.04"
           - "22.04"
+          - "22.10"
       # jammy
       #stable/3.9:
       stable/jammy:
@@ -182,6 +185,7 @@ projects:
           - latest/edge
         bases:
           - "22.04"
+          - "22.10"
       stable/1.8:
         build-channels:
           charmcraft: "2.0/stable"
