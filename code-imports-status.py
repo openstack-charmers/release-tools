@@ -14,6 +14,11 @@ from zoneinfo import ZoneInfo
 
 from launchpadlib.launchpad import Launchpad
 
+try:
+    from importlib_resources import files, as_file  # type: ignore
+except ImportError:
+    from importlib.resources import files, as_file  # type: ignore
+
 __author__ = "Felipe Reyes <felipe.reyes@canonical.com>"
 __copyright__ = "Copyright 2022, Canonical Ltd."
 __description__ = 'Check the status of code imports in Launchpad.'
@@ -122,15 +127,15 @@ def print_report(output):
                 for line in log.split('\n'):
                     print(f'    {line}')
 
-def main():
+def main(cfg_dir):
     opts = setup_options()
 
     if opts.category:
-        fpath = f'lp-builder-config/{opts.category}.yaml'
+        fpath = os.path.join(cfg_dir, f'{opts.category}.yaml')
         assert os.path.isfile(fpath), f'No such file or directory: {fpath}'
         lp_builder_files = [fpath]
     else:
-        lp_builder_files = glob.glob('lp-builder-config/*.yaml')
+        lp_builder_files = glob.glob(f'{cfg_dir}/lp-builder-config/*.yaml')
 
     output = {}
     for fname in lp_builder_files:
@@ -171,4 +176,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    config_dir = files('charmed_openstack_info.data.lp-builder-config')
+    with as_file(config_dir) as cfg_dir:
+        main(cfg_dir)
