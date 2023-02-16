@@ -24,10 +24,6 @@ from lib.lp_builder import get_lp_builder_config
 logger = logging.getLogger(__name__)
 
 
-CUR_DIR = Path(__file__).parent.resolve()
-LP_DIR = CUR_DIR / 'lp-builder-config'
-assert LP_DIR.is_dir(), f"{LP_DIR} doesn't seem to exist?"
-
 # type Alias for LpConfig struture.
 LpConfig = Dict[str, Dict[str, List[str]]]
 

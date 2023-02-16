@@ -1,12 +1,14 @@
+import glob
 import logging
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 import yaml
 
-CUR_DIR = Path(__file__).parent.resolve()
-PARENT_DIR = Path(__file__).parent.parent.resolve()
-LP_DIR = PARENT_DIR / 'lp-builder-config'
-assert LP_DIR.is_dir(), f"{LP_DIR} doesn't seem to exist?"
+try:
+    from importlib_resources import files, as_file  # type: ignore
+except ImportError:
+    from importlib.resources import files, as_file  # type: ignore
+
 
 """Understanding the various configs.
 
@@ -280,8 +282,10 @@ def get_lp_builder_config() -> LpConfig:
     if _LP_CONFIG is not None:
         return _LP_CONFIG.copy()
     lp_config = {}
-    for config_file in LP_DIR.glob('*.yaml'):
-        lp_config.update(parse_lp_builder_config_file(config_file))
+    config_dir = files('charmed_openstack_info.data.lp-builder-config')
+    with as_file(config_dir) as cfg_dir:
+        for config_file in glob.glob(f'{cfg_dir}/*.yaml'):
+            lp_config.update(parse_lp_builder_config_file(Path(config_file)))
     _LP_CONFIG = lp_config
     return lp_config.copy()
 
@@ -291,7 +295,9 @@ def sections() -> List[str]:
 
     :returns: List of section names.
     """
-    return list(name.stem for name in LP_DIR.glob('*.yaml'))
+    config_dir = files('charmed_openstack_info.data.lp-builder-config')
+    with as_file(config_dir) as cfg_dir:
+        return list(Path(name).stem for name in glob.glob(f'{cfg_dir}/*.yaml'))
 
 
 def get_lp_builder_config_for(name: str) -> LpConfig:
@@ -320,16 +326,18 @@ def get_yaml_config() -> RawConfig:
     if _RAW_CONFIG is not None:
         return _RAW_CONFIG.copy()
     _RAW_CONFIG = {}
-    for config_file in LP_DIR.glob('*.yaml'):
-        name = config_file.stem
-        try:
-            with open(config_file) as f:
-                raw_config = yaml.safe_load(f)
-        except Exception as e:
-            logging.error("Couldn't read config_file: %s due to: %s",
-                          config_file, str(e))
-            raise
-        _RAW_CONFIG[name] = raw_config
+    config_dir = files('charmed_openstack_info.data.lp-builder-config')
+    with as_file(config_dir) as cfg_dir:
+        for config_file in glob.glob(f'{cfg_dir}/*.yaml'):
+            name = Path(config_file).stem
+            try:
+                with open(config_file) as f:
+                    raw_config = yaml.safe_load(f)
+            except Exception as e:
+                logging.error("Couldn't read config_file: %s due to: %s",
+                              config_file, str(e))
+                raise
+            _RAW_CONFIG[name] = raw_config
     return _RAW_CONFIG.copy()
 
 
