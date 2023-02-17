@@ -188,7 +188,7 @@ projects:
           - "22.10"
       stable/1.8:
         build-channels:
-          charmcraft: "2.0/stable"
+          charmcraft: "2.1/stable"
         channels:
           - 1.8/stable
         bases:
