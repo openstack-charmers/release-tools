@@ -5,10 +5,16 @@
 # run this script in the root of the charm directory
 
 script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
-repo_dir="$script_dir/.."
-worktree_branch="stable/yoga"
-ceph_release="octopus"
-openstack_release="ussuri"
+repo_dir="$script_dir/../.."
+ceph_branch="quincy"
+openstack_branch="yoga"
+ovn_branch="22.03"
+mysql_branch="jammy"
+hacluster_branch="jammy"
+rabbitmq_server_branch="jammy"
+vault_branch="1.7"
+
+
 
 function update_bundles {
     local charm_dir=$1
@@ -23,13 +29,13 @@ function update_bundles {
             --ensure-charmhub --enforce-edge
         # Then overwrite with branches appropirate to ceph-pacific
         $repo_dir/update-channel-single.py --log DEBUG \
-            --branch stable/$openstack_release \
-            --branch stable/20.03 \
-            --branch stable/5.7   \
-            --branch stable/focal \
-            --branch stable/1.7 \
-            --branch stable/jammy \
-            --branch stable/$ceph_release \
+            --branch stable/$openstack_branch \
+            --branch stable/$ovn_branch \
+            --branch stable/$mysql_branch   \
+            --branch stable/$hacluster_branch \
+            --branch stable/$vault_branch \
+            --branch stable/$rabbitmq_server_branch \
+            --branch stable/$ceph_branch \
             --set-local-charm \
             --enforce-edge
     )

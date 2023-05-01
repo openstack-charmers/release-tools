@@ -1,0 +1,19 @@
+Stable artefacts for stable/2023.1 (antelope)
+
+This patch is to lock the stable/2023.1 (antelope release) charms
+down so that as much as possible.
+In particular, this patch does:
+
+- set the .gitreview to stable/2023.1
+- lock zaza and zaza-openstack-tests to stable/antelope branches
+- for reactive charms Add build.lock files to lock the layers
+  and python modules used to build the charm.
+- for ops framework charms, extract a pip freeze from the
+  charmcraft container after building the charm to lock the
+  modules used to build the charm.
+- drop the kinetic bundles if the exist. (Note the updates to
+  tests.yaml is in another batch (topic: antelope-voting)
+- update the bundles so that they point to the antelope specific
+  channels.  e.g. 2023.1/edge for OpenStack charms, 23.03/edge for
+  OVN charms, quincy/edge for Ceph charms and generally, the
+  appropriate LTS Jammy branch for the various support charms.

@@ -1,7 +1,8 @@
 ruamel.yaml
 theblues
 libcharmstore
-git+https://github.com/openstack-charmers/charmed-openstack-info.git#egg=charmed-openstack-info
+#git+https://github.com/openstack-charmers/charmed-openstack-info.git#egg=charmed-openstack-info
+-e /home/alex/Projects/Canonical/git/github.com/openstack-charmers/charmed-openstack-info
 GitPython
 humanize
 launchpadlib

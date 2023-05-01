@@ -5,13 +5,13 @@
 # run this script in the root of the charm directory
 
 script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
-repo_dir="$script_dir/.."
-ceph_branch="quincy"
-openstack_branch="yoga"
-ovn_branch="22.03"
-mysql_branch="jammy"
-hacluster_branch="jammy"
-rabbitmq_server_branch="jammy"
+repo_dir="$script_dir/../.."
+ceph_branch="pacific"
+openstack_branch="xena"
+ovn_branch="21.09"
+mysql_branch="focal"
+hacluster_branch="focal"
+rabbitmq_server_branch="focal"
 vault_branch="1.7"
 
 

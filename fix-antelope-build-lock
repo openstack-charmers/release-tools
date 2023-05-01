@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#
+# Fix antelope build.lock files so that charms.openstack, charm-helpers have a
+# branch set to antelope.

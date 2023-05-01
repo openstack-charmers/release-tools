@@ -14,6 +14,7 @@ for charm in $charms; do
     echo "Looking at: $charm"
     (
         cd $script_dir/charms/$charm
-        $script_dir/$target_cmd
+        #$script_dir/$target_cmd
+        $target_cmd
     )
 done
