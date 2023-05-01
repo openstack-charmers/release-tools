@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+function ensure_tox {
+    if [ ! -f "$script_dir/.tox/update-channel-single/bin/python3" ]; then
+        (
+            cd "$script_dir"
+            tox -e update-channel-single --notest
+        )
+    fi
+}
+
+ensure_tox
+$script_dir/.tox/update-channel-single/bin/python3 $script_dir/update-channel-single.py $@
+

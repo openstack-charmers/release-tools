@@ -1,0 +1,6 @@
+Update the bundles to use the stable track, edge risk for zed
+
+The bundles for the zed channel currently point to "latest/edge"
+channel for all the charms.  This update points the charms to the
+appropriate channel for the charm being used, either from ceph,
+openstack, ovn or the misc tracks.

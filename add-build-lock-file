@@ -1,30 +1,87 @@
 #!/bin/bash -e
 # Add a lock file to the charm (assume it is a reactive charm).
-# Run in the charm's root directory.
-# Uses the 'add-build-lock-file' tox target.
-# then cleans up afterwards.
+# Run in the charm's root directory to obtain the charm name.
+# Cleans up afterwards.
 # Run AFTER switching the charm to stable libraries (flip-master-libs-to-stable)
 
 _dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 
 charm_type="$(${_dir}/what-is .)"
 
+
+
+function update_charmcraft {
+    # add in reactive-charm-build-arguments if needed
+    grep -q "reactive-charm-build-arguments:" charmcraft.yaml || {
+        change="\    reactive-charm-build-arguments:"
+        sed -i "/plugin: reactive/a $change" charmcraft.yaml
+    }
+
+    # add - --write-lock-file if it is missing
+    grep -q "write-lock-file" charmcraft.yaml || {
+        change="\      - --write-lock-file\n      - --verbose\n      - --verbose"
+        sed -i "/reactive-charm-build-arguments:/a $change" charmcraft.yaml
+    }
+
+    # comment out build binary wheels from source to enable the vcs versions of
+    # wheels to be discovered.
+    sed -i "s/^      - --binary-wheels-from-source/      # - --binary-wheels-from-source/g" charmcraft.yaml
+}
+
 case $charm_type in
     source-zaza)
         # Build the charm.
         if [ ! -f src/build.lock ]; then
-            # copy the add-build-lock file charmcraft in place
-            cp ${_dir}/global/source-zaza/charmcraft-build-lock-file.yaml charmcraft.yaml
-            tox -e build
-            rm -rf .tox
-            # unpack the build charm
+            # save current charmcraft
+            if [ ! -f charmcraft.yaml-orig ]; then
+                echo "saving current charmcraft.yaml"
+                cp charmcraft.yaml charmcraft.yaml-orig
+            else
+                echo "resetting to saved charmcraft.yaml-orig"
+                cp charmcraft.yaml-orig charmcraft.yaml
+            fi
+            # update the charmcraft to build the lock file for a reactive charm
+            update_charmcraft
+            head -n 15 charmcraft.yaml
+            # build the charm
+            charmcraft clean
+            charmcraft -v pack
+            rm ${charm}*.charm
+            # extract the build.lock file
+            echo "extracting the build.lock file"
             charm=$(grep "charm_build_name" osci.yaml | awk '{print $2}')
-            unzip -p "${charm}.charm" build.lock >src/build.lock
-            git checkout charmcraft.yaml
+            echo $charm
+            $_dir/get-build-lock $charm
+            echo "restoring charmcraft.yaml"
+            cp charmcraft.yaml-orig charmcraft.yaml
+            rm charmcraft.yaml-orig
             # temporarily workaround the stable branch detection - charm-tools Bug: #606
-            sed -i "s#refs/heads/master\\\\nrefs/heads/stable/#refs/heads/stable/#g" src/build.lock
+            # sed -i "s#refs/heads/master\\\\nrefs/heads/stable/#refs/heads/stable/#g" src/build.lock
+            echo "clean up charmcraft"
+            charmcraft clean
+        else
+            echo " .. build.lock already exists"
+        fi
+        ;;
+    ops-zaza)
+        if [ ! -f .locked-requirements ]; then
+            echo "Building ops-zaza charm."
+            charmcraft clean
+            charmcraft -v pack
+            echo "extracking the pip freeze from the container."
+            charm=$(grep "charm_build_name" osci.yaml | awk '{print $2}')
+            $_dir/get-ops-pip-freeze $charm
+            echo "merge the requirements back to the requirements.txt"
+            $_dir/merge-ops-requirements-and-pip-freeze.py --output requirements.txt
+            rm pip-freeze.txt
+            touch .locked-requirements
+            echo "clean up charmcraft"
+            charmcraft clean
+        else
+            echo ".. .locked-requirements exists, so not re-doing"
         fi
         ;;
     *)
+        echo " .. Not a reactive charm."
         ;;
 esac

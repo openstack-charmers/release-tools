@@ -4,7 +4,9 @@
 #   - Flip stable charm-helpers and Zaza bits.
 #   - Update .gitreview with new stable branch name.
 
+# the OpenStack code name (e.g. antelope)
 release="$1"
+# the OpenStack release name (e.g. 2023.1)
 branch="$2"
 
 if [ -z "$branch" ]; then
@@ -19,16 +21,15 @@ git fetch --all
 
 # relies on openstack_release being passed as var 1 and branch in var 2
 function ensure_git_branch {
-    local release=$1
-    local branch=$2
+    local branch=$1
     local current_branch=$(git branch --show-current | tr -d '\n')
-    if [[ "$current_branch" != "${release}-updates" ]];
+    if [[ "$current_branch" != "${branch}-updates" ]];
     then
-        git checkout -b ${release}-updates origin/stable/${branch}
+        git checkout -b ${branch}-updates origin/stable/${branch}
     fi
 }
 
-ensure_git_branch ${release} ${branch}
+ensure_git_branch ${branch}
 
 grep -q defaultbranch .gitreview || {
     echo -e "\ndefaultbranch=stable/$branch" >> .gitreview
@@ -37,11 +38,11 @@ grep -q defaultbranch .gitreview || {
 
 for ch in charm-helpers-hooks.yaml charm-helpers-tests.yaml; do
     if [ -f $ch ]; then
-        sed -i "s/https\:\/\/github.com\/juju\/charm-helpers$/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" $ch
+        sed -i "s#https\://github.com/juju/charm-helpers\$#https\://github.com/juju/charm-helpers\@stable/${release}#g" $ch
         git add $ch
     fi
     if [ -f src/$ch ]; then
-        sed -i "s/https\:\/\/github.com\/juju\/charm-helpers$/https\:\/\/github.com\/juju\/charm-helpers\@stable\/${release}/g" src/$ch
+        sed -i "s#https\://github.com/juju/charm-helpers\$#https\://github.com/juju/charm-helpers\@stable/${release}#g" src/$ch
         git add src/$ch
     fi
 done
@@ -50,28 +51,28 @@ if [ -f src/layer.yaml ]; then
     set +e
         grep -q charms.openstack.git@stable src/wheelhouse.txt 2>/dev/null || {
             echo "Updating charm wheelhouse, with stable 'charms.openstack'"
-            sed -i "s#openstack/charms.openstack.git#openstack/charms.openstack.git@stable/$release#g" src/wheelhouse.txt
+            sed -i "s#openstack/charms.openstack.git\##openstack/charms.openstack.git@stable/$release\##g" src/wheelhouse.txt
         }
         grep -q charm-helpers.git@stable src/wheelhouse.txt 2>/dev/null || {
             echo "Updating charm wheelhouse, with stable 'charmhelpers'"
-            sed -i "s#juju/charm-helpers.git#juju/charm-helpers.git@stable/${release}#g" src/wheelhouse.txt
+            sed -i "s#juju/charm-helpers.git\##juju/charm-helpers.git@stable/${release}\##g" src/wheelhouse.txt
         }
         grep -q charms.openstack.git@stable tests-requirements.txt 2>/dev/null || {
             echo "Updating test-requirements.txt in repository with stable charms.openstack"
-            sed -i "s#openstack/charms.openstack.git#openstack/charms.openstack.git@stable/$release#g" test-requirements.txt
+            sed -i "s#openstack/charms.openstack.git\##openstack/charms.openstack.git@stable/$release\##g" test-requirements.txt
         }
         grep -q zaza-openstack-tests.git@stable src/tests-requirements.txt 2>/dev/null || {
             echo "Updating src/test-requirements.txt in repository with stable Zaza"
-            sed -i "s#openstack-charmers/zaza.git#openstack-charmers/zaza.git@stable/$release#g" src/test-requirements.txt
-            sed -i "s#openstack-charmers/zaza-openstack-tests.git#openstack-charmers/zaza-openstack-tests.git@stable/$release#g" src/test-requirements.txt
+            sed -i "s#openstack-charmers/zaza.git\##openstack-charmers/zaza.git@stable/$release\##g" src/test-requirements.txt
+            sed -i "s#openstack-charmers/zaza-openstack-tests.git\##openstack-charmers/zaza-openstack-tests.git@stable/$release\##g" src/test-requirements.txt
         }
     set -e
 else
     set +e
         grep -q zaza-openstack-tests.git@stable tests-requirements.txt 2>/dev/null || {
             echo "Updating test-requirements.txt in repository with stable Zaza"
-            sed -i "s#openstack-charmers/zaza.git#openstack-charmers/zaza.git@stable/$release#g" test-requirements.txt
-            sed -i "s#openstack-charmers/zaza-openstack-tests.git#openstack-charmers/zaza-openstack-tests.git@stable/$release#g" test-requirements.txt
+            sed -i "s#openstack-charmers/zaza.git\##openstack-charmers/zaza.git@stable/$release\##g" test-requirements.txt
+            sed -i "s#openstack-charmers/zaza-openstack-tests.git\##openstack-charmers/zaza-openstack-tests.git@stable/$release\##g" test-requirements.txt
         }
     set -e
 fi

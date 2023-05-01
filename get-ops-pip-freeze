@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
 # param 1 should be the name of the charm
-# param 2 should be where to put it (default src/build.lock)
+# param 2 should be where to put it (default pip-freeze.txt)
 
 charm=$1
-dest=${2:-src/build.lock}
+dest=${2:-pip-freeze.txt}
 
 # find the container name
 match="^charmcraft-$charm-[0-9]"
@@ -24,15 +24,19 @@ then
     echo "Started $container"
 fi
 
-file=$(lxc exec --project charmcraft $container -- find /root -name 'build.lock' | head -n1 | tr -d '\n')
-echo "file is '$file'"
+cmd="/root/parts/charm/build/staging-venv/bin/pip freeze"
+freeze=$(lxc exec --project charmcraft $container -- $cmd)
+printf "freeze is \n$freeze\n"
 
-if [ -z $file ];
-then
-    echo "Couldn't find build.lock!"
-    exit 1
-fi
+echo "writing freeze to $dest"
+echo "$freeze" > $dest
 
-lxc file pull --project charmcraft "$container$file" $dest
-echo "copied build.lock file."
+#if [ -z $file ];
+#then
+    #echo "Couldn't find build.lock!"
+    #exit 1
+#fi
+
+#lxc file pull --project charmcraft "$container$file" $dest
+#echo "copied build.lock file."
 

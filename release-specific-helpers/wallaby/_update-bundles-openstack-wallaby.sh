@@ -5,7 +5,7 @@
 # run this script in the root of the charm directory
 
 script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
-repo_dir="$script_dir/.."
+repo_dir="$script_dir/../.."
 ceph_branch="pacific"
 openstack_branch="wallaby"
 ovn_branch="21.12"
