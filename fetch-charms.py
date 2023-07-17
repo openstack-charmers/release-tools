@@ -36,6 +36,15 @@ def change_directory_to(path: Union[Path, str]) -> Generator:
         os.chdir(current_cwd)
 
 
+def master_main_swap(branch):
+    """Swap branch name with alias of master or main"""
+    if branch == 'master':
+        return 'main'
+    elif branch == 'main':
+        return 'master'
+    return None
+
+
 def fetch_charms(charms: List[Charm],
                  where: Path,
                  replace: bool = False,
@@ -112,7 +121,13 @@ def fetch_charms(charms: List[Charm],
         target_branch = "master" if branch is None else branch
         command = f"git checkout {target_branch}"
         with change_directory_to(dest):
-            check_call(command.split())
+            try:
+                check_call(command.split())
+            except subprocess.CalledProcessError as e:
+                target_branch = master_main_swap(target_branch)
+                if target_branch:
+                    command = f"git checkout {target_branch}"
+                    check_call(command.split())
 
         if worktrees is not None:
             print(f"Checking out worktrees:")
@@ -238,9 +253,12 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
                         dest='branch',
                         metavar='BRANCH',
                         help=("The branch to fetch, default of master. If the "
-                              "branch doesn't exist then an error is raised "
+                              "branch does not exist then an error is raised "
                               "and the fetch is abandoned. Note that the "
-                              "branch is something like 'stable/ussuri'."))
+                              "branch is something like 'stable/ussuri'. "
+                              "'master' and 'main' are treated as an alias. "
+                              "If 'master' is specified and does not exist, "
+                              "'main' will also be tried and vice versa."))
     parser.add_argument('--dir', '-d',
                         dest='directory',
                         metavar='DIRECTORY',
@@ -285,6 +303,13 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def aborted(e):
+    print("One of the assertions is wrong: {}\n"
+          "Please review and perhaps change the options to the command?"
+          .format(str(e)))
+    print("Aborted!!")
+
+
 def main() -> None:
     args = parse_args(sys.argv[1:])
     logger.setLevel(getattr(logging, args.loglevel, 'INFO'))
@@ -309,10 +334,25 @@ def main() -> None:
             reuse=args.reuse,
         )
     except AssertionError as e:
-        print("One of the assertions is wrong: {}\n"
-              "Please review and perhaps change the options to the command?"
-              .format(str(e)))
-        print("Aborted!!")
+        branch = master_main_swap(branch)
+        if branch:
+            try:
+                fetch_charms(
+                    charms=charms,
+                    where=directory,
+                    replace=args.replace,
+                    branch=args.branch,
+                    worktrees=args.worktrees,
+                    worktree_dir=args.worktree_dir,
+                    ignore_failure=args.ignore_failure,
+                    checkout_topic=args.checkout_topic,
+                    skip_if_present=args.skip_if_present,
+                    reuse=args.reuse,
+                )
+            except AssertionError as e:
+                aborted(e)
+        else:
+            aborted(e)
 
 
 if __name__ == '__main__':
