@@ -12,14 +12,19 @@ new_series_bundle=$3
 new_uca_bundle=$4
 prev_ubuntu_version=$5
 new_ubuntu_version=$6
+prev_ubuntu_series=$7
+new_ubuntu_series=$8
+
 usage="usage: add-new-release-batch prev-series-bundle prev-uca-bundle
-       new-series-bundle new-uca-bundle prev-ubuntu-version new-ubuntu-version"
+       new-series-bundle new-uca-bundle prev-ubuntu-version new-ubuntu-version
+       prev-ubuntu-series new-ubuntu-series"
 example="example: add-new-release-batch lunar-antelope.yaml jammy-antelope.yaml
-         mantic-bobcat.yaml jammy-bobcat.yaml 23.04 23.10"
+         mantic-bobcat.yaml jammy-bobcat.yaml 23.04 23.10 lunar mantic"
 
 if [[ -z "$prev_series_bundle" || -z "$prev_uca_bundle" || \
       -z "$new_series_bundle" || -z "$new_uca_bundle" || \
-      -z "$prev_ubuntu_version" || -z "$new_ubuntu_version" ]]; then
+      -z "$prev_ubuntu_version" || -z "$new_ubuntu_version" || \
+      -z "$prev_ubuntu_series" || -z "$new_ubuntu_series" ]]; then
    echo $usage
    echo $example
    exit 1
@@ -30,5 +35,5 @@ for charm in $charms; do
     cd $basedir/charms/$charm
     $basedir/add-new-release-single $prev_series_bundle $prev_uca_bundle \
         $new_series_bundle $new_uca_bundle $prev_ubuntu_version \
-        $new_ubuntu_version
+        $new_ubuntu_version $prev_ubuntu_series $new_ubuntu_series
 done
