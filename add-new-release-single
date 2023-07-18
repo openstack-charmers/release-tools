@@ -7,7 +7,8 @@ prev_series_bundle=$1
 prev_uca_bundle=$2
 new_series_bundle=$3
 new_uca_bundle=$4
-new_ubuntu_version=$5
+prev_ubuntu_version=$5
+new_ubuntu_version=$6
 
 charmcraft_yaml=$(find . -name charmcraft.yaml)
 config_yaml=$(find . -name config.yaml)
@@ -15,9 +16,13 @@ osci_yaml=$(find . -name osci.yaml)
 tests_yaml=$(find . -name tests.yaml)
 zuul_yaml=$(find . -name .zuul.yaml)
 
-usage="usage: add-new-release-batch prev-series-bundle prev-uca-bundle new-series-bundle new-uca-bundle new-ubuntu-version"
-example="example: add-new-release-single jammy-yoga.yaml focal-yoga.yaml kinetic-zed.yaml jammy-zed.yaml 22.10"
-if [[ -z "$prev_series_bundle" || -z "$prev_uca_bundle" || -z "$new_series_bundle" || -z "$new_uca_bundle" || -z "$new_ubuntu_version" ]]; then
+usage="usage: add-new-release-batch prev-series-bundle prev-uca-bundle
+       new-series-bundle new-uca-bundle prev-ubuntu-version new-ubuntu-version"
+example="example: add-new-release-batch lunar-antelope.yaml jammy-antelope.yaml
+         mantic-bobcat.yaml jammy-bobcat.yaml 23.04 23.10"
+if [[ -z "$prev_series_bundle" || -z "$prev_uca_bundle" || \
+      -z "$new_series_bundle" || -z "$new_uca_bundle" || \
+      -z "$prev_ubuntu_version" || -z "$new_ubuntu_version" ]]; then
    echo $usage
    echo $example
    exit 1
@@ -145,20 +150,36 @@ function add_new_config_default {
     fi
 }
 
-function add_new_run_on_base {
+function create_run_on_base {
+    local channel=$1
+    local arch=$2
+    local run_on="      \- name\: ubuntu\n        channel: \\\""${channel}"\\\"\n        architectures\: \[${arch}\]"
+    echo "$run_on"
+}
+
+function add_new_run_on_bases {
     local charmcraft_yaml=$1
-    local new_ubuntu_version=$2
+    local prev_ubuntu_version=$2
+    local new_ubuntu_version=$3
 
     if grep -Fq "$new_ubuntu_version" "$charmcraft_yaml"; then
         echo "Version $new_ubuntu_version already exists in $charmcraft_yaml"
         return
     fi
 
-    run_on_text="\
-      - name: ubuntu
-        channel: \"$new_ubuntu_version\"
-        architectures: [amd64, s390x, ppc64el, arm64]"
-    echo "$run_on_text" >> $charmcraft_yaml
+    local all_arches="amd64, s390x, ppc64el, arm64"
+    if grep "\[${all_arches}\]" "$charmcraft_yaml"; then
+        local prev_run_on=$(create_run_on_base "$prev_ubuntu_version" "$all_arches")
+        local new_run_on=$(create_run_on_base "$new_ubuntu_version" "$all_arches")
+        sed -i -z "s/\(${prev_run_on}\)/\1\n${new_run_on}/1" $charmcraft_yaml
+    else
+        for arch in "amd64" "arm64" "ppc64el" "s390x"; do
+            local prev_run_on=$(create_run_on_base "$prev_ubuntu_version" "$arch")
+            local new_run_on=$(create_run_on_base "$new_ubuntu_version" "$arch")
+            sed -i -z "s/\(${prev_run_on}\)/\1\n${new_run_on}/1" $charmcraft_yaml
+        done
+    fi
+
 }
 
 prev_os_codename=$(get_os_codename "$prev_series_bundle")
@@ -169,4 +190,4 @@ create_new_bundle $prev_uca_bundle $new_uca_bundle $tests_yaml
 add_new_osci_job $osci_yaml $prev_os_codename $new_os_codename
 add_new_zuul_job $zuul_yaml $prev_os_codename $new_os_codename
 add_new_config_default $config_yaml $prev_os_codename $new_os_codename
-add_new_run_on_base $charmcraft_yaml $new_ubuntu_version
+add_new_run_on_bases $charmcraft_yaml $prev_ubuntu_version $new_ubuntu_version
