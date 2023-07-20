@@ -22,6 +22,9 @@ for charm in $charms; do
                 cp -fvp global/$charm_type/src/tox.ini charms/$charm/src/tox.ini
                 cp -fvp global/$charm_type/rename.sh charms/$charm/rename.sh
                 ;;
+            ops-unknown)
+                cp -fvp global/$charm_type/tox.ini charms/$charm/tox.ini
+		;;
             *)
                 echo "UNKNOWN TYPE -- do nothing"
                 ;;
@@ -43,12 +46,14 @@ for charm in $charms; do
                     touch charms/$charm/src/files/.gitkeep
                 fi
                 ;;
+            ops-unknown)
+                if [ ! -d charms/$charm/tests ]; then
+                    mkdir -v charms/$charm/tests
+                fi
+                ;;
             *)
                 echo "UNKNOWN TYPE -- do nothing"
                 ;;
         esac
-
-        # Death to py27
-        sed -e "s#python-charm-jobs#python35-charm-jobs#g" -i charms/$charm/.zuul.yaml
   )
 done

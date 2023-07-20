@@ -1,0 +1,26 @@
+# This file is managed centrally by release-tools and should not be modified
+# within individual charm repos.  See the 'global' dir contents for available
+# choices of *requirements.txt files for OpenStack Charms:
+#     https://github.com/openstack-charmers/release-tools
+#
+
+cryptography
+jinja2
+lightkube
+lightkube-models
+ops
+git+https://github.com/openstack-charmers/advanced-sunbeam-openstack#egg=ops_sunbeam
+
+python-keystoneclient  # keystone-k8s
+
+# Used for Traefik
+# Note: Remove when traefik-k8s-operator v1 library is released
+serialized_data_interface
+
+# Get resources from github until cacerts issue is charmbuild image is fixed.
+git+https://github.com/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
+
+# Note: Required for cinder-k8s, cinder-ceph-k8s, glance-k8s, nova-k8s
+git+https://github.com/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client
+# Charmhelpers is only present as interface_ceph_client uses it.
+git+https://github.com/juju/charm-helpers.git#egg=charmhelpers

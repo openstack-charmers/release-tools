@@ -1,0 +1,90 @@
+# This file is generated using scripts at
+# https://opendev.org/openstack/requirements
+
+# Changes applied to ignore requirements with git links
+# 
+# diff --git a/openstack_requirements/cmds/generate.py b/openstack_requirements/cmds/generate.py
+# index ea70ef6b..a63f803f 100644
+# --- a/openstack_requirements/cmds/generate.py
+# +++ b/openstack_requirements/cmds/generate.py
+# @@ -37,6 +37,9 @@ def _parse_freeze(text):
+#              raise Exception("Irregular line: %s" % line)
+#          if line.startswith('#'):
+#              continue
+# +        if '@' in line:
+# +            # Ignore all git/opendev links
+# +            continue
+#          if not line:
+#              continue
+#          package, version = line.split('==')[:2]
+
+# Command run to generate upper-constraints
+# git clone https://opendev.org/openstack/requirements.git
+# Apply above mentioned patch
+#
+# cat https://raw.githubusercontent.com/openstack-charmers/release-tools/master/global/ops-unknown/requirements.txt https://raw.githubusercontent.com/openstack-charmers/release-tools/master/global/ops-unknown/test-requirements.txt > /tmp/global-requirements.txt; tox -e generate -- -r /tmp/global-requirements.txt -p python3.10 > /tmp/upper-constraints.txt; rm /tmp/global-requirements.txt
+
+# /tmp/upper-constraints.txt should be modified just to include packages printed
+
+voluptuous===0.13.1
+chardet===3.0.4
+certifi===2022.6.15
+pbr===5.9.0
+attrs===21.4.0
+oslo.i18n===5.1.0
+sniffio===1.2.0
+fixtures===4.0.1
+debtcollector===2.5.0
+MarkupSafe===2.1.1
+netaddr===0.8.0
+wcwidth===0.2.5
+prettytable===3.3.0
+extras===1.0.0
+urllib3===1.26.10
+python-subunit===1.4.0
+pycparser===2.21
+mock===4.0.3
+PyYAML===5.4
+cryptography===37.0.4
+httpcore===0.15.0
+h11===0.12.0
+requests===2.25.0
+Jinja2===3.1.2
+cliff===3.10.1
+coverage===6.4.2
+pyperclip===1.8.2
+stestr===3.2.1
+mccabe===0.6.1
+oslo.serialization===5.0.0
+autopage===0.5.1
+os-service-types===1.7.0
+flake8===4.0.1
+packaging===21.3
+testtools===2.5.0
+iso8601===1.0.2
+idna===2.10
+lightkube===0.11.0
+msgpack===1.0.4
+oslo.config===9.0.0
+pyparsing===3.0.9
+stevedore===4.0.0
+cmd2===2.4.2
+pyflakes===2.4.0
+six===1.16.0
+ops===1.5.0
+wrapt===1.14.1
+pyrsistent===0.18.1
+rfc3986===1.5.0
+future===0.18.2
+pycodestyle===2.8.0
+lightkube-models===1.24.1.4
+netifaces===0.11.0
+keystoneauth1===5.0.0
+python-keystoneclient===5.0.0
+anyio===3.6.1
+cffi===1.15.1
+jsonschema===3.2.0
+serialized-data-interface===0.4.0
+httpx===0.23.0
+oslo.utils===6.0.0
+pytz===2022.1

@@ -18,6 +18,9 @@ for charm in $charms; do
             classic-zaza)
                 cp -fvp global/$charm_type/*requirements.txt charms/$charm/
                 ;;
+            ops-unknown)
+                cp -fvp global/$charm_type/*requirements.txt charms/$charm/
+                ;;
             *)
                 echo "UNKNOWN TYPE" && exit 1
                 ;;
