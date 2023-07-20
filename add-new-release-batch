@@ -10,11 +10,16 @@ prev_series_bundle=$1
 prev_uca_bundle=$2
 new_series_bundle=$3
 new_uca_bundle=$4
-new_ubuntu_version=$5
-usage="usage: add-new-release-batch prev-series-bundle prev-uca-bundle new-series-bundle new-uca-bundle new-ubuntu-version"
-example="example: add-new-release-batch jammy-yoga.yaml focal-yoga.yaml kinetic-zed.yaml jammy-zed.yaml 22.10"
+prev_ubuntu_version=$5
+new_ubuntu_version=$6
+usage="usage: add-new-release-batch prev-series-bundle prev-uca-bundle
+       new-series-bundle new-uca-bundle prev-ubuntu-version new-ubuntu-version"
+example="example: add-new-release-batch lunar-antelope.yaml jammy-antelope.yaml
+         mantic-bobcat.yaml jammy-bobcat.yaml 23.04 23.10"
 
-if [[ -z "$prev_series_bundle" || -z "$prev_uca_bundle" || -z "$new_series_bundle" || -z "$new_uca_bundle" || -z "$new_ubuntu_version" ]]; then
+if [[ -z "$prev_series_bundle" || -z "$prev_uca_bundle" || \
+      -z "$new_series_bundle" || -z "$new_uca_bundle" || \
+      -z "$prev_ubuntu_version" || -z "$new_ubuntu_version" ]]; then
    echo $usage
    echo $example
    exit 1
@@ -23,5 +28,7 @@ fi
 for charm in $charms; do
     echo "===== $charm ====="
     cd $basedir/charms/$charm
-    $basedir/add-new-release-single $prev_series_bundle $prev_uca_bundle $new_series_bundle $new_uca_bundle $new_ubuntu_version
+    $basedir/add-new-release-single $prev_series_bundle $prev_uca_bundle \
+        $new_series_bundle $new_uca_bundle $prev_ubuntu_version \
+        $new_ubuntu_version
 done
