@@ -9,20 +9,26 @@ new_series_bundle=$3
 new_uca_bundle=$4
 prev_ubuntu_version=$5
 new_ubuntu_version=$6
+prev_ubuntu_series=$7
+new_ubuntu_series=$8
 
 charmcraft_yaml=$(find . -name charmcraft.yaml)
 config_yaml=$(find . -name config.yaml)
+metadata_yaml=$(find . -name metadata.yaml)
 osci_yaml=$(find . -name osci.yaml)
 tests_yaml=$(find . -name tests.yaml)
 zuul_yaml=$(find . -name .zuul.yaml)
 
 usage="usage: add-new-release-batch prev-series-bundle prev-uca-bundle
-       new-series-bundle new-uca-bundle prev-ubuntu-version new-ubuntu-version"
+       new-series-bundle new-uca-bundle prev-ubuntu-version new-ubuntu-version
+       prev-ubuntu-series new-ubuntu-series"
 example="example: add-new-release-batch lunar-antelope.yaml jammy-antelope.yaml
-         mantic-bobcat.yaml jammy-bobcat.yaml 23.04 23.10"
+         mantic-bobcat.yaml jammy-bobcat.yaml 23.04 23.10 lunar mantic"
+
 if [[ -z "$prev_series_bundle" || -z "$prev_uca_bundle" || \
       -z "$new_series_bundle" || -z "$new_uca_bundle" || \
-      -z "$prev_ubuntu_version" || -z "$new_ubuntu_version" ]]; then
+      -z "$prev_ubuntu_version" || -z "$new_ubuntu_version" || \
+      -z "$prev_ubuntu_series" || -z "$new_ubuntu_series" ]]; then
    echo $usage
    echo $example
    exit 1
@@ -182,6 +188,29 @@ function add_new_run_on_bases {
 
 }
 
+function add_new_metadata_series {
+    local prev_ubuntu_series=$1
+    local new_ubuntu_series=$2
+    local metadata_yaml=$3
+
+    if [ ! -f $metadata_yaml ]; then
+        echo "File doesn't exist: ${metadata_yaml}"
+        return
+    fi
+
+    if grep -Fq "$new_ubuntu_series" "$metadata_yaml"; then
+        echo "$new_ubuntu_series already exists in $metadata_yaml"
+        return
+    fi
+
+    if grep -Fq "$prev_ubuntu_series" "$metadata_yaml"; then
+        echo $metadata_yaml
+        sed -i "s/\(.*\)${prev_ubuntu_series}\(.*\)/\1${prev_ubuntu_series}\2\n\1${new_ubuntu_series}\2/g" $metadata_yaml
+    else
+        echo "Series ${prev_series} does not exist in $metadata_yaml"
+    fi
+}
+
 prev_os_codename=$(get_os_codename "$prev_series_bundle")
 new_os_codename=$(get_os_codename "$new_series_bundle")
 
@@ -191,3 +220,4 @@ add_new_osci_job $osci_yaml $prev_os_codename $new_os_codename
 add_new_zuul_job $zuul_yaml $prev_os_codename $new_os_codename
 add_new_config_default $config_yaml $prev_os_codename $new_os_codename
 add_new_run_on_bases $charmcraft_yaml $prev_ubuntu_version $new_ubuntu_version
+add_new_metadata_series $prev_ubuntu_series $new_ubuntu_series $metadata_yaml
