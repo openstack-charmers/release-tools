@@ -94,7 +94,11 @@ for GROUP in "${!BASELINE_BRANCHES[@]}"; do
 
   for DIR in ${CHARMS_DIR}/${GROUP}/*/; do
     log "Processing charm ${DIR}..."
-    git -C $DIR log --format="%an" origin/stable/"${BASELINE_BRANCHES[$GROUP]}"..${LAST_REF} 2>/dev/null >> $ALL_CONTRIBUTORS_FILE
+    if  $(git -C $DIR branch -r | grep -q origin/stable/"${BASELINE_BRANCHES[$GROUP]}"); then
+      git -C $DIR log --format="%an" origin/stable/"${BASELINE_BRANCHES[$GROUP]}"..${LAST_REF} 2>/dev/null >> $ALL_CONTRIBUTORS_FILE
+    else
+      echo Repo $DIR does not have branch origin/stable/"${BASELINE_BRANCHES[$GROUP]}", skipping
+    fi
   done
 done
 

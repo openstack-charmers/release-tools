@@ -334,14 +334,14 @@ def main() -> None:
             reuse=args.reuse,
         )
     except AssertionError as e:
-        branch = master_main_swap(branch)
+        branch = master_main_swap(args.branch)
         if branch:
             try:
                 fetch_charms(
                     charms=charms,
                     where=directory,
                     replace=args.replace,
-                    branch=args.branch,
+                    branch=branch,
                     worktrees=args.worktrees,
                     worktree_dir=args.worktree_dir,
                     ignore_failure=args.ignore_failure,
