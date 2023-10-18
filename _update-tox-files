@@ -3,57 +3,12 @@
 #  been performed.  Does not commit, push, or submit/review.
 #  See `batch-example` for usage as a batch of charm updates.
 
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 charms=$(cd charms && ls -d1 *)
 
 for charm in $charms; do
-    charm_type="$(./what-is charms/$charm)"
-    echo "===== $charm ($charm_type) ====="
     (
-        # Systematically copy tox.ini files into repos
-        case $charm_type in
-            classic-zaza)
-                cp -fvp global/$charm_type/tox.ini charms/$charm/tox.ini
-                cp -fvp global/$charm_type/pip.sh charms/$charm/pip.sh
-                cp -fvp global/$charm_type/rename.sh charms/$charm/rename.sh
-                ;;
-            source-zaza)
-                cp -fvp global/$charm_type/tox.ini charms/$charm/tox.ini
-                cp -fvp global/$charm_type/pip.sh charms/$charm/pip.sh
-                cp -fvp global/$charm_type/src/tox.ini charms/$charm/src/tox.ini
-                cp -fvp global/$charm_type/rename.sh charms/$charm/rename.sh
-                ;;
-            ops-unknown)
-                cp -fvp global/$charm_type/tox.ini charms/$charm/tox.ini
-		;;
-            *)
-                echo "UNKNOWN TYPE -- do nothing"
-                ;;
-        esac
-
-        # Ensure certain directories exist, even if not otherwise required.
-        # Makes all repos consistent with things like the flake8 command paths.
-        # https://bugs.launchpad.net/bugs/1843826
-        case $charm_type in
-            classic-zaza)
-                if [ ! -d charms/$charm/files ]; then
-                    mkdir -v charms/$charm/files
-                    touch charms/$charm/files/.gitkeep
-                fi
-                ;;
-            source-zaza)
-                if [ ! -d charms/$charm/src/files ]; then
-                    mkdir -v charms/$charm/src/files
-                    touch charms/$charm/src/files/.gitkeep
-                fi
-                ;;
-            ops-unknown)
-                if [ ! -d charms/$charm/tests ]; then
-                    mkdir -v charms/$charm/tests
-                fi
-                ;;
-            *)
-                echo "UNKNOWN TYPE -- do nothing"
-                ;;
-        esac
-  )
+        cd "charms/$charm"
+        $script_dir/_update-tox-files-single
+    )
 done

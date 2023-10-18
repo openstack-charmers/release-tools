@@ -5,9 +5,6 @@ script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
 charm_type="$($script_dir/what-is .)"
 echo "===== $charm_type ====="
 case $charm_type in
-    source-zaza)
-        echo "Nothing to do."
-        ;;
     classic-zaza)
         echo "Updating classic charm."
         make sync

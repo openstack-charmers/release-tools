@@ -1,9 +1,19 @@
-Updates for testing period for 20.01 release
+Updates for testing period for xx.xx release
 
 * charm-helpers sync for classic charms
-* rebuild for reactive charms
+* build.lock file for reactive charms
 * ensure tox.ini is from release-tools
-* ensure requirements.txt files are from release-tools
-* On reactive charms:
-  - ensure master branch for charms.openstack
-  - ensure master branch for charm-helpers
+* Locked requirements using pip-compile:
+  * existing (test-)requirements.txt ->
+    (test-)requirements.in
+  * pip-compile to *-py3[8|10].txt using python3.8
+    and python3.10.
+  * Updated tox.ini to use the appropriate merged
+    requirements-*.txt files.
+* Removal of lunar from metadata, charmcraft.yaml
+  osci.yaml, tests.yaml and associated bundles.
+* Locked libs and tests to stable/bobcat branches for:
+  * charm-helpers
+  * charms.openstack
+  * zaza
+  * zaza-openstack-tests
