@@ -18,7 +18,7 @@ import sys
 SCRIPT_DIR = Path(__file__).parent.resolve()
 sys.path.append(str(SCRIPT_DIR.parent))
 
-from lib.lp_builder import get_lp_builder_config
+from lib.lp_builder import get_lp_builder_config, get_lp_builder_config_for
 
 
 logger = logging.getLogger(__name__)
@@ -397,7 +397,6 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
                 "directory when the script is called."))
     parser.add_argument('dir', nargs='?',
                         help="Optional directory argument")
-    group = parser.add_mutually_exclusive_group(required=True)
     parser.add_argument('--bundle',
                         dest='bundles',
                         action='append',
@@ -405,29 +404,50 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
                         metavar='FILE',
                         help=('Path to a bundle file to update. '
                               'May be repeated for multiple files to update'))
-    group.add_argument('--channel', '-c',
-                       dest='channel',
-                       type=str.lower,
-                       metavar='CHANNEL',
-                       help=('If present, adds channel spec to openstack '
-                             'charms. Must use --remove-channel if this is '
-                             'not supplied.')),
-    group.add_argument('--remove-channel',
-                       dest="remove_channel",
-                       help=("Remove the channel specifier.  Don't use with "
-                             "--channel."),
-                       action='store_true')
-    group.add_argument('--branch', '-b',
-                       dest='branches',
-                       action='append',
-                       metavar='BRANCH',
-                       type=str.lower,
-                       help=('If present, adds a channel spec to known charms '
-                             'in the lp-builder-config/*.yaml files using the '
-                             'branch to map to the charmhub spec. If the '
-                             'branch is not found, then the charm is ignored. '
-                             'May be repeated for multiple branches to test '
-                             'against.'))
+
+    channel_group = parser.add_mutually_exclusive_group(required=True)
+    channel_group.add_argument(
+        '--channel', '-c',
+        dest='channel',
+        type=str.lower,
+        metavar='CHANNEL',
+        help=('If present, adds channel spec to openstack charms. Must use '
+              '--remove-channel if this is not supplied.'))
+    channel_group.add_argument(
+        '--remove-channel',
+        dest="remove_channel",
+        help="Remove the channel specifier.  Don't use with --channel.",
+        action='store_true')
+    channel_group.add_argument(
+        '--branch', '-b',
+        dest='branches',
+        action='append',
+        metavar='BRANCH',
+        type=str.lower,
+        help=('If present, adds a channel spec to known charms in the '
+              'lp-builder-config/*.yaml files using the branch to map to the '
+              'charmhub spec. If the branch is not found, then the charm is '
+              'ignored. May be repeated for multiple branches to test '
+              'against.'))
+
+    charms_group = parser.add_mutually_exclusive_group(required=False)
+    charms_group.add_argument(
+        '--section', '-s',
+        dest="section",
+        type=str.lower,
+        help=("The section against which to apply the channel to. e.g. for "
+              "ceph charms, the reef/edge channel could be used, etc. Allows "
+              "scoping to specific sections of charms."))
+    charms_group.add_argument(
+        '--charm',
+        dest="charms",
+        action="append",
+        metavar="CHARM",
+        type=str.lower,
+        help=("Allow specifying one or more charms to apply the channel to. "
+              "This is used instead of the section to further refine what to "
+              "apply the channel rules to."))
+
     parser.add_argument('--ignore-track', '-i',
                         dest='ignore_tracks',
                         action='append',
@@ -517,7 +537,30 @@ def main() -> None:
     else:
         bundles = find_bundles_in_dirs(dirs)
     config = get_lp_builder_config()
+    # start off with all the known charms from the config.
     charms = list(config.keys())
+    if args.section:
+        # filter the list of charms according to the section.
+        try:
+            section_charms_config = get_lp_builder_config_for(args.section)
+        except KeyError:
+            logger.error("Unknown section: %s; aborting", args.section)
+            sys.exit(1)
+        charms = list(section_charms_config.keys())
+        logger.debug("Reducing scope of charms to: %s", ", ".join(charms))
+
+    if args.charms:
+        # this is a list of charms. First validate that they are okay, then use
+        # them as the match list.  Note that we allow unknowns if the user is
+        # trying to set the channel of a charm that isn't managed in the
+        # config.
+        unknowns = sorted(set(args.charms).difference(charms))
+        if unknowns:
+            logger.info(
+                "NOTE: the following charms are not in the configuration: %s",
+                ", ".join(unknowns))
+        charms = args.charms
+
     print(dirs, bundles, charms)
     local_charm = determine_charm(charm_dir) if args.set_local_charm \
         else None

@@ -1,5 +1,6 @@
 import glob
 import logging
+import os
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 import yaml
@@ -276,16 +277,34 @@ def get_lp_builder_config() -> LpConfig:
 
     {<charm-name>: {<branch-name>: [track/channel, ...]}}
 
+    Preferentially, if a $XDG_CONFIG_HOME/.config/charmhub_lp_tools/config.yaml
+    file exists, then it is used to determine the configuration.  If not, then
+    the module is used that was installed.  This is to allow interactive use to
+    override the version on github (e.g. if a PR hasn't landed yet).
+
     :returns: The charm <-> branch <-> track/channel mapping.
     """
     global _LP_CONFIG
     if _LP_CONFIG is not None:
         return _LP_CONFIG.copy()
     lp_config = {}
-    config_dir = files('charmed_openstack_info.data.lp-builder-config')
-    with as_file(config_dir) as cfg_dir:
-        for config_file in glob.glob(f'{cfg_dir}/*.yaml'):
+    # see if the local config is set up?
+    xdg_config_home = os.environ.get('XDG_CONFIG_HOME', None)
+    if xdg_config_home is None:
+        xdg_config_home = Path(os.environ['HOME']) / '.config'
+    local_config_file = (Path(xdg_config_home) / 'charmhub_lb_tools' /
+                         'config.yaml')
+
+    def _parse_files(_cfg_dir: Path | str) -> None:
+        for config_file in glob.glob(f'{_cfg_dir}/*.yaml'):
             lp_config.update(parse_lp_builder_config_file(Path(config_file)))
+
+    if local_config_file.exists():
+        _parse_files(local_config_file)
+    else:
+        config_dir = files('charmed_openstack_info.data.lp-builder-config')
+        with as_file(config_dir) as cfg_dir:
+            _parse_files(cfg_dir)
     _LP_CONFIG = lp_config
     return lp_config.copy()
 
