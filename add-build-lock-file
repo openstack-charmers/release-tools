@@ -45,7 +45,7 @@ case $charm_type in
             head -n 15 charmcraft.yaml
             # build the charm
             charmcraft clean
-            charmcraft -v pack
+            charmcraft -v pack --bases-index=0
             rm ${charm}*.charm
             # extract the build.lock file
             echo "extracting the build.lock file"
@@ -61,24 +61,6 @@ case $charm_type in
             charmcraft clean
         else
             echo " .. build.lock already exists"
-        fi
-        ;;
-    ops-zaza)
-        if [ ! -f .locked-requirements ]; then
-            echo "Building ops-zaza charm."
-            charmcraft clean
-            charmcraft -v pack
-            echo "extracking the pip freeze from the container."
-            charm=$(grep "charm_build_name" osci.yaml | awk '{print $2}')
-            $_dir/get-ops-pip-freeze $charm
-            echo "merge the requirements back to the requirements.txt"
-            $_dir/merge-ops-requirements-and-pip-freeze.py --output requirements.txt
-            rm pip-freeze.txt
-            touch .locked-requirements
-            echo "clean up charmcraft"
-            charmcraft clean
-        else
-            echo ".. .locked-requirements exists, so not re-doing"
         fi
         ;;
     *)

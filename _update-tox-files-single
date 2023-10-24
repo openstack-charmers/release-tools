@@ -1,0 +1,73 @@
+#!/bin/bash -e
+#  Update tox.ini files from global/*.  Assumes git clones have already
+#  been performed.  Does not commit, push, or submit/review.
+#  See `batch-example` for usage as a batch of charm updates.
+#
+#  Note this MUST be called from root of the charm that is being done.
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+charm_type="$($script_dir/what-is-binary .)"
+echo "===== $charm ($charm_type) ====="
+
+# Systematically copy tox.ini files into repos
+case $charm_type in
+    classic-zaza)
+        cp -fvp $script_dir/global/$charm_type/tox.ini tox.ini
+        cp -fvp $script_dir/global/$charm_type/rename.sh rename.sh
+        ;;
+    source-zaza)
+        cp -fvp $script_dir/global/source-zaza/tox-source-wheels.ini tox.ini
+        cp -fvp $script_dir/global/source-zaza/src/tox.ini src/tox.ini
+        cp -fvp $script_dir/global/source-zaza/rename.sh rename.sh
+        ;;
+    source-binary-zaza)
+        cp -fvp $script_dir/global/source-zaza/tox-binary-wheels.ini tox.ini
+        cp -fvp $script_dir/global/source-zaza/src/tox.ini src/tox.ini
+        ;;
+    ops-zaza)
+        cp -fvp $script_dir/global/$charm_type/tox.ini tox.ini
+        ;;
+    ops-unknown)
+        cp -fvp $script_dir/global/$charm_type/tox.ini tox.ini
+        ;;
+    *)
+        echo "UNKNOWN TYPE -- do nothing"
+        ;;
+esac
+
+# Ensure certain directories exist, even if not otherwise required.
+# Makes all repos consistent with things like the flake8 command paths.
+# https://bugs.launchpad.net/bugs/1843826
+case $charm_type in
+    classic-zaza)
+        if [ ! -d files ]; then
+            mkdir -v files
+            touch files/.gitkeep
+        fi
+        ;;
+    source-zaza)
+        if [ ! -d src/files ]; then
+            mkdir -v src/files
+            touch src/files/.gitkeep
+        fi
+        ;;
+    source-binary-zaza)
+        if [ ! -d src/files ]; then
+            mkdir -v src/files
+            touch src/files/.gitkeep
+        fi
+        ;;
+    ops-unknown)
+        if [ ! -d tests ]; then
+            mkdir -v tests
+        fi
+        ;;
+    ops-zaza)
+        if [ ! -d tests ]; then
+            mkdir -v tests
+        fi
+        ;;
+    *)
+        echo "UNKNOWN TYPE -- do nothing"
+        ;;
+esac

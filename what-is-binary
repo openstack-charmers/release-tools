@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+# determine the type of a charm, and if source-zaza whether it is binary or not
+# provides the extended "source-binary-zaza" name if the the charmcraft.yaml
+# includes --binary-wheels-from-source
+
+# $1 is the directory to verify check.
+charm_dir="$1"
+usage="Usage example: $0 ~/git/charm-aodh"
+
+if [ -z "$charm_dir" ]; then
+    echo $usage && exit 1
+fi
+
+charm_type=$($script_dir/what-is "$charm_dir")
+
+if [[ "$charm_type" == "source-zaza" ]]; then
+    # workout if "--binary-wheels-from-source" is in the charmcraft.yaml
+    if (grep -F -- "--binary-wheels-from-source" "$charm_dir/charmcraft.yaml" &> /dev/null); then
+        charm_type="source-binary-zaza"
+    fi
+fi
+
+echo "$charm_type"

@@ -66,14 +66,17 @@ def fetch_charms(charms: List[Charm],
             if not ignore_failure:
                 raise
 
-    def check_output(cmd: List[str]) -> str:
+    def check_output(cmd: List[str]) -> str | None:
         try:
             out = subprocess.check_output(cmd).decode()
+            return out
         except subprocess.CalledProcessError as e:
             logger.error("Error running command %s: %s", " ".join(cmd), str(e))
+            logger.error(e.stdout)
+            logger.error(e.stderr)
             if not ignore_failure:
                 raise
-        return out
+        return
 
     # ensure the where directory exists.
     where.mkdir(parents=True, exist_ok=True)
@@ -150,6 +153,9 @@ def fetch_charms(charms: List[Charm],
                 # now list the reviews and find the topic.
                 command = "git review -ll"
                 reviews = check_output(command.split())
+                if reviews is None:
+                    print(f"git review -ll returned nothing? ... moving on")
+                    return
                 matched_reviews = []
                 num = -1
                 for review in reviews.splitlines()[:-1]:

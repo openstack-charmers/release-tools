@@ -1,0 +1,16 @@
+#!/bin/bash -e
+# run the fetch-charms.py file with a virtualenv
+
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+params=$@
+
+if [ ! -d "${script_dir}/.tox/py3" ]; then
+    (
+        cd ${script_dir}
+        tox -e py3 --notest
+    )
+fi
+
+
+${script_dir}/.tox/py3/bin/python ${script_dir}/fetch-charms.py $params

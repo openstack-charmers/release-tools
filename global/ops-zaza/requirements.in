@@ -1,0 +1,4 @@
+ops>=1.5.0
+git+https://github.com/juju/charm-helpers#egg=charmhelpers
+git+https://opendev.org/openstack/charm-ops-openstack@master#egg=ops_openstack
+requests

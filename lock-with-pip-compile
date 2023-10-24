@@ -1,0 +1,215 @@
+#!/bin/bash -e
+# Convert requirements.txt, test-requirements.txt, build-requirements.txt and
+# any in src/ into *.in, and then build python310 requirements files from them.
+#
+# Needs to have python310 on the machine running the scripts. If the
+# python3.10-venv doesn't exist then it creates them and installs pip-tools.
+#
+# reactive and classic charms use py38+py310 to make two requirements.txt; ops
+# framework only uses py310 as the name 'requirements.txt' is used as part of
+# building the charm
+
+_dir="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+charm_type="$(${_dir}/what-is .)"
+
+## utility functions
+
+# install a venv for ${1}.
+# example "install_venv python3.8"
+function install_venv {
+    local version="${1}"
+    local venv_dir="${_dir}/${version}-venv"
+    if [ ! -e "${venv_dir}" ]; then
+        echo "Creating venv and installing python ${version}"
+        p_version=$(which ${version})
+        virtualenv -p "${p_version}" "${venv_dir}"
+        ${venv_dir}/bin/pip install pip-tools
+    else
+        echo "venv for python ${version} already installed."
+    fi
+}
+
+# Remove the .{suffix} from a filename, returning the path/to/the/file
+# call using base=$(sans_suffix the/thing.txt)
+# returns "the/thing"
+function sans_suffix {
+    local file="${1}"
+    # convert file (suffix .txt) to file (suffix.in)
+    local dirpart=$(dirname "$file")
+    local filename=$(basename -- "$file")
+    local name="${filename%.*}"
+
+    echo "${dirpart}/${name}"
+
+}
+
+
+# Move the something.txt to something.in if something.in doesn't exist.
+# Call with "maybe_move_txt_to_in something.txt"
+function maybe_move_txt_to_in {
+    local file="${1}"
+    # convert file (suffix .txt) to file (suffix .in)
+    local dirpart=$(dirname "$file")
+    local filename=$(basename -- "$file")
+    local extension="${filename##*.}"
+    local name="${filename%.*}"
+    if [[ "${extension}" != "txt" ]]; then
+        echo "expecting extension .txt, but got ${extension}"
+        exit 1
+    fi
+
+    in_file="${dirpart}/${name}.in"
+
+    if [ -e "${in_file}" ]; then
+        echo "in file ${in_file} already exists; not moving .txt -> .in"
+    else
+        echo "Moving file $file -> $in_file"
+        mv "$file" "$in_file"
+    fi
+}
+
+#
+# call as 'do_merged_pip_compile python3.8 py38 requirements.in test-requirements.in'
+# Generates merged-requirements-py38.txt"
+function do_merged_pip_compile {
+    local version="${1}"
+    local out_suffix="${2}"
+    shift
+    shift
+    local in_files=("$@")
+
+    local PIP_COMPILE="${_dir}/${version}-venv/bin/pip-compile"
+
+    if [ ! -e "${PIP_COMPILE}" ]; then
+        echo "pip-compile is missing at $PIP_COMPILE"
+        exit 1
+    fi
+
+    local out_file="merged-requirements-${out_suffix}.txt"
+
+    if [ -e "${out_file}" ]; then
+        echo "file ${out_file} already exists; not overwritting"
+        return
+    fi
+
+    local all_not_found=0
+    local not_found=()
+    for i in "${in_files[@]}"; do
+        if [ ! -e "$i" ]; then
+            not_found+=("$i")
+            all_not_found=1
+        fi
+    done
+
+    if [ $all_not_found -eq 1 ]; then
+        echo "${not_found[@]} files not found; not doing pip compile for $version"
+        exit 1
+    fi
+
+    echo "Running: $PIP_COMPILE -o ${out_file} ${in_files[@]}"
+    $PIP_COMPILE -o "${out_file}" ${in_files[@]}
+}
+
+
+# call as 'do_pip_compile python3.8 requirements.in requirements-py38.txt'
+# generates 'requirements-py38.txt'
+function do_pip_compile {
+    local version="${1}"
+    local in_file="${2}"
+    local out_file="${3}"
+
+    local PIP_COMPILE="${_dir}/${version}-venv/bin/pip-compile"
+
+    if [ ! -e "${PIP_COMPILE}" ]; then
+        echo "pip-compile is missing at $PIP_COMPILE"
+        exit 1
+    fi
+
+    if [ -e "${out_file}" ]; then
+        echo "file ${out_file} already exists; not overwritting"
+        return
+    fi
+
+    if [ ! -e "${in_file}" ]; then
+        echo "file ${in_file} doesn't exist, error!"
+        exit 1
+    fi
+
+    echo "Running: $PIP_COMPILE -o ${out_file} ${in_file}"
+    $PIP_COMPILE -o "${out_file}" "${in_file}"
+}
+
+# pip-compile a classic charm.  This:
+# * moves requirements.txt -> requirements.in if requirements.in doesn't exist
+# * moves test-requirements.txt -> test....in if the .in doesn't exist
+# * does a merge compile of the *.in -> merged-requirements-py38.txt
+# * does a merge compile of the *.in -> merged-requirements-py310.txt
+# * does a py38/py310 pip-compile of test-requirements.in ->
+#   test-requirements-py38.
+function lock_with_pip_compile_classic {
+    echo "Looking at requirements.txt and test-requirements.txt in . for pip-compile"
+    maybe_move_txt_to_in "requirements.txt"
+    maybe_move_txt_to_in "test-requirements.txt"
+
+    do_merged_pip_compile python3.8 py38 requirements.in test-requirements.in
+    do_merged_pip_compile python3.10 py310 requirements.in test-requirements.in
+    do_pip_compile python3.8 test-requirements.in test-requirements-py38.txt
+}
+
+
+# pip-compile a charms.reactive charm.  This has
+# * requirements.in, test-requirements.in and src/test-requirements.in
+# * Note converts the *.in from *.txt on first run; otherwise, if the *.in
+# exists, then they won't be moved.
+function lock_with_pip_compile_reactive {
+    echo "Doing a reactive charm."
+    maybe_move_txt_to_in "requirements.txt"
+    maybe_move_txt_to_in "test-requirements.txt"
+    maybe_move_txt_to_in "src/test-requirements.txt"
+
+    do_merged_pip_compile python3.8 py38 requirements.in test-requirements.in
+    do_merged_pip_compile python3.10 py310 requirements.in test-requirements.in
+    do_pip_compile python3.8 src/test-requirements.in src/test-requirements-py38.txt
+}
+
+
+# A machine ops charm is a bit more complicated.  The requirements.txt is used
+# in the charm; this will need to be kept as 'requirements.txt'.  The
+# test-requirements.txt is used for unit testing AND functional testing, and it
+# will be converted to test-requirements-py38.txt
+function lock_with_pip_compile_ops_machine {
+    echo "Doing a ops framework machine charm."
+    maybe_move_txt_to_in "requirements.txt"
+    maybe_move_txt_to_in "test-requirements.txt"
+
+    do_merged_pip_compile python3.8 py38 requirements.in test-requirements.in
+    do_merged_pip_compile python3.10 py310 requirements.in test-requirements.in
+    do_pip_compile python3.10 requirements.in requirements.txt
+}
+
+
+# install venvs for python3.8 and python3.10 for the pip-compile
+install_venv python3.8
+install_venv python3.10
+
+
+case $charm_type in
+    classic-zaza)
+        # merge the requirements into a single py38 and py310
+        # merged-requirement-py*.txt
+        echo "Locking $charm_type *.in"
+        lock_with_pip_compile_classic
+        ;;
+    source-zaza)
+        echo "Locking $charm_type *.in"
+        lock_with_pip_compile_reactive
+        ;;
+    ops-zaza)
+        echo "Locking $charm_type *.in"
+        lock_with_pip_compile_ops_machine
+        ;;
+    *)
+        echo " .. Not locking $charm-type"
+        ;;
+esac
