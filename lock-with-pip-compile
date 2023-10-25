@@ -171,6 +171,8 @@ function lock_with_pip_compile_reactive {
     do_merged_pip_compile python3.8 py38 requirements.in test-requirements.in
     do_merged_pip_compile python3.10 py310 requirements.in test-requirements.in
     do_pip_compile python3.8 src/test-requirements.in src/test-requirements-py38.txt
+    do_pip_compile python3.8 test-requirements.in test-requirements-py38.txt
+    do_pip_compile python3.10 test-requirements.in test-requirements-py310.txt
 }
 
 
@@ -192,6 +194,7 @@ function lock_with_pip_compile_ops_machine {
 # install venvs for python3.8 and python3.10 for the pip-compile
 install_venv python3.8
 install_venv python3.10
+install_venv python3.11
 
 
 case $charm_type in
