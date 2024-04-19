@@ -11,9 +11,7 @@ import os
 import sys
 import collections
 
-# from ruamel.yaml import YAML
-import ruamel.yaml as YAML
-
+from ruamel.yaml import YAML
 
 Command = collections.namedtuple('Command', ['charm', 'cmd', 'params'])
 
@@ -80,12 +78,14 @@ def metadata_file(cmd):
 
 def load_yaml(cmd):
     with open(metadata_file(cmd)) as f:
-        return YAML.load(f, YAML.RoundTripLoader)
+        yaml = YAML(typ='rt')
+        return yaml.load(f)
 
 
 def write_yaml(cmd, yml):
     with open(metadata_file(cmd), "w") as f:
-        YAML.dump(yml, f, Dumper=YAML.RoundTripDumper)
+        yaml = YAML(typ='rt')
+        yaml.dump(yml, f)
 
 
 def list_series(yml):
