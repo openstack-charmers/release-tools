@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Update the charmcraft.yaml to have some build-on and run-on lines.
+# Update the charmcraft.yaml
 
 import argparse
 import logging
@@ -72,6 +72,24 @@ def delete_bases(args: argparse.Namespace, charmcraft: Any) -> Any:
     charmcraft['bases'] = modified_bases
     return charmcraft
 
+def cc3ify(args: argparse.Namespace, charmcraft: Any) -> Any:
+    try:
+        _ = charmcraft['bases']
+    except KeyError:
+        logger.error("'bases' not found in charmcraft document, already charmcraft3.yaml?")
+        raise
+
+    # from bases -> base
+    del charmcraft['bases']
+    charmcraft['base'] = args.base
+    charmcraft['build-base'] = args.base
+    # also add platforms
+    charmcraft['platforms'] = {}
+    platforms = args.platforms.split(',')
+    for platform in platforms:
+        charmcraft['platforms'][platform] = ""
+
+    return charmcraft
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
     """Parse command line arguments.
@@ -107,6 +125,22 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
         required=True,
         help="The base to remove; repeat for more than one base.")
     delete_command.set_defaults(func=delete_bases)
+
+    cc3ify_command = subparser.add_parser(
+        'cc3ify',
+        help=('Convert a charmcraft.yaml file to a charmcraft3.yaml file.'))
+    cc3ify_command.add_argument(
+        '--base', '-b',
+        dest='base',
+        required=True,
+        help="The base to use (for building and running)")
+    cc3ify_command.add_argument(
+        '--platforms', '-p',
+        dest='platforms',
+        required=False,
+        default="amd64,arm64,s390x,ppc64el",
+        help="The platforms to use as a comma sep. list.")
+    cc3ify_command.set_defaults(func=cc3ify)
 
     return parser.parse_args(argv)
 
