@@ -87,7 +87,10 @@ def cc3ify(args: argparse.Namespace, charmcraft: Any) -> Any:
     charmcraft['platforms'] = {}
     platforms = args.platforms.split(',')
     for platform in platforms:
-        charmcraft['platforms'][platform] = ""
+        charmcraft['platforms'][platform] = {
+            "build-on": platform,
+            "build-for": platform,
+        }
 
     return charmcraft
 
