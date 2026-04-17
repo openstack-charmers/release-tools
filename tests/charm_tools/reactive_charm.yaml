@@ -1,0 +1,13 @@
+parts:
+  charm:
+    source: src/
+    plugin: reactive
+    reactive-charm-build-arguments:
+      - --verbose
+    build-packages:
+      - libpython3-dev
+    build-snaps:
+      - charm
+    build-environment:
+      - CHARM_INTERFACES_DIR: /root/project/interfaces/
+      - CHARM_LAYERS_DIR: /root/project/layers/

@@ -118,6 +118,78 @@ platforms:
   # … one entry per build-for arch
 ```
 
+#### `charm-tools`
+
+Updates `parts.charm` in a `charmcraft.yaml` for **reactive** charms
+(i.e. charms where `parts.charm.plugin` is `reactive`).
+Non-reactive charms are left unchanged.
+
+```
+_update-charmcraft.py <file> charm-tools [--channel <channel>] [--add-build-arguments <arg,...>]
+```
+
+Both flags are optional and can be combined.
+
+##### `--channel`
+
+Sets the `charm` snap channel in `parts.charm.build-snaps`.  Any existing
+`charm` or `charm/<old-channel>` entry is replaced in-place; the entry is
+appended if none exists.  When omitted, `build-snaps` is left unchanged.
+
+```bash
+_update-charmcraft.py charmcraft.yaml charm-tools --channel 3.x/stable
+```
+
+Result:
+
+```yaml
+parts:
+  charm:
+    plugin: reactive
+    build-snaps:
+      - charm/3.x/stable
+```
+
+##### `--add-build-arguments`
+
+Appends one or more arguments to `parts.charm.reactive-charm-build-arguments`.
+The value is a comma-separated list of strings.  Arguments already present in
+the list are silently skipped (no duplicates).  The section is created if it
+does not already exist.
+
+```bash
+_update-charmcraft.py charmcraft.yaml charm-tools --add-build-arguments="-v,--use-lock-file-branches"
+```
+
+Input:
+
+```yaml
+parts:
+  charm:
+    plugin: reactive
+    reactive-charm-build-arguments:
+      - --binary-wheels-from-source
+```
+
+Output:
+
+```yaml
+parts:
+  charm:
+    plugin: reactive
+    reactive-charm-build-arguments:
+      - --binary-wheels-from-source
+      - -v
+      - --use-lock-file-branches
+```
+
+Both flags can be used together:
+
+```bash
+_update-charmcraft.py charmcraft.yaml charm-tools \
+    --channel 3.x/stable \
+    --add-build-arguments="--binary-wheels-from-source,--use-lock-file-branches"
+```
 ## To-Do
 
 * Refactor and streamline into a cleaner charm-pusher python module which reads a centralized list of charms and series, expressed in yaml.  Or something more elegant.

@@ -255,6 +255,72 @@ def cc3ify(args: argparse.Namespace, charmcraft: Any) -> Any:
 
     return charmcraft
 
+def charm_tools(args: argparse.Namespace, charmcraft: Any) -> Any:
+    """Set the charm snap with a specific channel in build-snaps for reactive charms.
+
+    Looks for parts.charm.plugin == 'reactive' and updates the build-snaps list
+    so that the 'charm' entry becomes 'charm/<channel>'.
+    """
+    try:
+        parts = charmcraft['parts']
+    except KeyError:
+        logger.warning("'parts' not found in charmcraft document. Skipping.")
+        return charmcraft
+
+    try:
+        charm_part = parts['charm']
+    except KeyError:
+        logger.warning("'parts.charm' not found in charmcraft document. Skipping.")
+        return charmcraft
+
+    plugin = charm_part.get('plugin', '')
+    if plugin != 'reactive':
+        logger.warning(
+            "'parts.charm.plugin' is '%s', expected 'reactive'. Skipping.", plugin)
+        return charmcraft
+
+    channel = args.channel
+    if channel is not None:
+        new_snap = f"charm/{channel}"
+        build_snaps = charm_part.get('build-snaps', None)
+        if build_snaps is None:
+            charm_part['build-snaps'] = [new_snap]
+            logger.info("Created 'build-snaps' with '%s'.", new_snap)
+        else:
+            # Replace any existing 'charm' or 'charm/<something>' entry, or append.
+            replaced = False
+            for i, snap in enumerate(build_snaps):
+                snap_str = str(snap)
+                if snap_str == 'charm' or snap_str.startswith('charm/'):
+                    build_snaps[i] = new_snap
+                    replaced = True
+                    logger.info("Updated build-snaps entry to '%s'.", new_snap)
+                    break
+
+            if not replaced:
+                build_snaps.append(new_snap)
+                logger.info("Appended '%s' to build-snaps.", new_snap)
+    else:
+        logger.info("No --channel provided; leaving build-snaps unchanged.")
+
+    # Handle --add-build-arguments
+    new_args = getattr(args, 'add_build_arguments', None)
+    if new_args:
+        build_arguments = charm_part.get('reactive-charm-build-arguments', None)
+        if build_arguments is None:
+            charm_part['reactive-charm-build-arguments'] = list(new_args)
+            logger.info("Created 'reactive-charm-build-arguments' with %s.", new_args)
+        else:
+            for arg in new_args:
+                if arg not in build_arguments:
+                    build_arguments.append(arg)
+                    logger.info("Appended '%s' to reactive-charm-build-arguments.", arg)
+                else:
+                    logger.info("'%s' already in reactive-charm-build-arguments, skipping.", arg)
+
+    return charmcraft
+
+
 def parse_args(argv: List[str]) -> argparse.Namespace:
     """Parse command line arguments.
 
@@ -310,6 +376,27 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
               "When not provided, the architectures are inferred from the 'bases' "
               "section. Ignored when multiple bases are detected (multi-base mode)."))
     cc3ify_command.set_defaults(func=cc3ify)
+
+    charm_tools_command = subparser.add_parser(
+        'charm-tools',
+        help=('Set the charm snap channel in build-snaps for reactive charms.'))
+    charm_tools_command.add_argument(
+        '--channel', '-c',
+        dest='channel',
+        required=False,
+        default=None,
+        help="The snap channel to use for the charm snap (e.g. '3.x/stable'). "
+             "When not provided, the build-snaps section is left unchanged.")
+    charm_tools_command.add_argument(
+        '--add-build-arguments',
+        dest='add_build_arguments',
+        required=False,
+        default=None,
+        type=lambda s: [a.strip() for a in s.split(',')],
+        help=("Comma-separated list of arguments to add to "
+              "'parts.charm.reactive-charm-build-arguments' (reactive plugin only). "
+              "Example: '--add-build-arguments=-v,--use-lock-file-branches'"))
+    charm_tools_command.set_defaults(func=charm_tools)
 
     return parser.parse_args(argv)
 
