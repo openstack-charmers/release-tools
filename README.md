@@ -190,6 +190,76 @@ _update-charmcraft.py charmcraft.yaml charm-tools \
     --channel 3.x/stable \
     --add-build-arguments="--binary-wheels-from-source,--use-lock-file-branches"
 ```
+
+## `update-tox.py`
+
+A tool for modifying `tox.ini` files in charm repositories.
+
+### Subcommands
+
+#### `add-py3`
+
+Adds a new `[testenv:pyXYZ]` section to a `tox.ini` file by cloning an
+existing section and substituting the Python version throughout (section
+header, `basepython`, requirements filenames, etc.).
+
+The new section is inserted immediately after the template section.  If the
+target section already exists the command exits successfully without making
+any changes.
+
+```
+update-tox.py add-py3 --version <new-version> --template <existing-version> [--tox-ini <path>]
+```
+
+| Argument | Required | Default | Description |
+|---|---|---|---|
+| `--version` | yes | — | Python version to add, e.g. `3.12` |
+| `--template` | yes | — | Existing Python version to clone, e.g. `3.10` |
+| `--tox-ini` | no | `tox.ini` | Path to the `tox.ini` file to modify |
+
+**Example** — add a `py312` section based on the existing `py310` section:
+
+```bash
+python3 update-tox.py add-py3 --version 3.12 --template 3.10
+```
+
+Given this input in `tox.ini`:
+
+```ini
+[testenv:py310]
+basepython = python3.10
+deps =
+    -c {env:TEST_CONSTRAINTS_FILE:https://raw.githubusercontent.com/openstack-charmers/zaza-openstack-tests/master/constraints/constraints-2024.1.txt}
+    -r{toxinidir}/test-requirements-py310.txt
+commands = stestr run --slowest {posargs}
+```
+
+The following section is appended immediately after it:
+
+```ini
+[testenv:py312]
+basepython = python3.12
+deps =
+    -c {env:TEST_CONSTRAINTS_FILE:https://raw.githubusercontent.com/openstack-charmers/zaza-openstack-tests/master/constraints/constraints-2024.1.txt}
+    -r{toxinidir}/test-requirements-py312.txt
+commands = stestr run --slowest {posargs}
+```
+
+To target a specific `tox.ini` in a charm subdirectory:
+
+```bash
+python3 update-tox.py add-py3 --version 3.12 --template 3.10 \
+    --tox-ini charms/my-charm/tox.ini
+```
+
+### Batch usage
+
+To apply `add-py3` across all charm repos at once, combine with `do-batch-with`:
+
+```shell
+./do-batch-with update-tox add-py3 --version 3.12 --template 3.10
+```
+
 ## To-Do
 
 * Refactor and streamline into a cleaner charm-pusher python module which reads a centralized list of charms and series, expressed in yaml.  Or something more elegant.
