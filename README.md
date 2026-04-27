@@ -24,6 +24,242 @@ File | Purpose / Note
 ```what-is```               | Tactical tool to identify the charm type (classic or source) based solely on the contents of the cloned repo directory.
 ```_*```                    | Not typically used as stand-alone tools;  generally used as a call from another script (see batch-example).
 
+## `_update-charmcraft.py`
+
+A tool for migrating and modifying `charmcraft.yaml` files in charm repositories.
+It preserves the original YAML formatting as much as possible to keep diffs minimal.
+
+### Batch usage
+
+```shell
+./do-batch-with update-charmcraft <file> <subcommand> ...
+```
+
+### Subcommands
+
+#### `delete`
+
+Removes one or more `build-on`/`run-on` entries from the `bases` section by channel
+(Ubuntu series). Handles both the short form (a `channel` key directly on the base
+entry) and the long form (`build-on`/`run-on` sub-keys).
+
+```
+_update-charmcraft.py <file> delete --base <channel> [--base <channel> ...]
+```
+
+Example — remove the Ubuntu 20.04 entries from a `charmcraft.yaml`:
+
+```bash
+_update-charmcraft.py charmcraft.yaml delete --base 20.04
+```
+
+#### `cc3ify`
+
+Converts a `charmcraft.yaml` from the deprecated charmcraft v2 `bases` format to
+the charmcraft v3 `platforms` format.  The appropriate output style is chosen
+automatically by inspecting the `bases` section:
+
+| Input shape | Output style |
+|---|---|
+| Single base, `build-on` == `run-on` per entry | Top-level `base` + `build-base` keys, shorthand arch platform keys (`amd64:`, `arm64:`, …) |
+| Multiple bases, `build-on` == `run-on` per entry | Multi-base shorthand (`ubuntu@22.04:amd64:`, `ubuntu@24.04:arm64:`, …) — no top-level `base`/`build-base` |
+| Any entry where `build-on` ≠ `run-on` (cross-build) | Standard multi-base notation — one platform entry per `build-for` arch, each with a single-element `build-for` list |
+
+```
+_update-charmcraft.py <file> cc3ify [--base <base>] [--platforms <arch,...>]
+```
+
+`--base` and `--platforms` are optional overrides for single-base mode.
+When not provided, values are inferred from the `bases` section.
+Both flags are ignored in cross-build and multi-base shorthand modes.
+
+**Example 1** — single base, inferred from file:
+
+```bash
+_update-charmcraft.py charmcraft.yaml cc3ify
+```
+
+Result:
+
+```yaml
+base: ubuntu@22.04
+build-base: ubuntu@22.04
+platforms:
+  amd64:
+  arm64:
+  ppc64el:
+  s390x:
+```
+
+**Example 2** — multiple bases, identical `build-on`/`run-on` per entry (shorthand):
+
+```yaml
+platforms:
+  ubuntu@22.04:amd64:
+  ubuntu@22.04:arm64:
+  ubuntu@24.04:amd64:
+  ubuntu@24.04:arm64:
+```
+
+**Example 3** — cross-build (`build-on` amd64 only, `run-on` multiple arches):
+
+```yaml
+platforms:
+  ubuntu-22.04-amd64:
+    build-on:
+      - ubuntu@22.04:amd64
+    build-for:
+      - ubuntu@22.04:amd64
+  ubuntu-22.04-arm64:
+    build-on:
+      - ubuntu@22.04:amd64
+    build-for:
+      - ubuntu@22.04:arm64
+  # … one entry per build-for arch
+```
+
+#### `charm-tools`
+
+Updates `parts.charm` in a `charmcraft.yaml` for **reactive** charms
+(i.e. charms where `parts.charm.plugin` is `reactive`).
+Non-reactive charms are left unchanged.
+
+```
+_update-charmcraft.py <file> charm-tools [--channel <channel>] [--add-build-arguments <arg,...>]
+```
+
+Both flags are optional and can be combined.
+
+##### `--channel`
+
+Sets the `charm` snap channel in `parts.charm.build-snaps`.  Any existing
+`charm` or `charm/<old-channel>` entry is replaced in-place; the entry is
+appended if none exists.  When omitted, `build-snaps` is left unchanged.
+
+```bash
+_update-charmcraft.py charmcraft.yaml charm-tools --channel 3.x/stable
+```
+
+Result:
+
+```yaml
+parts:
+  charm:
+    plugin: reactive
+    build-snaps:
+      - charm/3.x/stable
+```
+
+##### `--add-build-arguments`
+
+Appends one or more arguments to `parts.charm.reactive-charm-build-arguments`.
+The value is a comma-separated list of strings.  Arguments already present in
+the list are silently skipped (no duplicates).  The section is created if it
+does not already exist.
+
+```bash
+_update-charmcraft.py charmcraft.yaml charm-tools --add-build-arguments="-v,--use-lock-file-branches"
+```
+
+Input:
+
+```yaml
+parts:
+  charm:
+    plugin: reactive
+    reactive-charm-build-arguments:
+      - --binary-wheels-from-source
+```
+
+Output:
+
+```yaml
+parts:
+  charm:
+    plugin: reactive
+    reactive-charm-build-arguments:
+      - --binary-wheels-from-source
+      - -v
+      - --use-lock-file-branches
+```
+
+Both flags can be used together:
+
+```bash
+_update-charmcraft.py charmcraft.yaml charm-tools \
+    --channel 3.x/stable \
+    --add-build-arguments="--binary-wheels-from-source,--use-lock-file-branches"
+```
+
+## `update-tox.py`
+
+A tool for modifying `tox.ini` files in charm repositories.
+
+### Subcommands
+
+#### `add-py3`
+
+Adds a new `[testenv:pyXYZ]` section to a `tox.ini` file by cloning an
+existing section and substituting the Python version throughout (section
+header, `basepython`, requirements filenames, etc.).
+
+The new section is inserted immediately after the template section.  If the
+target section already exists the command exits successfully without making
+any changes.
+
+```
+update-tox.py add-py3 --version <new-version> --template <existing-version> [--tox-ini <path>]
+```
+
+| Argument | Required | Default | Description |
+|---|---|---|---|
+| `--version` | yes | — | Python version to add, e.g. `3.12` |
+| `--template` | yes | — | Existing Python version to clone, e.g. `3.10` |
+| `--tox-ini` | no | `tox.ini` | Path to the `tox.ini` file to modify |
+
+**Example** — add a `py312` section based on the existing `py310` section:
+
+```bash
+python3 update-tox.py add-py3 --version 3.12 --template 3.10
+```
+
+Given this input in `tox.ini`:
+
+```ini
+[testenv:py310]
+basepython = python3.10
+deps =
+    -c {env:TEST_CONSTRAINTS_FILE:https://raw.githubusercontent.com/openstack-charmers/zaza-openstack-tests/master/constraints/constraints-2024.1.txt}
+    -r{toxinidir}/test-requirements-py310.txt
+commands = stestr run --slowest {posargs}
+```
+
+The following section is appended immediately after it:
+
+```ini
+[testenv:py312]
+basepython = python3.12
+deps =
+    -c {env:TEST_CONSTRAINTS_FILE:https://raw.githubusercontent.com/openstack-charmers/zaza-openstack-tests/master/constraints/constraints-2024.1.txt}
+    -r{toxinidir}/test-requirements-py312.txt
+commands = stestr run --slowest {posargs}
+```
+
+To target a specific `tox.ini` in a charm subdirectory:
+
+```bash
+python3 update-tox.py add-py3 --version 3.12 --template 3.10 \
+    --tox-ini charms/my-charm/tox.ini
+```
+
+### Batch usage
+
+To apply `add-py3` across all charm repos at once, combine with `do-batch-with`:
+
+```shell
+./do-batch-with update-tox add-py3 --version 3.12 --template 3.10
+```
+
 ## To-Do
 
 * Refactor and streamline into a cleaner charm-pusher python module which reads a centralized list of charms and series, expressed in yaml.  Or something more elegant.

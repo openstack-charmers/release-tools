@@ -1,0 +1,25 @@
+type: charm
+
+parts:
+  charm:
+    source: src/
+    plugin: reactive
+    reactive-charm-build-arguments:
+      - --verbose
+    build-packages:
+      - libpython3-dev
+    build-snaps:
+      - charm
+    build-environment:
+      - CHARM_INTERFACES_DIR: /root/project/interfaces/
+      - CHARM_LAYERS_DIR: /root/project/layers/
+
+platforms:
+  ubuntu@22.04:amd64:
+  ubuntu@22.04:arm64:
+  ubuntu@22.04:ppc64el:
+  ubuntu@22.04:s390x:
+  ubuntu@24.04:amd64:
+  ubuntu@24.04:arm64:
+  ubuntu@24.04:ppc64el:
+  ubuntu@24.04:s390x:
